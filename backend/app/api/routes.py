@@ -3,7 +3,7 @@
 from collections.abc import AsyncIterator
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 from sse_starlette import EventSourceResponse
 
 from app.api.schemas import (
@@ -11,7 +11,11 @@ from app.api.schemas import (
     ConversationDetail,
     ConversationSummary,
     HealthResponse,
+    ObservabilitySummary,
+    ObservabilityTraceDetail,
+    ObservabilityTraces,
 )
+from app.core import observability_queries
 from app.core.contracts import A2AMessage, AgentCard
 from app.core.orchestrator import Orchestrator
 
@@ -60,3 +64,29 @@ async def conversation_a2a(conversation_id: str, orchestrator: OrchestratorDep) 
 @router.get("/health", response_model=HealthResponse)
 async def health(orchestrator: OrchestratorDep) -> dict[str, Any]:
     return await orchestrator.health()
+
+
+# --- Observability dashboard: Langfuse reads stay server-side, keys never reach the browser ---
+
+
+@router.get("/observability/summary", response_model=ObservabilitySummary)
+async def observability_summary(days: Annotated[int, Query(ge=1, le=30)] = 7) -> dict[str, Any]:
+    return await observability_queries.observability_summary(days)
+
+
+@router.get("/observability/traces", response_model=ObservabilityTraces)
+async def observability_traces(
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    days: Annotated[int, Query(ge=1, le=30)] = 7,
+) -> dict[str, Any]:
+    return await observability_queries.observability_traces(limit, days)
+
+
+@router.get("/observability/traces/{trace_id}", response_model=ObservabilityTraceDetail)
+async def observability_trace(
+    trace_id: Annotated[str, Path(pattern=r"^[A-Za-z0-9_-]{1,128}$")],
+) -> dict[str, Any]:
+    detail = await observability_queries.observability_trace(trace_id)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Trace not found in Langfuse")
+    return detail

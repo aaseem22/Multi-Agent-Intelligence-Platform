@@ -134,6 +134,18 @@ class DepartmentAgent(ABC):
         AgentAnswer -> AgentResult, then eval_hooks.self_check), sets the AgentInvocation
         context, emits agent_started / tool_call / agent_result / eval_result events, and applies
         LLM retries and the recursion limit. `context` holds results of dependency subtasks whose
-        evidence this run may cite. Implemented by the core runtime.
+        evidence this run may cite. Implemented in app/core/agent_runtime.py.
         """
-        raise NotImplementedError("DepartmentAgent.run is implemented by the core runtime")
+        from app.core.agent_runtime import run_department_agent
+
+        return await run_department_agent(
+            self,
+            instruction,
+            subtask_id=subtask_id,
+            mode=mode,
+            hop_count=hop_count,
+            chain=chain,
+            context=context,
+            run_name=run_name,
+            metadata=metadata,
+        )

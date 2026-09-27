@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+/*
+  Dispatch-board palette: cool paper, navy chrome, and one colour per agent so a
+  message can be traced across the plan, the status list and the A2A rail.
+*/
+@theme {
+  --font-sans: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Mono", "Roboto Mono", ui-monospace, monospace;
+
+  --color-paper: #edf0f3;
+  --color-surface: #ffffff;
+  --color-ink: #1b2433;
+  --color-muted: #5e6a7d;
+  --color-faint: #8b96a8;
+  --color-line: #d6dce4;
+  --color-chrome: #1d2b53;
+  --color-chrome-soft: #2a3a68;
+  --color-chrome-text: #c9d3ea;
+  --color-signal: #f2c94c;
+
+  --color-agent-ceo: #a87c0c;
+  --color-agent-finance: #1f8a5b;
+  --color-agent-hr: #b4508f;
+  --color-agent-tech: #2f6fd6;
+  --color-agent-other: #6b5bd2;
+
+  --color-ok: #1f8a5b;
+  --color-warn: #b7791f;
+  --color-fail: #c0392b;
+
+  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
+  --animate-enter: enter 0.25s ease-out;
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-agent-tech);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

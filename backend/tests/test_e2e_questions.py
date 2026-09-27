@@ -22,6 +22,9 @@ from app.core.orchestrator import Orchestrator
 
 pytestmark = [
     pytest.mark.live,
+    # One event loop for the module: the Gemini SDK keeps async clients bound to the loop
+    # that created them, so a fresh loop per test hangs on the second question.
+    pytest.mark.asyncio(loop_scope="module"),
     pytest.mark.skipif(not get_settings().google_api_key, reason="GOOGLE_API_KEY not set"),
 ]
 

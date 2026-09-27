@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -15,17 +16,20 @@ class Settings(BaseSettings):
     )
 
     google_api_key: str = ""
-    gemini_ceo_model: str = "gemini-3.8-flash"
+    gemini_ceo_model: str = "gemini-3.5-flash-lite"
     gemini_agent_model: str = "gemini-3.5-flash-lite"
-    gemini_judge_model: str = "gemini-3.6-flash"
-    llm_requests_per_second: float = 0.2
+    gemini_judge_model: str = "gemini-2.5-flash-lite"
+    llm_requests_per_second: float = 0.22
     llm_max_concurrency: int = 2
     llm_max_retries: int = 4
     llm_timeout_seconds: float = 120.0
 
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
-    langfuse_host: str = "https://cloud.langfuse.com"
+    langfuse_host: str = Field(
+        default="https://cloud.langfuse.com",
+        validation_alias=AliasChoices("LANGFUSE_HOST", "LANGFUSE_BASE_URL"),
+    )
 
     github_token: str = ""
     github_owner: str = ""

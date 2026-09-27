@@ -11,3 +11,9 @@ node_modules/
 frontend/dist/
 .claude/worktrees/
 .claude/settings.local.json
+.env.example
+.MTech-Project_Review2_PPT_Template_V1.pptx
+
+# Local-only files
+.env.example
+MTech-Project_Review2_PPT_Template_V1.pptx

@@ -1,11 +1,17 @@
 import { useCallback, useSyncExternalStore } from "react";
 
-export type Route = { page: "chat"; conversationId: string | null } | { page: "agents" };
+export type Route =
+  | { page: "chat"; conversationId: string | null }
+  | { page: "agents" }
+  | { page: "observability"; traceId: string | null };
 
 function parse(hash: string): Route {
   const path = hash.replace(/^#/, "");
   const parts = path.split("/").filter(Boolean);
   if (parts[0] === "agents") return { page: "agents" };
+  if (parts[0] === "observability") {
+    return { page: "observability", traceId: parts[1] ? decodeURIComponent(parts[1]) : null };
+  }
   if (parts[0] === "chat" && parts[1]) return { page: "chat", conversationId: decodeURIComponent(parts[1]) };
   return { page: "chat", conversationId: null };
 }
@@ -23,7 +29,11 @@ export function chatHref(conversationId: string | null): string {
 
 export const AGENTS_HREF = "#/agents";
 
-/** Tiny hash router: enough for three screens without pulling in a routing library. */
+export function observabilityHref(traceId: string | null = null): string {
+  return traceId ? `#/observability/${encodeURIComponent(traceId)}` : "#/observability";
+}
+
+/** Tiny hash router: enough for four screens without pulling in a routing library. */
 export function useHashRoute(): [Route, (href: string) => void] {
   const hash = useSyncExternalStore(subscribe, getHash);
   const navigate = useCallback((href: string) => {

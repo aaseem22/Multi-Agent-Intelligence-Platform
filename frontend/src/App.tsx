@@ -1,10 +1,13 @@
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { backend } from "./api/backend";
 import { Sidebar } from "./components/Sidebar";
 import { chatHref, useHashRoute } from "./hooks/useHashRoute";
 import { useResource } from "./hooks/useResource";
 import { AgentsPage } from "./pages/AgentsPage";
 import { ChatPage } from "./pages/ChatPage";
+
+// The observability dashboard has its own theme, fonts and charts; load it only when opened.
+const ObservabilityPage = lazy(() => import("./observability/ObservabilityPage"));
 
 const fetchConversations = (signal: AbortSignal) => backend.getConversations(signal);
 const fetchHealth = (signal: AbortSignal) => backend.getHealth(signal);
@@ -19,6 +22,14 @@ export default function App() {
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   const sidebarProps = { route, history, onRetryHistory: reloadHistory, health, mode: backend.mode };
+
+  if (route.page === "observability") {
+    return (
+      <Suspense fallback={<div className="h-full bg-[#05080e]" aria-busy="true" />}>
+        <ObservabilityPage traceId={route.traceId} navigate={navigate} />
+      </Suspense>
+    );
+  }
 
   return (
     <div className="flex h-full flex-col md:flex-row">

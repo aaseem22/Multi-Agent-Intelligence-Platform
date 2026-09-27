@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { formatRelative } from "../lib/format";
-import { AGENTS_HREF, chatHref, type Route } from "../hooks/useHashRoute";
+import { AGENTS_HREF, chatHref, observabilityHref, type Route } from "../hooks/useHashRoute";
 import type { Resource } from "../hooks/useResource";
 import type { ConversationSummary, HealthResponse } from "../types/api";
 import { Spinner } from "./States";
@@ -136,6 +136,9 @@ export function Sidebar({ route, history, onRetryHistory, health, mode, onNaviga
         </NavLink>
         <NavLink href={AGENTS_HREF} active={route.page === "agents"} onNavigate={onNavigate}>
           Agents
+        </NavLink>
+        <NavLink href={observabilityHref()} active={false} onNavigate={onNavigate}>
+          Observability
         </NavLink>
       </div>
       <h2 className="flex items-baseline gap-2 border-t border-rule-strong pt-3 pb-1 text-xs font-semibold text-graphite">

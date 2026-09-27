@@ -32,6 +32,7 @@ dev = [
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
+addopts = "-m 'not live'"
 markers = ["live: calls the real Gemini API; skipped unless GOOGLE_API_KEY is set"]
 
 [tool.ruff]

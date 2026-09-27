@@ -43,7 +43,7 @@ from app.core.events import (
     FinalEvent,
     PlanEvent,
 )
-from app.core.llm import get_agent_semaphore, with_llm_retries
+from app.core.llm import get_agent_semaphore
 from app.core.registry import registry
 from app.core.state import (
     RESET,
@@ -187,9 +187,8 @@ async def plan_node(state: OrchestratorState) -> dict[str, Any]:
     cards: list[AgentCard] = registry.department_cards()
     history = (state.get("history") or [])[-2 * HISTORY_TURNS_FOR_PLANNER :]
     try:
-        raw_plan = await with_llm_retries(
-            lambda: supervisor.plan(state["question"], history, cards)
-        )
+        # The supervisor owns its LLM calls, including transport retries.
+        raw_plan = await supervisor.plan(state["question"], history, cards)
         plan = _normalise_plan(raw_plan)
     except Exception as exc:
         logger.exception("Planning failed")
@@ -334,9 +333,7 @@ async def synthesise(state: OrchestratorState) -> dict[str, Any]:
     try:
         if supervisor is None:
             raise RuntimeError("No supervisor agent is registered")
-        final = await with_llm_retries(
-            lambda: supervisor.synthesise(state["question"], subtasks, results)
-        )
+        final = await supervisor.synthesise(state["question"], subtasks, results)
     except Exception as exc:
         logger.exception("Synthesis failed; using fallback answer")
         emit(

@@ -80,7 +80,11 @@ class PeerCitingModel(ScriptedChatModel):
     hr_refs: list[str] = []
 
     def _generate(
-        self, messages: list[BaseMessage], stop: list[str] | None = None, **kwargs: Any
+        self,
+        messages: list[BaseMessage],
+        stop: list[str] | None = None,
+        run_manager: Any = None,
+        **kwargs: Any,
     ) -> ChatResult:
         last = messages[-1]
         if isinstance(last, ToolMessage) and last.name == "ask_agent":

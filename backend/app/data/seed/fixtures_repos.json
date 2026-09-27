@@ -1,0 +1,4263 @@
+{
+ "owner": "fixture-org",
+ "note": "Recorded GitHub API responses for offline use. *_days_ago fields become timestamps relative to now.",
+ "repos": [
+  {
+   "repo": {
+    "full_name": "fixture-org/customer-portal",
+    "name": "customer-portal",
+    "description": "Self-service customer portal",
+    "html_url": "https://github.com/fixture-org/customer-portal",
+    "private": false,
+    "archived": false,
+    "language": "TypeScript",
+    "default_branch": "main",
+    "open_issues_count": 8,
+    "pushed_at_days_ago": 2,
+    "updated_at_days_ago": 2
+   },
+   "commits": [
+    {
+     "sha": "6a3aa9c8c3618bd9dcd031182672c9efc885ad22",
+     "commit": {
+      "message": "Refactor module #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 2.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "fbe61e531a7a504928dea46076d65084b6cff487",
+     "commit": {
+      "message": "Add feature #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 4.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b28e276c1e90763da849745bd8e66f3245e80881",
+     "commit": {
+      "message": "Update tests #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 6.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "db0423b08e11462a40d3763b3ccfa38ce3b94d4b",
+     "commit": {
+      "message": "Improve logging #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 8.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "780e02a323a857287538e54c5d539e08535b4cbd",
+     "commit": {
+      "message": "Fix bug #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 10.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "4554cb1553caac644317205d6cf8916ee229354f",
+     "commit": {
+      "message": "Fix bug #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 12.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "f85cad224f864161041b0a1a799d77430d6e97c1",
+     "commit": {
+      "message": "Bump version #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 14.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "be5dcc04d3a2f8fea886dd086788c01496cb7561",
+     "commit": {
+      "message": "Fix bug #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 16.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "90d7f057f44ac79a4565eec000279d944c88e789",
+     "commit": {
+      "message": "Refactor module #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "cce9aa19944e2f59416932699445386928c61bd5",
+     "commit": {
+      "message": "Bump version #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 21.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3cdca78435176e1e6b9f48ee7e34f5a511798403",
+     "commit": {
+      "message": "Fix bug #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 23.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a5a35ac9e1d911c69e91e4c199a30073f091b023",
+     "commit": {
+      "message": "Bump version #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 25.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "39cb8f816e8ad4190a4f899048c90e62978a7a91",
+     "commit": {
+      "message": "Add feature #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 27.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "841d8a814e9fcbc353f18c5c3005884428098df6",
+     "commit": {
+      "message": "Fix bug #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 29.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7df61ec1110b38c30e25718dc21e9559c828a72a",
+     "commit": {
+      "message": "Fix bug #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 31.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "063d3e1c78d6f2b7ce16f6554ea5436d2c3d5784",
+     "commit": {
+      "message": "Update tests #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b7147844d58f9e8aef285f2c52e12f98f43b7e86",
+     "commit": {
+      "message": "Update tests #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 36.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d1d0e01b0f969e26a2d3c5f8567afed575d67e96",
+     "commit": {
+      "message": "Fix bug #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 38.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d2f07f22c05b481370b13f351ca3ba960c609117",
+     "commit": {
+      "message": "Add feature #19",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 40.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "94c1dc6d76582e3db5a841b17121bb768bd494c8",
+     "commit": {
+      "message": "Fix bug #20",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 42.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1f75539e38b54d838d9b2a169dc0327d724fb7a0",
+     "commit": {
+      "message": "Bump version #21",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 44.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "9c6fbc96cab0c474ec31dbc1f45d5ced2a2c21b3",
+     "commit": {
+      "message": "Update tests #22",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 46.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e99c72c0cc39f6dae529d301445b9030785da219",
+     "commit": {
+      "message": "Fix bug #23",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 48.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3960238ecb96dd29fcbca138dda0f956a140ce79",
+     "commit": {
+      "message": "Bump version #24",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 50.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e5b7ff8decd6b3a78e8660b2b973a979147b30ba",
+     "commit": {
+      "message": "Fix bug #25",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 53.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "cd8bdd58380d6989cb6df045728bccd745157dca",
+     "commit": {
+      "message": "Add feature #26",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 55.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "db417abbbed1429bba20022efb8399b17f27d970",
+     "commit": {
+      "message": "Improve logging #27",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 57.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a8aee29c0ef91bf1adb787cac801209454bb8d28",
+     "commit": {
+      "message": "Improve logging #28",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 59.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "77c322cd9d0c87e3cd0e7f539f09205418562177",
+     "commit": {
+      "message": "Bump version #29",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 61.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7e6c2c282283cd6fc2f694052fcb58cc7c0c121f",
+     "commit": {
+      "message": "Fix bug #30",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 63.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a851b02b30290f62b0511abf9fe92d293c6cdf25",
+     "commit": {
+      "message": "Bump version #31",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 65.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a4ea2a91506fa34a68bcc40963105562cf548bc9",
+     "commit": {
+      "message": "Bump version #32",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 67.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "9c68ae01e0e3ec0d69ed9202342c0ffea20c81ab",
+     "commit": {
+      "message": "Update tests #33",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 70.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b1c89ff51f5237438e9ee54fbfbcb98cdf9c74e7",
+     "commit": {
+      "message": "Fix bug #34",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 72.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7c88a14e1c57e429185a80bad7ba54ca7fe9799f",
+     "commit": {
+      "message": "Add feature #35",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 74.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e9dda420c99cbcff3318228698b8355ac72b4bf0",
+     "commit": {
+      "message": "Fix bug #36",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 76.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b6cb111b6a5ae229ad9dc2cef96493473153287d",
+     "commit": {
+      "message": "Bump version #37",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 78.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6929db559c174bd39a06f20b4d96630bb69fb8c4",
+     "commit": {
+      "message": "Add feature #38",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 80.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7e78c3dbb6c1df8b5648b2606ca95d8854dfe42f",
+     "commit": {
+      "message": "Refactor module #39",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 82.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5664afec65b92926a7973e184443a23d5d844730",
+     "commit": {
+      "message": "Update tests #40",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 84.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 71,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 75,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 73,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 25,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 76,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 6,
+     "title": "Docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 83,
+     "updated_at_days_ago": 2
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 5,
+     "updated_at_days_ago": 2
+    },
+    {
+     "number": 101,
+     "title": "WIP: memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": true,
+     "created_at_days_ago": 6,
+     "updated_at_days_ago": 2
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 120
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/payments-gateway",
+    "name": "payments-gateway",
+    "description": "Payment processing gateway",
+    "html_url": "https://github.com/fixture-org/payments-gateway",
+    "private": false,
+    "archived": false,
+    "language": "Go",
+    "default_branch": "main",
+    "open_issues_count": 12,
+    "pushed_at_days_ago": 4,
+    "updated_at_days_ago": 4
+   },
+   "commits": [
+    {
+     "sha": "bebdc3415fcf2a4aeadf1f3e009dc50be05508bc",
+     "commit": {
+      "message": "Add feature #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 4.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e0fcb0d9b20aee9939177df8553102c3fa2fe2f6",
+     "commit": {
+      "message": "Refactor module #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 6.66
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "74c791122bbc5c2998bbf490d1f5cef5778ad218",
+     "commit": {
+      "message": "Fix bug #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 9.31
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "9fe226df060077f6793af9b85ae516df1f561840",
+     "commit": {
+      "message": "Bump version #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 11.97
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "05a0f8501c3d01b3b6a8312b51392fbfeeda0ead",
+     "commit": {
+      "message": "Improve logging #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 14.62
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "560b68b8220a16e6364f59963b5855f3a8dadf9a",
+     "commit": {
+      "message": "Fix bug #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 17.28
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "c593c9a57c1c0af96b672ca8326cfada682f851d",
+     "commit": {
+      "message": "Bump version #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.94
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "27ff5352bf118eed31dd65a803dd32706c304a72",
+     "commit": {
+      "message": "Fix bug #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 22.59
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "923c91a432c2098f56051544e77f502faa2b2125",
+     "commit": {
+      "message": "Bump version #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 25.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b52dff026500a2cd1addb1fb0d19bf163eb9ffca",
+     "commit": {
+      "message": "Add feature #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 27.91
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "72966c673666eb36158f8ac06c59690799549bd1",
+     "commit": {
+      "message": "Update tests #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 30.56
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ae585ea0c1b36bda287ac5a71221c8531a702e2a",
+     "commit": {
+      "message": "Improve logging #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.22
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3c6ec89b988c783e279f85308a9213629f329889",
+     "commit": {
+      "message": "Bump version #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 35.88
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5bc53cc7f4398a5c94b4f1c217d57828ddfb6631",
+     "commit": {
+      "message": "Update tests #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 38.53
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e959cb1bb11f9edae291e5c10bfc9b1b0ae9f5fb",
+     "commit": {
+      "message": "Refactor module #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 41.19
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a8839e79dbb5e04f93bbad55773d92ffc74459b8",
+     "commit": {
+      "message": "Update tests #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 43.84
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "018e69ea58cc49ce41630832e8e219077321f846",
+     "commit": {
+      "message": "Bump version #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 46.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a7fd920ff8b06bd503255eac228fc1c8013755bf",
+     "commit": {
+      "message": "Update tests #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 49.16
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "318a5f1c0afc942964464b38d7292ba415957b76",
+     "commit": {
+      "message": "Refactor module #19",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 51.81
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e30adb1d82c8ae5e5a58dcd7ba365d43b0317cf9",
+     "commit": {
+      "message": "Refactor module #20",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 54.47
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a5d0759654873ef09965999abeebfd333047e196",
+     "commit": {
+      "message": "Add feature #21",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 57.12
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d3dae020f1e13d25fe35c7c0a59fa7d6d920d352",
+     "commit": {
+      "message": "Add feature #22",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 59.78
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1a3783299211f78ad0ccf944642c4b0faf9a5b69",
+     "commit": {
+      "message": "Improve logging #23",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 62.44
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3b459024e71d3f33b79467e60803b2f8ff3f38b8",
+     "commit": {
+      "message": "Add feature #24",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 65.09
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e1f940b593114a4c1c0850ea4cdc5f6daf8f9e08",
+     "commit": {
+      "message": "Fix bug #25",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 67.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2de95454ebf84ca5bc4a0b2080dadfdba8378396",
+     "commit": {
+      "message": "Bump version #26",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 70.41
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ae4416d0a8c48335a34050d3ceb41d25e95fc813",
+     "commit": {
+      "message": "Refactor module #27",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 73.06
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "8fba261c1d9083abade8538848b299bd18816975",
+     "commit": {
+      "message": "Bump version #28",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 75.72
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "40538a7edf99eabab6587e5d2abb8311fcdf1397",
+     "commit": {
+      "message": "Update tests #29",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 78.38
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e2e44132afe8e1a5e62b4eb24d595aa0da69fbbf",
+     "commit": {
+      "message": "Refactor module #30",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 81.03
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "61b67fa251a5840fd5f8f07a17439fc6396cdf0f",
+     "commit": {
+      "message": "Improve logging #31",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 83.69
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2b99411d2928872a66c6183df25c5a43f9350ff6",
+     "commit": {
+      "message": "Update tests #32",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 86.34
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 81,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 19,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 57,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 100,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 23,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 6,
+     "title": "Docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 57,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 7,
+     "title": "Timeout on large requests",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 89,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 8,
+     "title": "Refactor config loading",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 101,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 9,
+     "title": "Add retry logic",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 77,
+     "updated_at_days_ago": 4
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 7,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 101,
+     "title": "WIP: memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": true,
+     "created_at_days_ago": 8,
+     "updated_at_days_ago": 4
+    },
+    {
+     "number": 102,
+     "title": "WIP: docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 9,
+     "updated_at_days_ago": 4
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 96
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/data-pipeline",
+    "name": "data-pipeline",
+    "description": "Batch ETL pipeline for analytics",
+    "html_url": "https://github.com/fixture-org/data-pipeline",
+    "private": false,
+    "archived": false,
+    "language": "Python",
+    "default_branch": "main",
+    "open_issues_count": 15,
+    "pushed_at_days_ago": 6,
+    "updated_at_days_ago": 6
+   },
+   "commits": [
+    {
+     "sha": "1e9a49bae2d77bc8a404ba93ac4c9fdafe90074f",
+     "commit": {
+      "message": "Refactor module #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 6.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "045da796e70188ef333dfd4abcc40f2c2b079d2b",
+     "commit": {
+      "message": "Refactor module #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 9.4
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "84c7f7f91ec0ac982652e10be0300d3639ded2aa",
+     "commit": {
+      "message": "Improve logging #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 12.8
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "f6769f57bf32e8f7db9b1dd3da051bb4990d62ea",
+     "commit": {
+      "message": "Refactor module #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 16.2
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "06bef74fcfb28decfd4542731a7b8a6b6440fe65",
+     "commit": {
+      "message": "Bump version #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.6
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "65c875a1c25794db3a4a57def819f7b93f014a3f",
+     "commit": {
+      "message": "Update tests #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 23.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "217c46bcb782e59a0718902a7094a7086b2b5561",
+     "commit": {
+      "message": "Bump version #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 26.4
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7278710d13ed91d0e20e51ed19b3572ac6c2d2f1",
+     "commit": {
+      "message": "Update tests #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 29.8
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a93acaecf833e25eaebcdb041ef3f591716cc3f5",
+     "commit": {
+      "message": "Fix bug #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.2
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6f5358e2f73f606091a53c5737319effbd234317",
+     "commit": {
+      "message": "Fix bug #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 36.6
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "9d49fa400abd15fb7d70b526fd7a9e53a94e3bc7",
+     "commit": {
+      "message": "Refactor module #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 40.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e3a95eea9a1aeb706338eb412082293212384a47",
+     "commit": {
+      "message": "Update tests #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 43.4
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2802c0cef3985922a0a5f61f9e47d5b52f89b30e",
+     "commit": {
+      "message": "Improve logging #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 46.8
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "966a2649fd13577408b1fb2609db3491e4e4b0dc",
+     "commit": {
+      "message": "Improve logging #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 50.2
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "fc81abc5663e77fc553bb98956bd2b56a8b1e101",
+     "commit": {
+      "message": "Fix bug #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 53.6
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "45d07d2f57faea868b66d801e946d002d270414e",
+     "commit": {
+      "message": "Fix bug #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 57.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "97e898797024a06e0c92ad8177a1c81d7083e2f2",
+     "commit": {
+      "message": "Improve logging #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 60.4
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6508f210c64bdbde68c9e3bcea93faf32e24b943",
+     "commit": {
+      "message": "Improve logging #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 63.8
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e05b34d1b6b0c1d42ce47b87f24fef6b5586abb4",
+     "commit": {
+      "message": "Refactor module #19",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 67.2
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5ef3c6bf299bb5e01eb2f7cfabf6f8b930c34791",
+     "commit": {
+      "message": "Improve logging #20",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 70.6
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a4bfe1aa48b2b2e3e6ef8a8d420024a9f3a5b263",
+     "commit": {
+      "message": "Bump version #21",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 74.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "f41151a0ff3a46fc50c449d3784e0e843daf561b",
+     "commit": {
+      "message": "Improve logging #22",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 77.4
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "f4268802ac3714b1133c9dbd42acfdcc6893cff2",
+     "commit": {
+      "message": "Update tests #23",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 80.8
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7530bc012c37aaf856d23781d8c8f11a125a2084",
+     "commit": {
+      "message": "Refactor module #24",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 84.2
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "33b0bd8f8ff45f3f04ad9feb5f9564943689164a",
+     "commit": {
+      "message": "Improve logging #25",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 87.6
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 119,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 50,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 126,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 51,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 84,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 6,
+     "title": "Docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 69,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 7,
+     "title": "Timeout on large requests",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 33,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 8,
+     "title": "Refactor config loading",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 22,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 9,
+     "title": "Add retry logic",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 37,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 10,
+     "title": "Accessibility audit fixes",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 56,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 11,
+     "title": "Slow query in reports",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 16,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 12,
+     "title": "Add audit logging",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 63,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 13,
+     "title": "Handle empty responses",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 76,
+     "updated_at_days_ago": 6
+    },
+    {
+     "number": 14,
+     "title": "Support dark mode",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 119,
+     "updated_at_days_ago": 6
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 9,
+     "updated_at_days_ago": 6
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 75
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/mobile-app",
+    "name": "mobile-app",
+    "description": "Field operations mobile app",
+    "html_url": "https://github.com/fixture-org/mobile-app",
+    "private": false,
+    "archived": false,
+    "language": "Kotlin",
+    "default_branch": "main",
+    "open_issues_count": 6,
+    "pushed_at_days_ago": 12,
+    "updated_at_days_ago": 12
+   },
+   "commits": [
+    {
+     "sha": "8c981c5ee8d510b42a9591a4665a48eab763702d",
+     "commit": {
+      "message": "Add feature #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 12.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "544325b1086d26e4d3a8ac9129e3dc729f6ebcff",
+     "commit": {
+      "message": "Update tests #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.08
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "974844be36721689c9c1c8fe9be11115b7473578",
+     "commit": {
+      "message": "Bump version #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 26.17
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5222fa8f3c20b072be631681c0d5861cc0ea38d3",
+     "commit": {
+      "message": "Refactor module #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3262a7eaf64b63cfd0fdf69437b7c3249a2d06d4",
+     "commit": {
+      "message": "Improve logging #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 40.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1b9935a043f6ce6e298ba264b0879a0cafe82ead",
+     "commit": {
+      "message": "Update tests #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 47.42
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "29ad5e412467b411c986f80d5150036ba1b1b2e6",
+     "commit": {
+      "message": "Refactor module #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 54.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "c8593fbf2d03628d7da55934f90bc0666088e770",
+     "commit": {
+      "message": "Improve logging #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 61.58
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b53330cd63d1b28987f3eacedbfb6c9e17e2ee4f",
+     "commit": {
+      "message": "Update tests #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 68.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "78e0e63097d25f9e809a129395c691fc8f1085e5",
+     "commit": {
+      "message": "Add feature #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 75.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "dd8d1fd5d10d5dec7d68a929d9d873488c27bd08",
+     "commit": {
+      "message": "Add feature #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 82.83
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "96428525fb8763e62fd3c9c4a866d30aa12ad858",
+     "commit": {
+      "message": "Fix bug #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 89.92
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 31,
+     "updated_at_days_ago": 12
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 96,
+     "updated_at_days_ago": 12
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 13,
+     "updated_at_days_ago": 12
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 118,
+     "updated_at_days_ago": 12
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 35,
+     "updated_at_days_ago": 12
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 15,
+     "updated_at_days_ago": 12
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 36
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/legacy-billing",
+    "name": "legacy-billing",
+    "description": "Legacy billing system being retired",
+    "html_url": "https://github.com/fixture-org/legacy-billing",
+    "private": false,
+    "archived": false,
+    "language": "Java",
+    "default_branch": "main",
+    "open_issues_count": 7,
+    "pushed_at_days_ago": 95,
+    "updated_at_days_ago": 95
+   },
+   "commits": [
+    {
+     "sha": "83a2c4998d0f8504a89eafe862040ad05f555158",
+     "commit": {
+      "message": "Final maintenance release",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 95
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 95,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 148,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 142,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 167,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 111,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 6,
+     "title": "Docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 204,
+     "updated_at_days_ago": 95
+    },
+    {
+     "number": 7,
+     "title": "Timeout on large requests",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 174,
+     "updated_at_days_ago": 95
+    }
+   ],
+   "pulls": [],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 3
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/ml-forecasting",
+    "name": "ml-forecasting",
+    "description": "Demand forecasting models",
+    "html_url": "https://github.com/fixture-org/ml-forecasting",
+    "private": false,
+    "archived": false,
+    "language": "Python",
+    "default_branch": "main",
+    "open_issues_count": 6,
+    "pushed_at_days_ago": 3,
+    "updated_at_days_ago": 3
+   },
+   "commits": [
+    {
+     "sha": "16df58f913474ed4c50359b5bcf0e444517ba358",
+     "commit": {
+      "message": "Improve logging #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 3.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a826cff542d2293722616be307f7bf049b145af7",
+     "commit": {
+      "message": "Improve logging #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 6.04
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6000c977b345f1856c08a7f84e96ac8b98e93923",
+     "commit": {
+      "message": "Improve logging #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 9.07
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "af72d9147018c9e2287beb0ceb369f1e8681984c",
+     "commit": {
+      "message": "Fix bug #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 12.11
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "889dea86e51e8e5646206ed02e39441f4fe940fc",
+     "commit": {
+      "message": "Update tests #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 15.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ec6704b5c6e1107ffc367a53d696b5c1537d88af",
+     "commit": {
+      "message": "Improve logging #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 18.18
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "c822ab15b023b0d36d15a5ab22d1014d9e9819ef",
+     "commit": {
+      "message": "Bump version #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 21.21
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1f9a57ea722f0a7ac5b4e741cb03eb3d99a9f0f1",
+     "commit": {
+      "message": "Update tests #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 24.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "33b3d3215786b4f66b5b504bf8ef4f984cbb99c1",
+     "commit": {
+      "message": "Update tests #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 27.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "4e6f3780814e624f12d1ae7c91bea9794dadfdfa",
+     "commit": {
+      "message": "Update tests #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 30.32
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "090319205a8c91d9d05f101e3e568ccf2d9edbc9",
+     "commit": {
+      "message": "Update tests #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.36
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "4424908e3e0f92e539c50064cdfecc0c3fa3a77b",
+     "commit": {
+      "message": "Fix bug #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 36.39
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7248d85276b497bdba79686be9d10fdf8e0caa9a",
+     "commit": {
+      "message": "Update tests #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 39.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "8203a4492299b9942f90de3c509a1c38c37352d8",
+     "commit": {
+      "message": "Improve logging #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 42.46
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2093a4a6d48bcdeb47f4d1e5c581b472d0041198",
+     "commit": {
+      "message": "Update tests #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 45.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "bef85e51688606bf389fd55b640e34b3916518a3",
+     "commit": {
+      "message": "Fix bug #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 48.54
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "96d98717780e534be94891ff9552adc732f3edc1",
+     "commit": {
+      "message": "Add feature #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 51.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d5973c6aeabbe1edf619ae3fb42abf1e14eca0b1",
+     "commit": {
+      "message": "Fix bug #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 54.61
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "696b7f99ad2b7a801d709d74a011646c23a74c48",
+     "commit": {
+      "message": "Add feature #19",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 57.64
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "0332a2e171da578bb58d257a01fb954e785ef98a",
+     "commit": {
+      "message": "Update tests #20",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 60.68
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3bdcb2d16ebb2fce84ebc536343059a4ba294eef",
+     "commit": {
+      "message": "Add feature #21",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 63.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "00dbdce1694ef3e63ba049aeb3e9c46596c8cf9c",
+     "commit": {
+      "message": "Fix bug #22",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 66.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "133fb8814474c0eab8a2a9574539c78a1af3dd97",
+     "commit": {
+      "message": "Refactor module #23",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 69.79
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b6c48d9969f6b0782093b309c957a5fd336b6654",
+     "commit": {
+      "message": "Bump version #24",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 72.82
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7bab8b65234e091278f403e4d1a3a1f05626306d",
+     "commit": {
+      "message": "Fix bug #25",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 75.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b0d83b381586eb583d83e97c3419888ba57a3081",
+     "commit": {
+      "message": "Fix bug #26",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 78.89
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b0c72a30cd0a511e8137a8fa527bb467f8035215",
+     "commit": {
+      "message": "Fix bug #27",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 81.93
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "22ee833cce5c673d918afc1a4edfe6eb8a458fc3",
+     "commit": {
+      "message": "Bump version #28",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 84.96
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 71,
+     "updated_at_days_ago": 3
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 49,
+     "updated_at_days_ago": 3
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 6,
+     "updated_at_days_ago": 3
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 114,
+     "updated_at_days_ago": 3
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 6,
+     "updated_at_days_ago": 3
+    },
+    {
+     "number": 101,
+     "title": "WIP: memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": true,
+     "created_at_days_ago": 7,
+     "updated_at_days_ago": 3
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 84
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/inventory-service",
+    "name": "inventory-service",
+    "description": "Warehouse inventory microservice",
+    "html_url": "https://github.com/fixture-org/inventory-service",
+    "private": false,
+    "archived": false,
+    "language": "Go",
+    "default_branch": "main",
+    "open_issues_count": 3,
+    "pushed_at_days_ago": 21,
+    "updated_at_days_ago": 21
+   },
+   "commits": [
+    {
+     "sha": "53aa6503317504e02ef22816c30b6195bbe97440",
+     "commit": {
+      "message": "Add feature #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 21.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "768fd411db81170497285d2548a26ded62e22aa1",
+     "commit": {
+      "message": "Bump version #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 35.17
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a08c33750a34abfc8699949f454413bcaae157ca",
+     "commit": {
+      "message": "Update tests #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 49.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2f9e1c9b187de7bd8e8b23df3de778d033863d9a",
+     "commit": {
+      "message": "Add feature #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 63.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "da16f0f6bbcee148db083c834566258ec2076956",
+     "commit": {
+      "message": "Improve logging #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 77.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5055397c9c181cba528e11f603d57f543e4759e3",
+     "commit": {
+      "message": "Refactor module #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 91.83
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 98,
+     "updated_at_days_ago": 21
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 81,
+     "updated_at_days_ago": 21
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 35,
+     "updated_at_days_ago": 21
+    }
+   ],
+   "pulls": [],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 18
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/internal-wiki",
+    "name": "internal-wiki",
+    "description": "Internal documentation site",
+    "html_url": "https://github.com/fixture-org/internal-wiki",
+    "private": false,
+    "archived": false,
+    "language": "Markdown",
+    "default_branch": "main",
+    "open_issues_count": 1,
+    "pushed_at_days_ago": 40,
+    "updated_at_days_ago": 40
+   },
+   "commits": [
+    {
+     "sha": "d5e237e340837d0555cf3e7ae7e43811d4ce3b5a",
+     "commit": {
+      "message": "Update tests #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 40.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d9b2a612410da990b3fcf0b2435f93736fb40c51",
+     "commit": {
+      "message": "Update tests #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 82.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 101,
+     "updated_at_days_ago": 40
+    }
+   ],
+   "pulls": [],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 6
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/design-system",
+    "name": "design-system",
+    "description": "Shared UI component library",
+    "html_url": "https://github.com/fixture-org/design-system",
+    "private": false,
+    "archived": false,
+    "language": "TypeScript",
+    "default_branch": "main",
+    "open_issues_count": 3,
+    "pushed_at_days_ago": 5,
+    "updated_at_days_ago": 5
+   },
+   "commits": [
+    {
+     "sha": "de994b98a6a15cfcfaa0a1fa1e5152975d15ab91",
+     "commit": {
+      "message": "Refactor module #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 5.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "25db7b9cd09a7b9f8c63ae7ac9c1471c0122bc98",
+     "commit": {
+      "message": "Fix bug #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 9.72
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5453815a5ecf7bbec11ca1ad36c476a52aa1a928",
+     "commit": {
+      "message": "Add feature #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 14.44
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a0774f247d52f6ad489f809433de8c5dc30fb049",
+     "commit": {
+      "message": "Fix bug #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.17
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "54817ec3b27c59284274869bb5d1128a708de2b6",
+     "commit": {
+      "message": "Improve logging #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 23.89
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1cf437cf3c63e7f12a32a3666299b0d38592b473",
+     "commit": {
+      "message": "Refactor module #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 28.61
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "fbee53c91a746063b727f33eee38e6e2821394c6",
+     "commit": {
+      "message": "Improve logging #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 33.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5027f56af821999120eb886ad9575c02efe3de99",
+     "commit": {
+      "message": "Refactor module #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 38.06
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ca96ce4c56415286444c5814313f25a2713c1ec8",
+     "commit": {
+      "message": "Update tests #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 42.78
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1b815d76d99a736367e2c838c7a55c63c92b3991",
+     "commit": {
+      "message": "Improve logging #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 47.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5982077d9f9105f5babbbf1265abf73221f5d84e",
+     "commit": {
+      "message": "Add feature #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 52.22
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "c07045f71d3dc9ca7d8249f4cd37aa4d3a0ddc3c",
+     "commit": {
+      "message": "Bump version #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 56.94
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "9df2b9577d0481d20ec08e13eb92266297a9d671",
+     "commit": {
+      "message": "Fix bug #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 61.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7c47058980916ea6764dcce784d05dc63db89e65",
+     "commit": {
+      "message": "Add feature #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 66.39
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3f46f215a74e1dedeb24c78c82897b5f010793b4",
+     "commit": {
+      "message": "Bump version #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 71.11
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a1b5cd796dc730e589ed30aba86aa393f5d16f6f",
+     "commit": {
+      "message": "Refactor module #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 75.83
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a4a87278da64afe550ed37ecf1e24d387cd610b6",
+     "commit": {
+      "message": "Add feature #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 80.56
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1b544847a19cbf1993256d763ae31ad7319db84d",
+     "commit": {
+      "message": "Improve logging #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 85.28
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 122,
+     "updated_at_days_ago": 5
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 102,
+     "updated_at_days_ago": 5
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 8,
+     "updated_at_days_ago": 5
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 54
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/ops-automation",
+    "name": "ops-automation",
+    "description": "Infrastructure automation scripts",
+    "html_url": "https://github.com/fixture-org/ops-automation",
+    "private": false,
+    "archived": false,
+    "language": "Python",
+    "default_branch": "main",
+    "open_issues_count": 3,
+    "pushed_at_days_ago": 8,
+    "updated_at_days_ago": 8
+   },
+   "commits": [
+    {
+     "sha": "be961c688f5612d4ff1da063ec66fbe045350a8b",
+     "commit": {
+      "message": "Bump version #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 8.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1db189e626f6fc37d615b092be40609e1c2881e0",
+     "commit": {
+      "message": "Refactor module #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 13.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3121ab1e7dba01cbf5f2d8c82629da89f969756c",
+     "commit": {
+      "message": "Improve logging #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 19.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "f923001672bc411fe807b287683857644fa9b488",
+     "commit": {
+      "message": "Fix bug #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 25.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "377ea96a5b84beba5c787c50b37877d56f2b79a3",
+     "commit": {
+      "message": "Improve logging #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 30.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2127d23228bb93e5a3a99e298da9cb353c478721",
+     "commit": {
+      "message": "Refactor module #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 36.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "80378a934059b3ced0d3eb8da6f822eeb0029e64",
+     "commit": {
+      "message": "Bump version #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 42.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7b8472014d30c0796a132026dc7f8e98c54bf95e",
+     "commit": {
+      "message": "Refactor module #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 47.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "25588b864d427372a7f1eafe4d6127ab859f1a0c",
+     "commit": {
+      "message": "Add feature #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 53.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "51a07385865adaed9da6d3d6ce87d274224d08c2",
+     "commit": {
+      "message": "Refactor module #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 59.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "8df552aa1f559794570530e24eff69264df68f0a",
+     "commit": {
+      "message": "Add feature #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 64.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d4faa950ec5001bad58d5f7b19e7b7998f754f91",
+     "commit": {
+      "message": "Bump version #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 70.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "4056d78e15c93326ad17384b341f9734b32cc92f",
+     "commit": {
+      "message": "Bump version #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 76.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "663faa884190025e0d99f79e188c328f6a92ad01",
+     "commit": {
+      "message": "Bump version #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 81.67
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2ba158f6410c01b413cd26ca6236b43cec58482a",
+     "commit": {
+      "message": "Refactor module #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 87.33
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 36,
+     "updated_at_days_ago": 8
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 111,
+     "updated_at_days_ago": 8
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 11,
+     "updated_at_days_ago": 8
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 45
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/hr-onboarding",
+    "name": "hr-onboarding",
+    "description": "Employee onboarding workflow",
+    "html_url": "https://github.com/fixture-org/hr-onboarding",
+    "private": false,
+    "archived": false,
+    "language": "TypeScript",
+    "default_branch": "main",
+    "open_issues_count": 3,
+    "pushed_at_days_ago": 30,
+    "updated_at_days_ago": 30
+   },
+   "commits": [
+    {
+     "sha": "a5575287f75720547ed273be646b9499dbdbb4c8",
+     "commit": {
+      "message": "Add feature #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 30.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6834deadfbd42d99a2b4bf7992176d2e7f44958e",
+     "commit": {
+      "message": "Add feature #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 51.25
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e6274cadf6065bd117f38fb7e38159e21716502b",
+     "commit": {
+      "message": "Update tests #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 72.5
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "bdf5bf7577d01cf7a67111bca1de4ad1f0fa429d",
+     "commit": {
+      "message": "Improve logging #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 93.75
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 55,
+     "updated_at_days_ago": 30
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 93,
+     "updated_at_days_ago": 30
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 123,
+     "updated_at_days_ago": 30
+    }
+   ],
+   "pulls": [],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 12
+    }
+   ]
+  },
+  {
+   "repo": {
+    "full_name": "fixture-org/analytics-dashboard",
+    "name": "analytics-dashboard",
+    "description": "Executive KPI dashboard",
+    "html_url": "https://github.com/fixture-org/analytics-dashboard",
+    "private": false,
+    "archived": false,
+    "language": "TypeScript",
+    "default_branch": "main",
+    "open_issues_count": 10,
+    "pushed_at_days_ago": 1,
+    "updated_at_days_ago": 1
+   },
+   "commits": [
+    {
+     "sha": "54cab03f3f511c2fe57bcb9c0a7014ad6b6aa442",
+     "commit": {
+      "message": "Fix bug #1",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 1.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "12d4716c0ffac80e18f622a2b4cb925c93ae50f7",
+     "commit": {
+      "message": "Fix bug #2",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 3.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "88f2734437e24eb08e576de340aca2f7a0aca4e0",
+     "commit": {
+      "message": "Refactor module #3",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 5.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "b75803d330cea839bc7bb02a69e326eaa6245f72",
+     "commit": {
+      "message": "Update tests #4",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 8.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "73a12123a88b1bd74533131eab6284d35f49fee5",
+     "commit": {
+      "message": "Refactor module #5",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 10.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "62f338e20ce1aea34ff7804ba2f84a2a13139975",
+     "commit": {
+      "message": "Add feature #6",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 13.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7cc279a39ba51dd1a0d6e21cb750a4703e02af50",
+     "commit": {
+      "message": "Improve logging #7",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 15.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "fdf85409421ca558cd3c6290cec9b9f154500713",
+     "commit": {
+      "message": "Bump version #8",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 18.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "76e88679663c1ea9e683f6ad7c6c694c167e1fa9",
+     "commit": {
+      "message": "Refactor module #9",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 20.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "07d006cef7a55f9f374eea0dc83be8d148966863",
+     "commit": {
+      "message": "Update tests #10",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 22.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "6a448abfd7f4dc5274228b297896984e3a3aa5a2",
+     "commit": {
+      "message": "Improve logging #11",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 25.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "49bb02e7a981b009f27e1fd79d50e6d557d8c8f8",
+     "commit": {
+      "message": "Refactor module #12",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 27.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5f224a5f567b4ad5e7e622f15763713dc8a30d7f",
+     "commit": {
+      "message": "Refactor module #13",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 30.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a634a65411bcfaa442edcff081be39a6b219649e",
+     "commit": {
+      "message": "Fix bug #14",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 32.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "d131d8446cdd917a05bb8bf08d76a92f7939cbec",
+     "commit": {
+      "message": "Add feature #15",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 35.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "270119e8497a53abf72773ce0bc99172ce28c4e8",
+     "commit": {
+      "message": "Fix bug #16",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 37.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "8958e45ac2d910f2ec4c83309edede1336cf41b0",
+     "commit": {
+      "message": "Add feature #17",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 39.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "789ae83f81269e4ca46f052e72bc3f457cdea389",
+     "commit": {
+      "message": "Update tests #18",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 42.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "94bf4637bd51c2acef0fa63313187a4551844661",
+     "commit": {
+      "message": "Add feature #19",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 44.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "58dbca92e72d575c640473651fc99c53506d6ed0",
+     "commit": {
+      "message": "Refactor module #20",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 47.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "15160915a645d6ed04463d5b2f7f92b107ef6f5b",
+     "commit": {
+      "message": "Add feature #21",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 49.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "a475cdd9d1b763518a08cd90f5f57751eaf6666f",
+     "commit": {
+      "message": "Update tests #22",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 52.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ffa2ad127264b5c47ce327b37a35029352df8772",
+     "commit": {
+      "message": "Bump version #23",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 54.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "05892c9c7a1ad9e4da48f5983dc78f0ff3f848f1",
+     "commit": {
+      "message": "Bump version #24",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 56.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "e7b052f00885ea37686cfc53d634aa8a020b3966",
+     "commit": {
+      "message": "Fix bug #25",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 59.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "cb8779393c7d3b0ad4a862cbec4e08378a60ea86",
+     "commit": {
+      "message": "Update tests #26",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 61.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "3742c360b2acc506fe14ded6a399b434e2a278a0",
+     "commit": {
+      "message": "Improve logging #27",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 64.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "1ca89bd0b41cf1cb0e5a92ed5f01ff48889eda90",
+     "commit": {
+      "message": "Refactor module #28",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 66.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "2f4a3ec9e4c26175bfdf9b1d614fdb8068bd2a54",
+     "commit": {
+      "message": "Improve logging #29",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 69.0
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "fc44fcde605b37803f8ce9de7007d5333f113354",
+     "commit": {
+      "message": "Fix bug #30",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 71.43
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "229fa9bf5eaf98e343a3d077dbf8169f2988724b",
+     "commit": {
+      "message": "Improve logging #31",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 73.86
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "7869eb2c751781e7df56ad44a28cef2128c439f7",
+     "commit": {
+      "message": "Fix bug #32",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 76.29
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "5420417baf4395054c712ba50b4515450d3d9fdd",
+     "commit": {
+      "message": "Update tests #33",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 78.71
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "ee9d9b949f282eb8cff40fefc240560a647f24ca",
+     "commit": {
+      "message": "Improve logging #34",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 81.14
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    },
+    {
+     "sha": "06a7dcf8d5f19299a2111ea2841125327c25c730",
+     "commit": {
+      "message": "Add feature #35",
+      "author": {
+       "name": "Fixture Owner",
+       "date_days_ago": 83.57
+      }
+     },
+     "author": {
+      "login": "fixture-owner"
+     }
+    }
+   ],
+   "issues": [
+    {
+     "number": 1,
+     "title": "Fix flaky integration test",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 114,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 2,
+     "title": "Improve error handling",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 56,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 3,
+     "title": "Upgrade dependencies",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 43,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 4,
+     "title": "Add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "bug"
+      }
+     ],
+     "created_at_days_ago": 103,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 5,
+     "title": "Memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 51,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 6,
+     "title": "Docs: update setup guide",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "enhancement"
+      }
+     ],
+     "created_at_days_ago": 52,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 7,
+     "title": "Timeout on large requests",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 11,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 8,
+     "title": "Refactor config loading",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "labels": [
+      {
+       "name": "tech-debt"
+      }
+     ],
+     "created_at_days_ago": 21,
+     "updated_at_days_ago": 1
+    }
+   ],
+   "pulls": [
+    {
+     "number": 100,
+     "title": "WIP: add pagination",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": false,
+     "created_at_days_ago": 4,
+     "updated_at_days_ago": 1
+    },
+    {
+     "number": 101,
+     "title": "WIP: memory leak under load",
+     "state": "open",
+     "user": {
+      "login": "fixture-owner"
+     },
+     "draft": true,
+     "created_at_days_ago": 5,
+     "updated_at_days_ago": 1
+    }
+   ],
+   "contributors": [
+    {
+     "login": "fixture-owner",
+     "contributions": 105
+    }
+   ]
+  }
+ ]
+}

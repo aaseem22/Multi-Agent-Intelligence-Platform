@@ -1,0 +1,63 @@
+from functools import lru_cache
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+REPO_DIR = BACKEND_DIR.parent
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=(REPO_DIR / ".env", BACKEND_DIR / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    google_api_key: str = ""
+    gemini_ceo_model: str = "gemini-3.8-flash"
+    gemini_agent_model: str = "gemini-3.5-flash-lite"
+    gemini_judge_model: str = "gemini-3.6-flash"
+    llm_requests_per_second: float = 0.2
+    llm_max_concurrency: int = 2
+    llm_max_retries: int = 4
+    llm_timeout_seconds: float = 120.0
+
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+    langfuse_host: str = "https://cloud.langfuse.com"
+
+    github_token: str = ""
+    github_owner: str = ""
+    github_cache_ttl_seconds: int = 900
+    github_api_url: str = "https://api.github.com"
+
+    database_url: str = "sqlite:///./data/org.db"
+    checkpoint_db_path: str = "./data/checkpoints.db"
+    seed: int = 42
+    seed_max_repos: int = 12
+    currency: str = "INR"
+
+    max_peer_hops: int = 2
+    max_peer_calls_per_agent: int = 3
+    graph_recursion_limit: int = 40
+
+    log_level: str = "INFO"
+
+    @property
+    def langfuse_enabled(self) -> bool:
+        return bool(self.langfuse_public_key and self.langfuse_secret_key)
+
+    @property
+    def async_database_url(self) -> str:
+        url = self.database_url
+        if url.startswith("sqlite:///"):
+            return url.replace("sqlite:///", "sqlite+aiosqlite:///", 1)
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

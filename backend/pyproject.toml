@@ -1,0 +1,43 @@
+[project]
+name = "enterprise-agents"
+version = "0.1.0"
+description = "Self-evaluating multi-agent framework for enterprise workflow orchestration"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "faker>=40.39.0",
+    "fastapi>=0.141.1",
+    "httpx>=0.28.1",
+    "langchain>=1.4.2",
+    "langchain-core>=1.6.5",
+    "langchain-google-genai>=4.4.0",
+    "langfuse>=4.15.6",
+    "langgraph>=1.2.12",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "pydantic-settings>=2.15.0",
+    "sqlalchemy[asyncio]>=2.1.1",
+    "sse-starlette>=3.4.11",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "respx>=0.23.1",
+    "ruff>=0.16.9",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = ["live: calls the real Gemini API; skipped unless GOOGLE_API_KEY is set"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+ignore = ["E501", "UP046", "UP047"]

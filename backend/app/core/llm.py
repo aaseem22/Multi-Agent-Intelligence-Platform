@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import random
+import re
 from collections.abc import Awaitable, Callable, Iterator
 from contextlib import contextmanager
 from functools import lru_cache
@@ -107,6 +108,18 @@ def is_retryable(exc: BaseException) -> bool:
     return False
 
 
+_SERVER_DELAY = re.compile(r"retry in ([\d.]+)s|retryDelay'?:\s*'?([\d.]+)s", re.IGNORECASE)
+MAX_SERVER_DELAY_SECONDS = 65.0
+
+
+def server_retry_delay(exc: BaseException) -> float | None:
+    """The delay a 429 response asks for (Gemini's RetryInfo), capped; None if absent."""
+    match = _SERVER_DELAY.search(str(exc))
+    if not match:
+        return None
+    return min(float(match.group(1) or match.group(2)), MAX_SERVER_DELAY_SECONDS)
+
+
 async def with_llm_retries(
     call: Callable[[], Awaitable[T]], *, max_retries: int | None = None, base_delay: float = 2.0
 ) -> T:
@@ -119,9 +132,14 @@ async def with_llm_retries(
         except Exception as exc:
             if attempt >= retries or not is_retryable(exc):
                 raise
-            delay = base_delay * (2**attempt) + random.uniform(0, 1)
+            backoff = base_delay * (2**attempt) + random.uniform(0, 1)
+            delay = max(backoff, server_retry_delay(exc) or 0.0)
             attempt += 1
             logger.warning(
-                "LLM call failed (%s); retry %d/%d in %.1fs", exc, attempt, retries, delay
+                "LLM call failed (%s); retry %d/%d in %.1fs",
+                str(exc)[:160],
+                attempt,
+                retries,
+                delay,
             )
             await asyncio.sleep(delay)

@@ -1,4 +1,3 @@
-import { MessagesSquare, Network } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { A2APanel } from "../components/A2APanel";
 import { Composer } from "../components/Composer";
@@ -15,23 +14,25 @@ const EXAMPLES = [
 
 function Welcome({ onPick }: { onPick: (question: string) => void }) {
   return (
-    <div className="mx-auto max-w-2xl py-10">
-      <h1 className="text-2xl leading-tight font-semibold tracking-tight text-ink">
+    <div className="pt-6 pb-10 sm:pt-12">
+      <h1 className="max-w-[20ch] text-2xl font-medium tracking-tight text-balance text-ink sm:text-[2.75rem] sm:leading-[1.1]">
         Ask a question that crosses departments.
       </h1>
-      <p className="mt-2 max-w-[60ch] text-muted">
-        The CEO agent plans the work, sends subtasks to Finance, HR and Tech, and answers with the records behind every
-        claim. Requests between departments show up in the activity panel as they happen.
+      <p className="mt-4 max-w-[58ch] text-base text-graphite">
+        The CEO agent plans the work, hands subtasks to Finance, HR and Tech, and answers with the records behind every
+        finding. When one department needs another's data it asks directly, and those messages are logged beside the
+        answer as they happen.
       </p>
-      <ul className="mt-6 space-y-2">
+      <h2 className="mt-10 border-b border-rule-strong pb-1 text-sm font-semibold text-graphite">
+        Questions to start with
+      </h2>
+      <ul>
         {EXAMPLES.map((question) => (
-          <li key={question}>
-            <button
-              type="button"
-              onClick={() => onPick(question)}
-              className="w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-left text-[15px] text-ink hover:border-agent-tech/50"
-            >
-              {question}
+          <li key={question} className="border-b border-rule">
+            <button type="button" onClick={() => onPick(question)} className="group w-full py-3 text-left text-lg text-ink">
+              <span className="decoration-rule-strong decoration-1 underline-offset-4 group-hover:underline">
+                {question}
+              </span>
             </button>
           </li>
         ))}
@@ -72,43 +73,42 @@ export function ChatPage({ conversationId, onConversationCreated, onRunSettled }
   else if (turns.length === 0) body = <Welcome onPick={send} />;
   else
     body = (
-      <div className="mx-auto max-w-3xl space-y-10">
-        {turns.map((turn) => (
-          <TurnView key={turn.id} turn={turn} />
+      <div className="space-y-12">
+        {turns.map((turn, index) => (
+          <div key={turn.id} className={index > 0 ? "border-t border-rule-strong pt-10" : ""}>
+            <TurnView turn={turn} />
+          </div>
         ))}
       </div>
     );
 
+  const tabClass = (active: boolean) =>
+    `-mb-px border-b-2 py-2 text-sm ${active ? "border-ink font-semibold text-ink" : "border-transparent text-graphite"}`;
+
   return (
-    <div className="grid h-full min-h-0 grid-rows-[auto_1fr] lg:grid-cols-[minmax(0,1fr)_380px] lg:grid-rows-1">
+    <div className="grid h-full min-h-0 grid-rows-[auto_1fr] lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-1">
       <div
         role="tablist"
-        aria-label="Chat or activity"
-        className="flex gap-1 border-b border-line bg-surface px-3 py-2 lg:hidden"
+        aria-label="Answer or agent messages"
+        className="flex gap-6 border-b border-rule-strong bg-paper px-4 lg:hidden"
       >
         <button
           type="button"
           role="tab"
           aria-selected={mobileView === "chat"}
           onClick={() => setMobileView("chat")}
-          className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium ${
-            mobileView === "chat" ? "bg-chrome text-white" : "text-muted"
-          }`}
+          className={tabClass(mobileView === "chat")}
         >
-          <MessagesSquare aria-hidden className="size-4" />
-          Chat
+          Briefing
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={mobileView === "activity"}
           onClick={() => setMobileView("activity")}
-          className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium ${
-            mobileView === "activity" ? "bg-chrome text-white" : "text-muted"
-          }`}
+          className={tabClass(mobileView === "activity")}
         >
-          <Network aria-hidden className="size-4" />
-          Activity ({messageCount})
+          Agent messages <span className="font-mono text-2xs text-pencil">{messageCount}</span>
         </button>
       </div>
 
@@ -116,18 +116,18 @@ export function ChatPage({ conversationId, onConversationCreated, onRunSettled }
         aria-label="Conversation"
         className={`${mobileView === "chat" ? "flex" : "hidden"} min-h-0 flex-col lg:flex`}
       >
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
-          {body}
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-10 sm:py-8">
+          <div className="max-w-[46rem]">{body}</div>
         </div>
-        <div className="border-t border-line bg-paper px-4 py-3 sm:px-8">
-          <div className="mx-auto max-w-3xl">
+        <div className="bg-paper px-4 pt-2 pb-4 sm:px-10">
+          <div className="max-w-[46rem]">
             <Composer streaming={streaming} onSend={send} onStop={cancel} />
           </div>
         </div>
       </section>
 
       <div
-        className={`${mobileView === "activity" ? "flex" : "hidden"} min-h-0 flex-col border-line lg:flex lg:border-l`}
+        className={`${mobileView === "activity" ? "flex" : "hidden"} min-h-0 flex-col border-rule lg:flex lg:border-l`}
       >
         <A2APanel turns={turns} streaming={streaming} />
       </div>

@@ -1,43 +1,44 @@
-import { Braces, Database, FolderGit2, MessageSquareShare } from "lucide-react";
 import type { Evidence, EvidenceSourceType } from "../types/contracts";
-import { AgentBadge } from "./AgentBadge";
+import { AgentName } from "./AgentName";
 
-const SOURCE: Record<EvidenceSourceType, { label: string; icon: typeof Database }> = {
-  db: { label: "Database record", icon: Database },
-  github: { label: "GitHub API", icon: FolderGit2 },
-  peer: { label: "Peer answer", icon: MessageSquareShare },
+const SOURCE_LABEL: Record<EvidenceSourceType, string> = {
+  db: "Database record",
+  github: "GitHub API response",
+  peer: "Answer from a peer agent",
 };
 
 interface EvidenceItemProps {
   evidence: Evidence;
   agent: string;
+  marker: string;
 }
 
-export function EvidenceItem({ evidence, agent }: EvidenceItemProps) {
-  const source = SOURCE[evidence.source_type];
-  const Icon = source.icon;
+/** One footnote: its letter hangs in the margin, the reference is set in mono so it can be copied. */
+export function EvidenceItem({ evidence, agent, marker }: EvidenceItemProps) {
+  const hasData = evidence.data !== null && Object.keys(evidence.data).length > 0;
   return (
-    <li className="rounded-md border border-line bg-paper/60 px-3 py-2">
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-        <Icon aria-hidden className="size-3.5" />
-        <span>{source.label}</span>
-        <span aria-hidden className="text-line">|</span>
-        <span>cited by</span>
-        <AgentBadge name={agent} />
+    <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-1 animate-enter">
+      <span className="pt-0.5 font-mono text-2xs text-pencil">{marker}</span>
+      <div className="min-w-0">
+        <p className="text-sm text-ink">{evidence.summary}</p>
+        <p className="text-2xs text-graphite">
+          {SOURCE_LABEL[evidence.source_type]}, cited by <AgentName name={agent} />
+        </p>
+        <code className="block font-mono text-2xs break-all text-graphite">{evidence.source_ref}</code>
+        {hasData ? (
+          <details className="group/raw mt-0.5">
+            <summary className="cursor-pointer text-2xs text-pencil hover:text-ink">
+              <span aria-hidden className="mr-1 inline-block font-mono transition-transform group-open/raw:rotate-90">
+                ›
+              </span>
+              Raw excerpt
+            </summary>
+            <pre className="mt-1 max-h-48 overflow-auto border-l border-rule py-1 pl-3 font-mono text-2xs text-ink">
+              {JSON.stringify(evidence.data, null, 2)}
+            </pre>
+          </details>
+        ) : null}
       </div>
-      <p className="mt-1 text-sm text-ink">{evidence.summary}</p>
-      <code className="mt-1 block font-mono text-xs break-all text-muted">{evidence.source_ref}</code>
-      {evidence.data && Object.keys(evidence.data).length > 0 ? (
-        <details className="mt-1.5">
-          <summary className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted hover:text-ink">
-            <Braces aria-hidden className="size-3" />
-            Raw excerpt
-          </summary>
-          <pre className="mt-1 max-h-48 overflow-auto rounded bg-surface p-2 font-mono text-xs text-ink">
-            {JSON.stringify(evidence.data, null, 2)}
-          </pre>
-        </details>
-      ) : null}
     </li>
   );
 }

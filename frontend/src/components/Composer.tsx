@@ -1,4 +1,3 @@
-import { SendHorizontal, Square } from "lucide-react";
 import { useState, type FormEvent, type KeyboardEvent } from "react";
 
 interface ComposerProps {
@@ -26,7 +25,7 @@ export function Composer({ streaming, onSend, onStop }: ComposerProps) {
   };
 
   return (
-    <form onSubmit={submit} className="flex items-end gap-2 rounded-xl border border-line bg-surface p-2 shadow-sm focus-within:border-agent-tech/60">
+    <form onSubmit={submit} className="flex items-end gap-3 border-b-2 border-rule-strong pb-1.5 has-[textarea:focus]:border-ink">
       <label htmlFor="composer" className="sr-only">
         Ask a question across departments
       </label>
@@ -41,24 +40,22 @@ export function Composer({ streaming, onSend, onStop }: ComposerProps) {
         onKeyDown={onKeyDown}
         placeholder="Ask about projects, budgets or staffing"
         aria-describedby="composer-hint"
-        className="max-h-40 min-h-11 flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] placeholder:text-faint focus:outline-none"
+        className="max-h-40 min-h-12 flex-1 resize-none bg-transparent py-1 text-base text-ink placeholder:text-pencil placeholder:italic focus:outline-none"
       />
       {streaming ? (
         <button
           type="button"
           onClick={onStop}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-sm font-medium text-ink hover:bg-paper"
+          className="h-9 shrink-0 rounded-xs border border-ink px-4 text-sm font-semibold text-ink hover:bg-paper-deep"
         >
-          <Square aria-hidden className="size-3.5 fill-current" />
           Stop
         </button>
       ) : (
         <button
           type="submit"
           disabled={!canSend}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-chrome px-3 text-sm font-medium text-white hover:bg-chrome-soft disabled:cursor-not-allowed disabled:opacity-40"
+          className="h-9 shrink-0 rounded-xs bg-ink px-4 text-sm font-semibold text-paper hover:bg-graphite disabled:cursor-not-allowed disabled:bg-rule-strong"
         >
-          <SendHorizontal aria-hidden className="size-4" />
           Ask
         </button>
       )}

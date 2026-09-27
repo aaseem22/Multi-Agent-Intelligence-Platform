@@ -1,8 +1,7 @@
-import { CircleHelp, CircleStop } from "lucide-react";
 import { memo } from "react";
 import { formatTime } from "../lib/format";
 import { isTerminal, type RunPhase, type Turn } from "../lib/run";
-import { AgentBadge } from "./AgentBadge";
+import { AgentName } from "./AgentName";
 import { FinalAnswerView, TraceLink } from "./FinalAnswerView";
 import { RunProgress } from "./RunProgress";
 import { ErrorState, Spinner } from "./States";
@@ -20,11 +19,8 @@ function AssistantBody({ turn }: { turn: Turn }) {
       return run.final ? <FinalAnswerView outcome={run.final} traceUrl={run.traceUrl} /> : null;
     case "clarification":
       return (
-        <div className="space-y-2">
-          <p className="flex max-w-[72ch] gap-2 text-[15px] leading-relaxed">
-            <CircleHelp aria-hidden className="mt-1 size-4 shrink-0 text-agent-ceo" />
-            <span>{run.clarification}</span>
-          </p>
+        <div className="space-y-3">
+          <p className="max-w-[66ch] text-read">{run.clarification}</p>
           <TraceLink url={run.traceUrl} />
         </div>
       );
@@ -36,36 +32,41 @@ function AssistantBody({ turn }: { turn: Turn }) {
         />
       );
     case "cancelled":
-      return (
-        <p className="flex items-center gap-1.5 text-sm text-muted">
-          <CircleStop aria-hidden className="size-4" />
-          You stopped this request before it finished.
-        </p>
-      );
+      return <p className="text-sm text-graphite italic">You stopped this request before it finished.</p>;
     default:
-      if (!turn.live) return <p className="text-sm text-muted">No answer was recorded for this request.</p>;
+      if (!turn.live) return <p className="text-sm text-graphite italic">No answer was recorded for this request.</p>;
       return (
-        <p role="status" className="flex items-center gap-2 text-sm text-muted">
-          <Spinner />
+        <p role="status" className="flex items-baseline gap-2.5 text-sm text-graphite italic">
           {PHASE_LABEL[run.phase]}
+          <Spinner className="text-ink" />
         </p>
       );
   }
 }
 
+const BYLINE: Partial<Record<RunPhase, string>> = {
+  clarification: "asks a question back",
+  done: "answers",
+  error: "reports a failure",
+  cancelled: "did not finish",
+};
+
 export const TurnView = memo(function TurnView({ turn }: { turn: Turn }) {
   const showStatusAboveAnswer = !isTerminal(turn.run.phase);
+  const byline = BYLINE[turn.run.phase] ?? "is working on it";
   return (
-    <article className="space-y-3">
-      <header className="flex items-baseline justify-between gap-3">
-        <h2 className="text-lg leading-snug font-semibold text-ink">{turn.question}</h2>
-        <time dateTime={turn.createdAt} className="shrink-0 text-xs text-faint">
+    <article className="space-y-5">
+      <header>
+        <time dateTime={turn.createdAt} className="font-mono text-2xs text-pencil">
           {formatTime(turn.createdAt)}
         </time>
+        <h2 className="mt-1 max-w-[30ch] text-xl font-medium text-balance text-ink sm:text-2xl">{turn.question}</h2>
       </header>
-      <div className="space-y-3 border-l-2 border-agent-ceo/40 pl-4">
-        <AgentBadge name="ceo" />
-        <RunProgress run={turn.run} live={showStatusAboveAnswer} />
+      <RunProgress run={turn.run} live={showStatusAboveAnswer} />
+      <div className="space-y-2">
+        <p className="text-xs text-graphite">
+          <AgentName name="ceo" /> {byline}
+        </p>
         <AssistantBody turn={turn} />
       </div>
     </article>

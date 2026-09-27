@@ -1,4 +1,3 @@
-import { History, Plus, Users } from "lucide-react";
 import type { ReactNode } from "react";
 import { formatRelative } from "../lib/format";
 import { AGENTS_HREF, chatHref, type Route } from "../hooks/useHashRoute";
@@ -15,10 +14,9 @@ interface SidebarProps {
   onNavigate?: () => void;
 }
 
-function NavLink({ href, active, icon, children, onNavigate }: {
+function NavLink({ href, active, children, onNavigate }: {
   href: string;
   active: boolean;
-  icon: ReactNode;
   children: ReactNode;
   onNavigate?: () => void;
 }) {
@@ -27,12 +25,9 @@ function NavLink({ href, active, icon, children, onNavigate }: {
       href={href}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium ${
-        active ? "bg-chrome-soft text-white" : "text-chrome-text hover:bg-chrome-soft/60 hover:text-white"
-      }`}
+      className={`block py-1 text-base ${active ? "font-semibold text-ink" : "text-graphite hover:text-ink"}`}
     >
-      {icon}
-      {children}
+      <span className={active ? "marked" : ""}>{children}</span>
     </a>
   );
 }
@@ -42,17 +37,17 @@ function HistoryList({ route, history, onRetryHistory, onNavigate }: Pick<Sideba
 
   if (history.status === "loading" && !history.data) {
     return (
-      <p role="status" className="flex items-center gap-2 px-2.5 py-2 text-xs text-chrome-text">
-        <Spinner className="size-3.5" />
+      <p role="status" className="flex items-baseline gap-2 py-2 text-xs text-graphite italic">
         Loading conversations
+        <Spinner />
       </p>
     );
   }
   if (history.status === "error" && !history.data) {
     return (
-      <div role="alert" className="px-2.5 py-2 text-xs text-chrome-text">
-        <p>Could not load conversations: {history.error}</p>
-        <button type="button" onClick={onRetryHistory} className="mt-1 font-medium text-signal hover:underline">
+      <div role="alert" className="border-l-2 border-refuse py-1 pl-3 text-xs">
+        <p className="text-graphite">Could not load conversations: {history.error}</p>
+        <button type="button" onClick={onRetryHistory} className="link mt-1 font-semibold text-ink">
           Try again
         </button>
       </div>
@@ -60,55 +55,55 @@ function HistoryList({ route, history, onRetryHistory, onNavigate }: Pick<Sideba
   }
   const items = history.data ?? [];
   if (items.length === 0) {
-    return <p className="px-2.5 py-2 text-xs text-chrome-text/80">Past questions appear here after you ask one.</p>;
+    return <p className="py-2 text-xs text-graphite italic">Past questions are listed here after you ask one.</p>;
   }
   return (
-    <ul className="space-y-0.5">
+    <ol>
       {items.map((conversation) => {
         const active = conversation.id === activeId;
         return (
-          <li key={conversation.id}>
+          <li key={conversation.id} className="border-t border-rule first:border-t-0">
             <a
               href={chatHref(conversation.id)}
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
-              className={`block rounded-md px-2.5 py-1.5 ${
-                active ? "bg-chrome-soft text-white" : "text-chrome-text hover:bg-chrome-soft/60 hover:text-white"
-              }`}
+              className={`group block py-2 ${active ? "text-ink" : "text-graphite hover:text-ink"}`}
             >
-              <span className="line-clamp-2 text-sm">{conversation.title || "Untitled conversation"}</span>
-              <time dateTime={conversation.updated_at} className="text-[11px] text-chrome-text/70">
+              <span className={`line-clamp-2 text-sm ${active ? "font-semibold" : ""}`}>
+                <span className={active ? "marked" : ""}>{conversation.title || "Untitled conversation"}</span>
+              </span>
+              <time dateTime={conversation.updated_at} className="font-mono text-2xs text-pencil">
                 {formatRelative(conversation.updated_at)}
               </time>
             </a>
           </li>
         );
       })}
-    </ul>
+    </ol>
   );
 }
 
 function HealthLine({ health, mode }: Pick<SidebarProps, "health" | "mode">) {
   if (mode === "mock") {
     return (
-      <p className="flex items-center gap-2 text-xs text-chrome-text">
-        <span aria-hidden className="size-2 rounded-full bg-signal" />
+      <p className="text-xs text-graphite">
+        <span aria-hidden className="mr-1.5 text-caution">◆</span>
         Mock mode: scripted runs, no backend
       </p>
     );
   }
   if (health.status === "loading") {
     return (
-      <p className="flex items-center gap-2 text-xs text-chrome-text">
-        <Spinner className="size-3" />
+      <p className="flex items-baseline gap-2 text-xs text-graphite italic">
         Checking backend
+        <Spinner />
       </p>
     );
   }
   if (health.status === "error") {
     return (
-      <p className="flex items-center gap-2 text-xs text-chrome-text" title={health.error}>
-        <span aria-hidden className="size-2 rounded-full bg-fail" />
+      <p className="text-xs text-graphite" title={health.error}>
+        <span aria-hidden className="mr-1.5 text-refuse">●</span>
         Backend unreachable on :8000
       </p>
     );
@@ -120,45 +115,37 @@ function HealthLine({ health, mode }: Pick<SidebarProps, "health" | "mode">) {
     data.langfuse ? null : "Langfuse",
   ].filter(Boolean);
   return (
-    <p className="flex items-start gap-2 text-xs text-chrome-text">
-      <span aria-hidden className={`mt-1 size-2 shrink-0 rounded-full ${data.status === "ok" ? "bg-ok" : "bg-warn"}`} />
-      <span>
-        {data.status === "ok" ? "Backend healthy" : "Backend degraded"}
-        {missing.length > 0 ? `: no ${missing.join(", ")}` : ""}
-      </span>
+    <p className="text-xs text-graphite">
+      <span aria-hidden className={`mr-1.5 ${data.status === "ok" ? "text-done" : "text-caution"}`}>●</span>
+      {data.status === "ok" ? "Backend healthy" : "Backend degraded"}
+      {missing.length > 0 ? `: no ${missing.join(", ")}` : ""}
     </p>
   );
 }
 
 export function Sidebar({ route, history, onRetryHistory, health, mode, onNavigate }: SidebarProps) {
   return (
-    <nav aria-label="Main" className="flex h-full flex-col bg-chrome text-white">
-      <div className="px-4 pt-4 pb-3">
-        <p className="text-[15px] font-semibold tracking-tight">Orchestration console</p>
-        <p className="text-xs text-chrome-text">CEO, Finance, HR and Tech agents</p>
+    <nav aria-label="Main" className="flex h-full flex-col border-r border-rule bg-paper px-5">
+      <div className="pt-5 pr-14 pb-5 md:pr-0">
+        <p className="text-lg leading-tight font-semibold tracking-tight text-ink">Orchestration console</p>
+        <p className="mt-0.5 text-xs text-graphite italic">CEO, Finance, HR and Tech agents</p>
       </div>
-      <div className="space-y-0.5 px-2">
-        <NavLink
-          href={chatHref(null)}
-          active={route.page === "chat" && route.conversationId === null}
-          icon={<Plus aria-hidden className="size-4" />}
-          onNavigate={onNavigate}
-        >
+      <div className="border-t border-rule-strong pt-2 pb-4">
+        <NavLink href={chatHref(null)} active={route.page === "chat" && route.conversationId === null} onNavigate={onNavigate}>
           New question
         </NavLink>
-        <NavLink href={AGENTS_HREF} active={route.page === "agents"} icon={<Users aria-hidden className="size-4" />} onNavigate={onNavigate}>
+        <NavLink href={AGENTS_HREF} active={route.page === "agents"} onNavigate={onNavigate}>
           Agents
         </NavLink>
       </div>
-      <div className="mt-5 flex items-center gap-2 px-4 pb-1.5 text-xs font-medium text-chrome-text">
-        <History aria-hidden className="size-3.5" />
-        Conversations
-        {history.status === "loading" && history.data ? <Spinner className="size-3" /> : null}
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+      <h2 className="flex items-baseline gap-2 border-t border-rule-strong pt-3 pb-1 text-xs font-semibold text-graphite">
+        Earlier questions
+        {history.status === "loading" && history.data ? <Spinner className="text-pencil" /> : null}
+      </h2>
+      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1 pb-3">
         <HistoryList route={route} history={history} onRetryHistory={onRetryHistory} onNavigate={onNavigate} />
       </div>
-      <div className="border-t border-chrome-soft px-4 py-3">
+      <div className="border-t border-rule py-3">
         <HealthLine health={health} mode={mode} />
       </div>
     </nav>

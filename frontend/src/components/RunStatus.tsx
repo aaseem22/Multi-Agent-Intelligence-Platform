@@ -1,47 +1,41 @@
-import { CheckCircle2, CircleDashed, CircleHelp, CircleSlash, CircleX, LoaderCircle } from "lucide-react";
 import type { AgentRunState } from "../lib/run";
 
 const LABELS: Record<AgentRunState, string> = {
-  queued: "Queued",
-  running: "Working",
-  ok: "Done",
-  partial: "Partial",
-  failed: "Failed",
-  needs_clarification: "Needs clarification",
+  queued: "queued",
+  running: "working",
+  ok: "done",
+  partial: "partial",
+  failed: "failed",
+  needs_clarification: "needs clarification",
 };
 
-export function RunStateIcon({ state }: { state: AgentRunState }) {
-  const common = "size-4 shrink-0";
-  switch (state) {
-    case "queued":
-      return <CircleDashed aria-hidden className={`${common} text-faint`} />;
-    case "running":
-      return <LoaderCircle aria-hidden className={`${common} animate-spin text-agent-tech`} />;
-    case "ok":
-      return <CheckCircle2 aria-hidden className={`${common} text-ok`} />;
-    case "partial":
-      return <CircleSlash aria-hidden className={`${common} text-warn`} />;
-    case "failed":
-      return <CircleX aria-hidden className={`${common} text-fail`} />;
-    case "needs_clarification":
-      return <CircleHelp aria-hidden className={`${common} text-warn`} />;
-  }
-}
-
-const TEXT_TONE: Record<AgentRunState, string> = {
-  queued: "text-faint",
-  running: "text-agent-tech",
-  ok: "text-ok",
-  partial: "text-warn",
-  failed: "text-fail",
-  needs_clarification: "text-warn",
+// Typographic glyphs rather than icons: they sit on the baseline like the words beside them.
+const GLYPHS: Record<AgentRunState, string> = {
+  queued: "○",
+  running: "◐",
+  ok: "●",
+  partial: "◑",
+  failed: "✕",
+  needs_clarification: "?",
 };
 
+const INK: Record<AgentRunState, string> = {
+  queued: "text-pencil",
+  running: "text-ink",
+  ok: "text-done",
+  partial: "text-caution",
+  failed: "text-refuse",
+  needs_clarification: "text-caution",
+};
+
+/** Status as a word with a small glyph. "Working" gets the highlighter because it is what is happening now. */
 export function RunStateLabel({ state }: { state: AgentRunState }) {
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-medium ${TEXT_TONE[state]}`}>
-      <RunStateIcon state={state} />
-      {LABELS[state]}
+    <span className={`inline-flex items-baseline gap-1.5 text-xs whitespace-nowrap ${INK[state]}`}>
+      <span aria-hidden className={`font-mono ${state === "running" ? "animate-breathe" : ""}`}>
+        {GLYPHS[state]}
+      </span>
+      <span className={state === "running" ? "marked" : ""}>{LABELS[state]}</span>
     </span>
   );
 }

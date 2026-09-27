@@ -1,16 +1,22 @@
-import { AlertTriangle, LoaderCircle, RotateCw } from "lucide-react";
 import type { ReactNode } from "react";
 
-export function Spinner({ className = "size-4" }: { className?: string }) {
-  return <LoaderCircle aria-hidden className={`animate-spin text-faint ${className}`} />;
+/** A three-dot "still writing" mark. Quieter than a spinner and at home in running text. */
+export function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <span aria-hidden className={`inline-flex items-center gap-[3px] ${className}`}>
+      <span className="size-[4px] animate-breathe rounded-full bg-current" />
+      <span className="size-[4px] animate-breathe rounded-full bg-current [animation-delay:0.2s]" />
+      <span className="size-[4px] animate-breathe rounded-full bg-current [animation-delay:0.4s]" />
+    </span>
+  );
 }
 
 export function LoadingState({ label }: { label: string }) {
   return (
-    <div role="status" className="flex items-center gap-2 px-4 py-6 text-sm text-muted">
-      <Spinner />
+    <p role="status" className="flex items-baseline gap-2.5 py-6 text-sm text-graphite italic">
       {label}
-    </div>
+      <Spinner className="text-pencil" />
+    </p>
   );
 }
 
@@ -20,42 +26,31 @@ interface ErrorStateProps {
   onRetry?: () => void;
 }
 
+/** A failure reads as a marginal note in red: a rule on the left, the reason, and a way forward. */
 export function ErrorState({ title, detail, onRetry }: ErrorStateProps) {
   return (
-    <div role="alert" className="rounded-lg border border-fail/30 bg-fail/5 px-4 py-3 text-sm">
-      <div className="flex items-start gap-2">
-        <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-fail" />
-        <div className="min-w-0 flex-1">
-          <p className="font-medium text-fail">{title}</p>
-          <p className="mt-0.5 break-words text-muted">{detail}</p>
-        </div>
-        {onRetry ? (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-line bg-surface px-2 py-1 text-xs font-medium text-ink hover:bg-paper"
-          >
-            <RotateCw aria-hidden className="size-3" />
-            Try again
-          </button>
-        ) : null}
-      </div>
+    <div role="alert" className="border-l-2 border-refuse py-1 pl-4">
+      <p className="font-semibold text-refuse">{title}</p>
+      <p className="mt-1 max-w-[65ch] text-sm break-words text-graphite">{detail}</p>
+      {onRetry ? (
+        <button type="button" onClick={onRetry} className="link mt-2 text-sm font-semibold text-ink">
+          Try again
+        </button>
+      ) : null}
     </div>
   );
 }
 
 interface EmptyStateProps {
-  icon: ReactNode;
   title: string;
   children?: ReactNode;
 }
 
-export function EmptyState({ icon, title, children }: EmptyStateProps) {
+export function EmptyState({ title, children }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center px-6 py-10 text-center">
-      <div className="mb-3 text-faint">{icon}</div>
-      <p className="font-medium text-ink">{title}</p>
-      {children ? <div className="mt-1 max-w-sm text-sm text-muted">{children}</div> : null}
+    <div className="py-8">
+      <p className="text-base font-semibold text-ink">{title}</p>
+      {children ? <div className="mt-1 max-w-[42ch] text-sm text-graphite">{children}</div> : null}
     </div>
   );
 }

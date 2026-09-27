@@ -1,62 +1,90 @@
 @import "tailwindcss";
 
 /*
-  Dispatch-board palette: cool paper, navy chrome, and one colour per agent so a
-  message can be traced across the plan, the status list and the A2A rail.
+  "Annotated briefing": cool ledger-grey stock, blue-black ink, hairline rules and one
+  highlighter. Structure comes from type, alignment and rules, never from boxes.
+  See DESIGN.md for the rules these tokens encode.
 */
 @theme {
-  --font-sans: "Avenir Next", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "SF Mono", "Cascadia Mono", "Roboto Mono", ui-monospace, monospace;
+  --font-serif: "Literata Variable", "Iowan Old Style", Georgia, serif;
+  --font-mono: "Fragment Mono", "SF Mono", ui-monospace, monospace;
+  --font-sans: var(--font-serif);
 
-  --color-paper: #edf0f3;
-  --color-surface: #ffffff;
-  --color-ink: #1b2433;
-  --color-muted: #5e6a7d;
-  --color-faint: #8b96a8;
-  --color-line: #d6dce4;
-  --color-chrome: #1d2b53;
-  --color-chrome-soft: #2a3a68;
-  --color-chrome-text: #c9d3ea;
-  --color-signal: #f2c94c;
+  /* Paper and ink */
+  --color-paper: #f1f2ed;
+  --color-paper-deep: #e6e8e1;
+  --color-ink: #191d1b;
+  --color-graphite: #4f5652;
+  --color-pencil: #5f6661;
+  --color-rule: #cacec5;
+  --color-rule-strong: #979c94;
 
-  --color-agent-ceo: #a87c0c;
-  --color-agent-finance: #1f8a5b;
-  --color-agent-hr: #b4508f;
-  --color-agent-tech: #2f6fd6;
-  --color-agent-other: #6b5bd2;
+  /* The one accent: a highlighter pass over whatever is current */
+  --color-mark: #f3e07a;
+  --color-mark-soft: #f7eeb4;
 
-  --color-ok: #1f8a5b;
-  --color-warn: #b7791f;
-  --color-fail: #c0392b;
+  /* Status inks, used as text and small glyphs only */
+  --color-done: #36652a;
+  --color-caution: #83560b;
+  --color-refuse: #ab2a1f;
 
-  --animate-pulse-dot: pulse-dot 1.4s ease-in-out infinite;
-  --animate-enter: enter 0.25s ease-out;
+  /* Agent inks: identity is a coloured name, not a chip */
+  --color-agent-ceo: #191d1b;
+  --color-agent-finance: #1c6a50;
+  --color-agent-hr: #893a60;
+  --color-agent-tech: #1f5188;
+  --color-agent-other-1: #6a5717;
+  --color-agent-other-2: #226767;
+  --color-agent-other-3: #7a462a;
 
-  @keyframes pulse-dot {
+  /* Type scale: minor third from a 16px base, reading text one step up */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.1rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.2rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.45rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.55rem;
+  --text-read: 1.125rem;
+  --text-read--line-height: 1.8rem;
+  --text-lg: 1.3125rem;
+  --text-lg--line-height: 1.8rem;
+  --text-xl: 1.625rem;
+  --text-xl--line-height: 2.1rem;
+  --text-2xl: 2.125rem;
+  --text-2xl--line-height: 2.55rem;
+
+  --radius-xs: 2px;
+
+  --animate-enter: enter 0.28s ease-out;
+  --animate-breathe: breathe 1.6s ease-in-out infinite;
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes breathe {
     0%,
     100% {
       opacity: 1;
     }
     50% {
-      opacity: 0.35;
-    }
-  }
-
-  @keyframes enter {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+      opacity: 0.3;
     }
   }
 }
 
 @layer base {
   * {
-    @apply border-line;
+    @apply border-rule;
   }
 
   html,
@@ -66,12 +94,27 @@
   }
 
   body {
-    @apply bg-paper text-ink font-sans antialiased;
+    @apply bg-paper font-serif text-ink antialiased;
+    font-optical-sizing: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--color-mark);
+    color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-agent-tech);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
+  }
+
+  summary {
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -81,6 +124,36 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* A highlighter stroke behind text: slightly irregular, like a real pass of the pen. */
+  .marked {
+    background-image: linear-gradient(
+      100deg,
+      transparent 0.2em,
+      var(--color-mark) 0.35em,
+      var(--color-mark) calc(100% - 0.35em),
+      transparent calc(100% - 0.2em)
+    );
+    background-size: 100% 72%;
+    background-position: 0 70%;
+    background-repeat: no-repeat;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .link {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--color-rule-strong);
+  }
+
+  .link:hover {
+    text-decoration-color: var(--color-ink);
   }
 }

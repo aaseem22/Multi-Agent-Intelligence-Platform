@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/*
+  "Annotated briefing": cool ledger-grey stock, blue-black ink, hairline rules and one
+  highlighter. Structure comes from type, alignment and rules, never from boxes.
+  See DESIGN.md for the rules these tokens encode.
+*/
+@theme {
+  --font-serif: "Literata Variable", "Iowan Old Style", Georgia, serif;
+  --font-mono: "Fragment Mono", "SF Mono", ui-monospace, monospace;
+  --font-sans: var(--font-serif);
+
+  /* Paper and ink */
+  --color-paper: #f1f2ed;
+  --color-paper-deep: #e6e8e1;
+  --color-ink: #191d1b;
+  --color-graphite: #4f5652;
+  --color-pencil: #5f6661;
+  --color-rule: #cacec5;
+  --color-rule-strong: #979c94;
+
+  /* The one accent: a highlighter pass over whatever is current */
+  --color-mark: #f3e07a;
+  --color-mark-soft: #f7eeb4;
+
+  /* Status inks, used as text and small glyphs only */
+  --color-done: #36652a;
+  --color-caution: #83560b;
+  --color-refuse: #ab2a1f;
+
+  /* Agent inks: identity is a coloured name, not a chip */
+  --color-agent-ceo: #191d1b;
+  --color-agent-finance: #1c6a50;
+  --color-agent-hr: #893a60;
+  --color-agent-tech: #1f5188;
+  --color-agent-other-1: #6a5717;
+  --color-agent-other-2: #226767;
+  --color-agent-other-3: #7a462a;
+
+  /* Type scale: minor third from a 16px base, reading text one step up */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.1rem;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.2rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.45rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.55rem;
+  --text-read: 1.125rem;
+  --text-read--line-height: 1.8rem;
+  --text-lg: 1.3125rem;
+  --text-lg--line-height: 1.8rem;
+  --text-xl: 1.625rem;
+  --text-xl--line-height: 2.1rem;
+  --text-2xl: 2.125rem;
+  --text-2xl--line-height: 2.55rem;
+
+  --radius-xs: 2px;
+
+  --animate-enter: enter 0.28s ease-out;
+  --animate-breathe: breathe 1.6s ease-in-out infinite;
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-rule;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-paper font-serif text-ink antialiased;
+    font-optical-sizing: auto;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--color-mark);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+
+  summary {
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* A highlighter stroke behind text: slightly irregular, like a real pass of the pen. */
+  .marked {
+    background-image: linear-gradient(
+      100deg,
+      transparent 0.2em,
+      var(--color-mark) 0.35em,
+      var(--color-mark) calc(100% - 0.35em),
+      transparent calc(100% - 0.2em)
+    );
+    background-size: 100% 72%;
+    background-position: 0 70%;
+    background-repeat: no-repeat;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .link {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: var(--color-rule-strong);
+  }
+
+  .link:hover {
+    text-decoration-color: var(--color-ink);
+  }
+}

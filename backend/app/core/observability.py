@@ -63,11 +63,14 @@ def reset_langfuse() -> None:
 
 
 def shutdown() -> None:
+    """Flush pending traces. The SDK shuts itself down at process exit; calling its
+    shutdown() here would leave the cached client with dead workers, and the next
+    flush (e.g. a second Orchestrator in the same process) would block forever."""
     if _client is not None:
         try:
-            _client.shutdown()
+            _client.flush()
         except Exception as exc:
-            logger.warning("Langfuse shutdown failed: %s", exc)
+            logger.warning("Langfuse flush failed: %s", exc)
 
 
 @dataclass

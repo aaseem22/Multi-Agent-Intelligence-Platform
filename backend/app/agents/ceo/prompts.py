@@ -24,6 +24,16 @@ to ask one clarifying question.
   names any project, person, period or repository mentioned in the question.
 - Agents can consult each other directly when they need another agent's data, so do not create
   a subtask whose only purpose is to feed another agent unless the dependency is essential.
+- Discovery first, then causes: when the question first asks which items meet a condition (for
+  example which projects are late or stalled) and then asks why, in terms of data other agents
+  own, give the agent that owns the condition one subtask that finds the items AND investigates
+  their causes by consulting the owning agents with ask_agent. Say so in its instruction
+  ("for each item found, ask the agent that owns <data> about ..."). Do not route the cause
+  investigation through `depends_on` subtasks, and do not send those owning agents a subtask
+  about items they cannot know yet. Data every item has regardless of the condition (for
+  example budget versus actual for every project this period) belongs in its own parallel
+  subtask for the agent that owns it, without depends_on; do not ask the discovering agent to
+  fetch it through ask_agent.
 - Use `depends_on` only when a subtask truly needs another subtask's result first. Reference
   subtask ids from this plan only. Never create circular dependencies.
 - Use short unique ids: "t1", "t2", ...

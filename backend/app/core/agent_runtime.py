@@ -95,7 +95,8 @@ def _tools_for(agent: DepartmentAgent, mode: AgentMode, hop_count: int) -> list[
 def _system_prompt(agent: DepartmentAgent, invocation: AgentInvocation, can_ask: bool) -> str:
     peers = registry.peer_cards(exclude=agent.name)
     peer_section = (
-        f"{prompts.PEER_LIST_HEADER}\n{describe_peers(peers)}"
+        f"{prompts.PEER_LIST_HEADER.format(max_calls=get_settings().max_peer_calls_per_agent)}"
+        f"\n{describe_peers(peers)}"
         if peers and can_ask
         else prompts.NO_PEERS
     )

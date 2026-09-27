@@ -17,7 +17,9 @@ Give your final answer as the structured response.
 PEER_RULE_ALLOWED = "You may ask another peer only if you truly need data you do not own."
 PEER_RULE_BLOCKED = "You cannot ask other agents; the delegation hop limit has been reached."
 
-PEER_LIST_HEADER = "## Peer agents you can ask with ask_agent"
+PEER_LIST_HEADER = """## Peer agents you can ask with ask_agent
+You may make at most {max_calls} ask_agent calls for this request. Ask each agent at most once:
+put every item you need (all projects, people or periods) into that one question."""
 NO_PEERS = "## Peer agents\nNo peer agents are available. Work only with your own tools."
 
 CONTEXT_HEADER = """
@@ -30,6 +32,8 @@ only when you need information outside your own domain. Pass the agent's name as
 specific, self-contained question. The reply is JSON with `answer`, `status` and a `source_ref`
 (starting with "peer:") that you must cite in evidence_refs. A reply starting with "REFUSED"
 means the request was blocked (hop limit, cycle or call limit): continue with what you have.
+You have at most {max_calls} calls per request, so ask each agent once and include every item
+you need in that single question instead of one call per item.
 
 Available agents:
 {peers}"""

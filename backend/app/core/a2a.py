@@ -236,6 +236,8 @@ def build_ask_agent_tool(sender: str) -> BaseTool | None:
     return StructuredTool.from_function(
         coroutine=_ask,
         name="ask_agent",
-        description=ASK_AGENT_DESCRIPTION.format(peers=describe_peers(peers)),
+        description=ASK_AGENT_DESCRIPTION.format(
+            peers=describe_peers(peers), max_calls=get_settings().max_peer_calls_per_agent
+        ),
         args_schema=AskAgentInput,
     )

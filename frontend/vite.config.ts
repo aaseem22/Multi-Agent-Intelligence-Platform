@@ -9,7 +9,8 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        // VITE_API_TARGET overrides the backend URL, e.g. when port 8000 is taken.
+        target: process.env.VITE_API_TARGET ?? "http://localhost:8000",
         changeOrigin: true,
       },
     },

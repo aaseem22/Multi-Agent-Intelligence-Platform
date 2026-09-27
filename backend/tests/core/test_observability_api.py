@@ -1,5 +1,10 @@
-"""Observability dashboard endpoints, with the Langfuse REST API mocked by respx (no network)."""
+"""Observability dashboard endpoints, with the Langfuse REST API mocked by respx (no network).
 
+The mocks mirror the current read APIs: GET /api/public/v2/observations (cursor pagination,
+`fields` groups, io as raw strings) and GET /api/public/v3/scores (trace id under `subject`).
+"""
+
+import json
 from datetime import UTC, datetime, timedelta
 
 import httpx
@@ -16,6 +21,8 @@ from app.data.repositories import platform
 from app.main import create_app
 
 HOST = "https://langfuse.test"
+OBSERVATIONS_URL = f"{HOST}/api/public/v2/observations"
+SCORES_URL = f"{HOST}/api/public/v3/scores"
 pytestmark = pytest.mark.usefixtures("clean_registry")
 
 
@@ -56,82 +63,131 @@ def obs(obs_id, name, obs_type, start_s, end_s, parent=None, **extra):
     return {
         "id": obs_id,
         "traceId": extra.pop("trace_id", "t1"),
+        "projectId": "p1",
         "name": name,
         "type": obs_type,
         "startTime": iso(NOW + timedelta(seconds=start_s)),
         "endTime": iso(NOW + timedelta(seconds=end_s)),
         "parentObservationId": parent,
+        "isRootObservation": extra.pop("root", False),
         "level": extra.pop("level", "DEFAULT"),
+        "statusMessage": extra.pop("statusMessage", ""),
         "usageDetails": extra.pop("usage", {}),
+        "totalUsage": extra.pop("total_usage", 0),
+        "totalCost": extra.pop("cost", None),
         "metadata": extra.pop("metadata", {}),
         **extra,
     }
 
 
-OBSERVATIONS = [
-    obs("root", "stakeholder_request", "AGENT", 0, 20),
-    obs("plan", "plan", "SPAN", 0.1, 2, "root"),
-    obs("g1", "ChatGoogleGenerativeAI", "GENERATION", 0.2, 1.9, "plan", usage={"total": 300}),
-    obs("tech", "agent:tech", "AGENT", 2, 15, "root", metadata={"agent": "tech", "hop_count": 0}),
-    obs("tool1", "repo_activity", "TOOL", 3, 4, "tech"),
-    obs("ask", "ask_agent", "TOOL", 4, 12, "tech"),
-    obs(
-        "peer",
-        "a2a:tech->hr",
-        "AGENT",
-        4.1,
-        11,
-        "ask",
-        metadata={"hop_count": 1, "chain": ["tech"], "agent": "hr"},
-    ),
-    obs("tool2", "project_staffing", "TOOL", 5, 6, "peer"),
-    obs(
-        "g2",
-        "ChatGoogleGenerativeAI",
-        "GENERATION",
-        6,
-        10,
-        "peer",
-        usage={"input": 100, "output": 50},
-    ),
-    obs("fin", "agent:finance", "AGENT", 2, 9, "root", level="ERROR", statusMessage="boom"),
-    obs("synth", "synthesise", "SPAN", 16, 19, "root"),
-]
+def observations(root_level: str = "DEFAULT"):
+    return [
+        # The logical root points at a physical parent that is not part of the trace.
+        obs("root", "stakeholder_request", "AGENT", 0, 20, "ghost", root=True, level=root_level),
+        obs("plan", "plan", "CHAIN", 0.1, 2, "root"),
+        obs(
+            "g1",
+            "ChatGoogleGenerativeAI",
+            "GENERATION",
+            0.2,
+            1.9,
+            "plan",
+            total_usage=300,
+            cost=0.0007,
+            level="ERROR",
+            statusMessage="503 UNAVAILABLE (retried)",
+        ),
+        obs(
+            "tech", "agent:tech", "AGENT", 2, 15, "root", metadata={"agent": "tech", "hop_count": 0}
+        ),
+        obs("tool1", "repo_activity", "TOOL", 3, 4, "tech"),
+        obs("ask", "ask_agent", "TOOL", 4, 12, "tech", metadata={"agent": "tech"}),
+        obs(
+            "peer",
+            "a2a:tech->hr",
+            "CHAIN",
+            4.1,
+            11,
+            "ask",
+            metadata={"hop_count": 1, "chain": ["tech"], "agent": "hr"},
+        ),
+        obs("tool2", "project_staffing", "TOOL", 5, 6, "peer", metadata={"agent": "hr"}),
+        obs(
+            "g2",
+            "ChatGoogleGenerativeAI",
+            "GENERATION",
+            6,
+            10,
+            "peer",
+            usage={"input": 100, "output": 50},
+            cost=0.0005,
+        ),
+        obs("fin", "agent:finance", "AGENT", 2, 9, "root", level="ERROR", statusMessage="boom"),
+        obs("synth", "synthesise", "CHAIN", 16, 19, "root"),
+    ]
 
-TRACE = {
-    "id": "t1",
-    "name": "stakeholder_request",
-    "timestamp": iso(NOW),
-    "input": {"question": "Which projects are behind schedule?"},
+
+ROOT = {
+    **obs("root", "stakeholder_request", "AGENT", 0, 20, "ghost", root=True),
+    "input": json.dumps({"question": "Which projects are behind schedule?"}),
     "sessionId": "conv-1",
-    "tags": ["tech", "finance"],
+    "traceName": "stakeholder_request",
+    "tags": [],
     "latency": 20.0,
-    "totalCost": 0.0012,
-    "htmlPath": "/project/p1/traces/t1",
+}
+RUN_OUTPUTS = {
+    "agent:": [
+        {"id": "tech", "output": json.dumps({"result": {"status": "ok"}})},
+        {"id": "fin", "output": json.dumps({"result": {"status": "ok"}})},
+    ],
+    # io comes back as raw strings: the failed peer run must be recognised after decoding.
+    "a2a:": [{"id": "peer", "output": json.dumps({"result": {"status": "failed"}})}],
 }
 SCORES = [
-    {"id": "s1", "traceId": "t1", "name": "eval_independent", "value": 1.0},
-    {"id": "s2", "traceId": "t1", "name": "eval_evidence", "value": 0.0},
+    {
+        "id": "s1",
+        "name": "eval_independent",
+        "dataType": "BOOLEAN",
+        "value": True,
+        "metadata": {"agent": "tech"},
+        "subject": {"kind": "trace", "id": "t1"},
+    },
+    {
+        "id": "s2",
+        "name": "eval_evidence",
+        "dataType": "BOOLEAN",
+        "value": False,
+        "comment": "no evidence",
+        "metadata": {"agent": "tech"},
+        "subject": {"kind": "trace", "id": "t1"},
+    },
 ]
 
 
-def page(data):
-    return {
-        "data": data,
-        "meta": {"page": 1, "limit": 100, "totalItems": len(data), "totalPages": 1},
-    }
+def observations_handler(rows, root=ROOT):
+    """Serve v2/observations like Langfuse: roots, name-prefix filters and two cursor pages."""
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        params = request.url.params
+        assert "fields" in params
+        if params.get("isRootObservation") == "true":
+            return httpx.Response(200, json={"data": [root] if root else [], "meta": {}})
+        if "filter" in params:
+            prefix = json.loads(params["filter"])[0]["value"]
+            return httpx.Response(200, json={"data": RUN_OUTPUTS[prefix], "meta": {}})
+        half = len(rows) // 2
+        if params.get("cursor") == "page-2":
+            return httpx.Response(200, json={"data": rows[half:], "meta": {}})
+        return httpx.Response(200, json={"data": rows[:half], "meta": {"cursor": "page-2"}})
+
+    return handle
 
 
-def mock_langfuse(router: respx.Router) -> None:
-    router.get(f"{HOST}/api/public/traces").mock(
-        return_value=httpx.Response(200, json=page([TRACE]))
+def mock_langfuse(router: respx.Router, rows=None, root=ROOT) -> None:
+    router.get(OBSERVATIONS_URL).mock(
+        side_effect=observations_handler(rows if rows is not None else observations(), root)
     )
-    router.get(f"{HOST}/api/public/observations").mock(
-        return_value=httpx.Response(200, json=page(OBSERVATIONS))
-    )
-    router.get(f"{HOST}/api/public/v2/scores").mock(
-        return_value=httpx.Response(200, json=page(SCORES))
-    )
+    router.get(SCORES_URL).mock(return_value=httpx.Response(200, json={"data": SCORES, "meta": {}}))
 
 
 async def log_peer(refused: bool, recipient: str = "hr") -> None:
@@ -184,20 +240,30 @@ async def test_summary_disabled_when_langfuse_unreachable(client, langfuse_keys)
     assert "reach Langfuse" in body["reason"]
 
 
+async def test_summary_disabled_when_endpoint_gone(client, langfuse_keys):
+    with respx.mock(assert_all_mocked=True) as router:
+        router.get(url__startswith=HOST).mock(return_value=httpx.Response(410, json={}))
+        body = (await client.get("/api/observability/summary")).json()
+    assert body["enabled"] is False
+    assert "410" in body["reason"]
+
+
 # --- enabled path ------------------------------------------------------------------------------
 
 
-async def test_summary_aggregates_traces_observations_and_scores(client, langfuse_keys):
+async def test_summary_aggregates_observations_and_scores(client, langfuse_keys):
     await log_peer(refused=False)
     await log_peer(refused=True, recipient="finance")
     with respx.mock(assert_all_mocked=True) as router:
         mock_langfuse(router)
         response = await client.get("/api/observability/summary?days=7")
+        calls = router.calls.call_count
         # A second call within the TTL is served from the cache.
         await client.get("/api/observability/summary?days=7")
-        calls = router.calls.call_count
+        assert router.calls.call_count == calls
     assert response.status_code == 200
-    assert calls == 3
+    # roots, two cursor pages of observations, two run-output queries, scores
+    assert calls == 6
     body = response.json()
     assert body["enabled"] is True
     assert body["traces"] == 1
@@ -209,13 +275,16 @@ async def test_summary_aggregates_traces_observations_and_scores(client, langfus
     assert body["tool_calls"] == 3
     assert body["peer_calls"] == 1
     assert body["refusals"] == 1
-    assert body["error_rate"] == 1.0
+    # An inner LLM error that was retried does not make the request an error.
+    assert body["error_rate"] == 0.0
+    assert body["success_rate"] == 0.0
 
     agents = {a["agent"]: a for a in body["per_agent"]}
     assert agents["ceo"]["role"] == "supervisor" and agents["ceo"]["runs"] == 1
     assert agents["tech"]["runs"] == 1 and agents["tech"]["tool_calls"] == 2
     assert agents["hr"]["runs"] == 1 and agents["hr"]["tool_calls"] == 1
-    assert agents["finance"]["failures"] == 1
+    assert agents["hr"]["failures"] == 1  # from the decoded run output
+    assert agents["finance"]["failures"] == 1  # from level=ERROR
     assert agents["tech"]["avg_latency_ms"] == 13000.0
 
     scores = {s["name"]: s for s in body["scores"]}
@@ -226,10 +295,18 @@ async def test_summary_aggregates_traces_observations_and_scores(client, langfus
     assert edges[("tech", "hr", "peer")]["count"] == 1
     assert edges[("tech", "finance", "peer")]["refusals"] == 1
     assert edges[("ceo", "tech", "task")]["count"] == 1
+    assert edges[("tech", "hr", "peer")]["last_at"].endswith(("Z", "+00:00"))
 
     assert body["window"]["bucket"] == "day"
     assert sum(b["traces"] for b in body["timeseries"]) == 1
     assert sum(b["tokens"] for b in body["timeseries"]) == 450
+
+
+async def test_root_error_marks_the_request_as_error(client, langfuse_keys):
+    with respx.mock(assert_all_mocked=True) as router:
+        mock_langfuse(router, rows=observations(root_level="ERROR"))
+        body = (await client.get("/api/observability/summary")).json()
+    assert body["error_rate"] == 1.0
 
 
 async def test_trace_list(client, langfuse_keys):
@@ -238,9 +315,13 @@ async def test_trace_list(client, langfuse_keys):
         body = (await client.get("/api/observability/traces?limit=10")).json()
     assert body["enabled"] is True
     [trace] = body["traces"]
+    assert trace["id"] == "t1"
     assert trace["question"] == "Which projects are behind schedule?"
     assert trace["latency_ms"] == 20000.0
-    assert trace["status"] == "error"
+    assert trace["tokens"] == 450
+    assert trace["cost"] == pytest.approx(0.0012)
+    assert trace["status"] == "partial"
+    assert trace["session_id"] == "conv-1"
     assert trace["agents"] == ["finance", "hr", "tech"]
     assert trace["peer_calls"] == 1
     assert trace["url"] == f"{HOST}/project/p1/traces/t1"
@@ -252,14 +333,14 @@ async def test_trace_list(client, langfuse_keys):
 
 async def test_trace_detail_builds_indented_tree(client, langfuse_keys):
     await log_peer(refused=True, recipient="finance")
-    detail = {**TRACE, "observations": OBSERVATIONS, "scores": SCORES}
     with respx.mock(assert_all_mocked=True) as router:
-        router.get(f"{HOST}/api/public/traces/t1").mock(
-            return_value=httpx.Response(200, json=detail)
-        )
+        mock_langfuse(router)
         body = (await client.get("/api/observability/traces/t1")).json()
+        trace_params = [c.request.url.params.get("traceId") for c in router.calls]
+    assert set(trace_params) == {"t1"}
     assert body["enabled"] is True
     assert body["trace"]["id"] == "t1"
+    assert body["trace"]["question"] == "Which projects are behind schedule?"
     rows = body["observations"]
     order = [r["id"] for r in rows]
     assert order[0] == "root"
@@ -269,17 +350,18 @@ async def test_trace_detail_builds_indented_tree(client, langfuse_keys):
     assert peer["depth"] == 3
     assert peer["metadata"]["hop_count"] == 1
     assert peer["metadata"]["chain"] == ["tech"]
+    assert peer["failed"] is True
     finance = next(r for r in rows if r["id"] == "fin")
     assert finance["failed"] is True and finance["status_message"] == "boom"
-    assert {s["name"] for s in body["scores"]} == {"eval_independent", "eval_evidence"}
+    scores = {s["name"]: s for s in body["scores"]}
+    assert scores["eval_evidence"]["passed"] is False and scores["eval_evidence"]["agent"] == "tech"
+    assert scores["eval_independent"]["passed"] is True
     assert body["a2a"][0]["refused"] is True
 
 
 async def test_trace_detail_not_found(client, langfuse_keys):
     with respx.mock(assert_all_mocked=True) as router:
-        router.get(f"{HOST}/api/public/traces/missing").mock(
-            return_value=httpx.Response(404, json={})
-        )
+        mock_langfuse(router, rows=[], root=None)
         response = await client.get("/api/observability/traces/missing")
     assert response.status_code == 404
 

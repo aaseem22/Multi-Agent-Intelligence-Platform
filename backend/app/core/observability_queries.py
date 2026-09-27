@@ -1,7 +1,11 @@
 """Read-side queries for the observability dashboard: Langfuse traces, observations and scores.
 
-Talks to the Langfuse public REST API (`{host}/api/public/...`, basic auth public:secret) with
-httpx, so keys stay server-side. Responses are cached briefly to spare the free tier. Local
+Talks to the Langfuse public REST API with httpx (basic auth public:secret), so keys stay
+server-side. It uses the current read APIs only: `GET /api/public/v2/observations` (cursor
+pagination, `fields` groups) and `GET /api/public/v3/scores`. The legacy trace, v1 observation,
+v2 score and daily-metrics endpoints are gone for new organisations (HTTP 410) and are removed
+for everyone on 2026-11-16. A "trace" here is its root observation (`isRootObservation=true`);
+its tokens, cost, agents and status are aggregated from the trace's observations. Responses are cached briefly to spare the free tier. Local
 `a2a_messages` rows are merged in for peer-call and refusal counts, so A2A numbers work even
 when Langfuse lags ingestion. Every public function returns a plain dict and never raises:
 without keys, or when Langfuse fails, it returns `{"enabled": False, "reason": ...}`.
@@ -11,6 +15,7 @@ Nothing here names a specific department: agents are read from span names
 """
 
 import asyncio
+import json
 import logging
 import math
 import time
@@ -30,10 +35,20 @@ logger = logging.getLogger(__name__)
 
 CACHE_TTL_SECONDS = 20.0
 HTTP_TIMEOUT_SECONDS = 15.0
-PAGE_LIMIT = 100
-MAX_TRACE_PAGES = 5
+OBSERVATIONS_PATH = "/api/public/v2/observations"
+SCORES_PATH = "/api/public/v3/scores"
+ROOT_PAGE_LIMIT = 100
+MAX_ROOT_PAGES = 5
+OBSERVATION_PAGE_LIMIT = 1000
 MAX_OBSERVATION_PAGES = 10
-MAX_SCORE_PAGES = 5
+RUN_PAGE_LIMIT = 200
+MAX_RUN_PAGES = 3
+SCORE_PAGE_LIMIT = 100
+MAX_SCORE_PAGES = 10
+ROOT_FIELDS = "core,basic,io,metrics,trace_context"
+OBSERVATION_FIELDS = "core,basic,usage,metadata,model"
+RUN_FIELDS = "core,basic,io"
+SCORE_FIELDS = "details,subject"
 LATENCY_TARGET_MS = 45_000
 SUPERVISOR_FALLBACK = "ceo"
 SUPERVISOR_NODES = ("plan", "synthesise")
@@ -75,6 +90,8 @@ async def _get(client: httpx.AsyncClient, path: str, params: dict[str, Any]) -> 
         raise LangfuseUnavailable("Langfuse rejected the API keys (check LANGFUSE_* in .env)")
     if response.status_code == 404:
         raise LookupError(path)
+    if response.status_code == 410:
+        raise LangfuseUnavailable(f"Langfuse no longer serves {path} (HTTP 410)")
     if response.status_code >= 400:
         raise LangfuseUnavailable(f"Langfuse API returned HTTP {response.status_code}")
     try:
@@ -83,18 +100,27 @@ async def _get(client: httpx.AsyncClient, path: str, params: dict[str, Any]) -> 
         raise LangfuseUnavailable("Langfuse returned a response that is not JSON") from exc
 
 
-async def _get_pages(
-    client: httpx.AsyncClient, path: str, params: dict[str, Any], max_pages: int
+async def _get_cursor_pages(
+    client: httpx.AsyncClient, path: str, params: dict[str, Any], limit: int, max_pages: int
 ) -> list[dict[str, Any]]:
+    """Follow `meta.cursor` until it runs out or `max_pages` pages have been read."""
     rows: list[dict[str, Any]] = []
-    for page in range(1, max_pages + 1):
-        body = await _get(client, path, {**params, "page": page, "limit": PAGE_LIMIT})
-        data = body.get("data", []) if isinstance(body, dict) else []
-        rows.extend(data)
-        total_pages = (body.get("meta") or {}).get("totalPages") if isinstance(body, dict) else None
-        if len(data) < PAGE_LIMIT or (total_pages is not None and page >= total_pages):
+    cursor: str | None = None
+    for _ in range(max_pages):
+        body = await _get(client, path, {**params, "limit": limit, "cursor": cursor})
+        if not isinstance(body, dict):
+            break
+        rows.extend(row for row in body.get("data") or [] if isinstance(row, dict))
+        cursor = (body.get("meta") or {}).get("cursor")
+        if not cursor:
             break
     return rows
+
+
+def _name_prefix_filter(prefix: str) -> str:
+    return json.dumps(
+        [{"type": "string", "column": "name", "operator": "starts with", "value": prefix}]
+    )
 
 
 def _client() -> httpx.AsyncClient:
@@ -137,7 +163,20 @@ def _duration_ms(obs: dict[str, Any]) -> float | None:
     return max((end - start).total_seconds() * 1000, 0.0)
 
 
+def _json_value(value: Any) -> Any:
+    """v2 returns input/output as raw strings; decode JSON when it is JSON."""
+    if isinstance(value, str) and value[:1] in ("{", "["):
+        try:
+            return json.loads(value)
+        except ValueError:
+            return value
+    return value
+
+
 def _tokens(obs: dict[str, Any]) -> int:
+    total = obs.get("totalUsage")
+    if isinstance(total, int | float) and total:
+        return int(total)
     details = obs.get("usageDetails") or {}
     if isinstance(details, dict) and details:
         if "total" in details:
@@ -192,7 +231,7 @@ def _obs_kind(obs: dict[str, Any]) -> str:
 def _run_failed(obs: dict[str, Any]) -> bool:
     if str(obs.get("level") or "").upper() == "ERROR":
         return True
-    output = obs.get("output")
+    output = _json_value(obs.get("output"))
     if isinstance(output, dict):
         result = output.get("result")
         if isinstance(result, dict) and result.get("status") == "failed":
@@ -201,7 +240,7 @@ def _run_failed(obs: dict[str, Any]) -> bool:
 
 
 def _question(trace: dict[str, Any]) -> str:
-    value = trace.get("input")
+    value = _json_value(trace.get("input"))
     if isinstance(value, dict):
         value = value.get("question") or value.get("message") or value.get("input")
     if value is None:
@@ -219,9 +258,9 @@ def _span_metadata(obs: dict[str, Any]) -> dict[str, Any]:
 
 def _trace_url(trace: dict[str, Any]) -> str:
     host = get_settings().langfuse_host.rstrip("/")
-    html_path = trace.get("htmlPath")
-    if isinstance(html_path, str) and html_path:
-        return f"{host}{html_path}"
+    project = trace.get("projectId")
+    if isinstance(project, str) and project:
+        return f"{host}/project/{project}/traces/{trace.get('id', '')}"
     return f"{host}/trace/{trace.get('id', '')}"
 
 
@@ -249,6 +288,8 @@ def _supervisor_name() -> str:
 
 def _score_passed(score: dict[str, Any]) -> bool:
     value = score.get("value")
+    if isinstance(value, bool):
+        return value
     if isinstance(value, int | float):
         return value >= 0.5
     return str(score.get("stringValue") or value).lower() in ("true", "1", "pass", "passed")
@@ -298,24 +339,113 @@ async def _local_a2a(since: datetime) -> list[A2AMessage]:
     return result
 
 
+def _normalise_score(score: dict[str, Any]) -> dict[str, Any]:
+    """A v3 score as a flat dict with `traceId` (v3 nests it under `subject`)."""
+    subject = score.get("subject") if isinstance(score.get("subject"), dict) else {}
+    trace_id = score.get("traceId")
+    if trace_id is None and subject.get("kind") == "trace":
+        trace_id = subject.get("id")
+    return {**score, "traceId": trace_id}
+
+
+def _trace_from_root(root: dict[str, Any], observations: list[dict[str, Any]]) -> dict[str, Any]:
+    """A trace-shaped dict built from its root observation plus its observations' usage."""
+    latency = root.get("latency")
+    if not isinstance(latency, int | float):
+        duration = _duration_ms(root)
+        latency = duration / 1000 if duration is not None else None
+    costs = [float(c) for o in observations if isinstance(c := o.get("totalCost"), int | float)]
+    return {
+        "id": str(root.get("traceId")),
+        "name": root.get("traceName") or root.get("name"),
+        "timestamp": root.get("startTime"),
+        "input": root.get("input"),
+        "sessionId": root.get("sessionId") or None,
+        "tags": [t for t in root.get("tags") or [] if isinstance(t, str)],
+        "latency": latency,
+        "totalCost": round(sum(costs), 6) if costs else None,
+        "projectId": root.get("projectId"),
+    }
+
+
+def _merge_run_outputs(
+    observations: list[dict[str, Any]], runs: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Attach agent/a2a run outputs (fetched separately, `io` is heavy) to their observations."""
+    outputs = {str(r.get("id")): r.get("output") for r in runs}
+    if not outputs:
+        return observations
+    return [
+        {**o, "output": outputs[str(o.get("id"))]} if str(o.get("id")) in outputs else o
+        for o in observations
+    ]
+
+
+def _unique_roots(roots: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[str] = set()
+    unique = []
+    for root in roots:
+        trace_id = str(root.get("traceId"))
+        if trace_id not in seen:
+            seen.add(trace_id)
+            unique.append(root)
+    return unique
+
+
+async def _fetch_runs(client: httpx.AsyncClient, params: dict[str, Any]) -> list[dict[str, Any]]:
+    """Agent and peer-call spans with their outputs, so failed runs can be recognised."""
+    batches = await asyncio.gather(
+        *(
+            _get_cursor_pages(
+                client,
+                OBSERVATIONS_PATH,
+                {**params, "fields": RUN_FIELDS, "filter": _name_prefix_filter(prefix)},
+                RUN_PAGE_LIMIT,
+                MAX_RUN_PAGES,
+            )
+            for prefix in (AGENT_PREFIX, A2A_PREFIX)
+        )
+    )
+    return [row for batch in batches for row in batch]
+
+
 async def _load_window(days: int) -> Window:
     end = datetime.now(UTC)
     start = end - timedelta(days=days)
     since = start.isoformat().replace("+00:00", "Z")
+    window_params = {"fromStartTime": since}
     async with _client() as client:
-        traces, observations, scores = await asyncio.gather(
-            _get_pages(
+        roots, observations, runs, scores = await asyncio.gather(
+            _get_cursor_pages(
                 client,
-                "/api/public/traces",
-                {"fromTimestamp": since, "orderBy": "timestamp.desc"},
-                MAX_TRACE_PAGES,
+                OBSERVATIONS_PATH,
+                {**window_params, "isRootObservation": "true", "fields": ROOT_FIELDS},
+                ROOT_PAGE_LIMIT,
+                MAX_ROOT_PAGES,
             ),
-            _get_pages(
-                client, "/api/public/observations", {"fromStartTime": since}, MAX_OBSERVATION_PAGES
+            _get_cursor_pages(
+                client,
+                OBSERVATIONS_PATH,
+                {**window_params, "fields": OBSERVATION_FIELDS},
+                OBSERVATION_PAGE_LIMIT,
+                MAX_OBSERVATION_PAGES,
             ),
-            _get_pages(client, "/api/public/v2/scores", {"fromTimestamp": since}, MAX_SCORE_PAGES),
+            _fetch_runs(client, window_params),
+            _get_cursor_pages(
+                client,
+                SCORES_PATH,
+                {"fromTimestamp": since, "fields": SCORE_FIELDS},
+                SCORE_PAGE_LIMIT,
+                MAX_SCORE_PAGES,
+            ),
         )
-    return Window(days, start, end, traces, observations, scores)
+    observations = _merge_run_outputs(observations, runs)
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for obs in observations:
+        grouped[str(obs.get("traceId"))].append(obs)
+    traces = [_trace_from_root(r, grouped[str(r.get("traceId"))]) for r in _unique_roots(roots)]
+    traces.sort(key=lambda t: str(t.get("timestamp") or ""), reverse=True)
+    return Window(days, start, end, traces, observations, [_normalise_score(s) for s in scores])
 
 
 async def _window(days: int) -> Window:
@@ -336,8 +466,23 @@ def _trace_latency_ms(trace: dict[str, Any]) -> float | None:
     return float(latency) * 1000 if isinstance(latency, int | float) else None
 
 
+def _is_error(obs: dict[str, Any]) -> bool:
+    return str(obs.get("level") or "").upper() == "ERROR"
+
+
+def _roots(observations: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    ids = {str(o.get("id")) for o in observations}
+    return [
+        o
+        for o in observations
+        if o.get("isRootObservation") is True or o.get("parentObservationId") not in ids
+    ]
+
+
 def _trace_status(observations: list[dict[str, Any]], scores: list[dict[str, Any]]) -> str:
-    if any(str(o.get("level") or "").upper() == "ERROR" for o in observations):
+    """error: the request itself failed (root span errored). partial: an agent run or an eval
+    check failed. Errors on inner spans alone (e.g. an LLM call that was retried) do not count."""
+    if any(_is_error(o) for o in _roots(observations)):
         return "error"
     runs = [o for o in observations if _run_agent(o)]
     if any(_run_failed(o) for o in runs) or any(not _score_passed(s) for s in scores):
@@ -367,6 +512,14 @@ def _nearest_run(obs: dict[str, Any], by_id: dict[str, dict[str, Any]]) -> str |
     return None
 
 
+def _tool_owner(obs: dict[str, Any], by_id: dict[str, dict[str, Any]]) -> str | None:
+    """The agent that called a tool: run metadata inherited by the tool span, else its ancestry."""
+    metadata = obs.get("metadata")
+    if isinstance(metadata, dict) and isinstance(metadata.get("agent"), str):
+        return metadata["agent"]
+    return _nearest_run(obs, by_id)
+
+
 def _per_agent(window: Window, trace_status: dict[str, str]) -> list[dict[str, Any]]:
     by_id = {str(o.get("id")): o for o in window.observations}
     runs: dict[str, list[float]] = defaultdict(list)
@@ -380,7 +533,7 @@ def _per_agent(window: Window, trace_status: dict[str, str]) -> list[dict[str, A
             if (duration := _duration_ms(obs)) is not None:
                 runs[agent].append(duration)
             failures[agent] += int(_run_failed(obs))
-        elif _type(obs) == "TOOL" and (owner := _nearest_run(obs, by_id)):
+        elif _type(obs) == "TOOL" and (owner := _tool_owner(obs, by_id)):
             tools[owner] += 1
     rows = [
         {
@@ -422,6 +575,8 @@ def _edges(window: Window) -> list[dict[str, Any]]:
         )
         edge["count"] += int(not refused)
         edge["refusals"] += int(refused)
+        if at is not None and at.tzinfo is None:
+            at = at.replace(tzinfo=UTC)  # the local A2A log stores naive UTC timestamps
         stamp = at.isoformat() if at else None
         if stamp and (edge.get("last_at") is None or stamp > edge["last_at"]):
             edge["last_at"] = stamp
@@ -661,7 +816,11 @@ def _a2a_row(message: A2AMessage) -> dict[str, Any]:
         "refused": bool(message.payload.get("refused")),
         "reason": message.payload.get("reason"),
         "content": message.content[:300],
-        "created_at": message.created_at.isoformat(),
+        "created_at": (
+            message.created_at
+            if message.created_at.tzinfo
+            else message.created_at.replace(tzinfo=UTC)
+        ).isoformat(),
     }
 
 
@@ -682,9 +841,12 @@ def _ordered_tree(observations: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return ordered
 
 
-def build_trace_detail(trace: dict[str, Any], messages: list[A2AMessage]) -> dict[str, Any]:
-    observations = [o for o in trace.get("observations") or [] if isinstance(o, dict)]
-    scores = [s for s in trace.get("scores") or [] if isinstance(s, dict)]
+def build_trace_detail(
+    trace: dict[str, Any],
+    observations: list[dict[str, Any]],
+    scores: list[dict[str, Any]],
+    messages: list[A2AMessage],
+) -> dict[str, Any]:
     depths = _depths(observations)
     rows = [
         _observation_row(o, depths.get(str(o.get("id")), 0), messages)
@@ -764,9 +926,49 @@ async def observability_traces(limit: int = 50, days: int = 7) -> dict[str, Any]
         return {**_disabled(f"Could not list traces: {type(exc).__name__}"), "traces": []}
 
 
-async def _load_trace(trace_id: str) -> dict[str, Any]:
+@dataclass
+class TraceBundle:
+    trace: dict[str, Any]
+    observations: list[dict[str, Any]]
+    scores: list[dict[str, Any]]
+
+
+async def _load_trace(trace_id: str) -> TraceBundle:
+    params = {"traceId": trace_id}
     async with _client() as client:
-        return await _get(client, f"/api/public/traces/{trace_id}", {})
+        observations, roots, runs, scores = await asyncio.gather(
+            _get_cursor_pages(
+                client,
+                OBSERVATIONS_PATH,
+                {**params, "fields": OBSERVATION_FIELDS},
+                OBSERVATION_PAGE_LIMIT,
+                MAX_OBSERVATION_PAGES,
+            ),
+            _get_cursor_pages(
+                client,
+                OBSERVATIONS_PATH,
+                {**params, "isRootObservation": "true", "fields": ROOT_FIELDS},
+                ROOT_PAGE_LIMIT,
+                1,
+            ),
+            _fetch_runs(client, params),
+            _get_cursor_pages(
+                client,
+                SCORES_PATH,
+                {**params, "fields": SCORE_FIELDS},
+                SCORE_PAGE_LIMIT,
+                MAX_SCORE_PAGES,
+            ),
+        )
+    if not observations and not roots:
+        raise LookupError(trace_id)
+    observations = _merge_run_outputs(observations, runs)
+    root = roots[0] if roots else min(observations, key=lambda o: str(o.get("startTime")))
+    return TraceBundle(
+        trace=_trace_from_root({**root, "traceId": trace_id}, observations),
+        observations=observations,
+        scores=[_normalise_score(s) for s in scores],
+    )
 
 
 async def observability_trace(trace_id: str) -> dict[str, Any] | None:
@@ -774,7 +976,7 @@ async def observability_trace(trace_id: str) -> dict[str, Any] | None:
     if reason := _guarded_settings_check():
         return _disabled(reason)
     try:
-        trace = await _cached(("trace", trace_id), lambda: _load_trace(trace_id))
+        bundle: TraceBundle = await _cached(("trace", trace_id), lambda: _load_trace(trace_id))
     except LookupError:
         return None
     except LangfuseUnavailable as exc:
@@ -783,7 +985,8 @@ async def observability_trace(trace_id: str) -> dict[str, Any] | None:
         logger.exception("Observability trace detail failed")
         return _disabled(f"Could not load the trace: {type(exc).__name__}")
     try:
-        return build_trace_detail(trace, await _trace_messages(trace_id))
+        messages = await _trace_messages(trace_id)
+        return build_trace_detail(bundle.trace, bundle.observations, bundle.scores, messages)
     except Exception as exc:
         logger.exception("Observability trace detail could not be built")
         return _disabled(f"Could not read the trace: {type(exc).__name__}")

@@ -966,8 +966,39 @@ def build_trace_detail(
             }
             for s in scores
         ],
-        "a2a": [_a2a_row(m) for m in messages],
+        "a2a": [_a2a_row(m) for m in messages] or _a2a_rows_from_spans(rows),
     }
+
+
+def _a2a_rows_from_spans(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Peer calls taken from the trace's own `a2a:*` spans, for traces whose messages are not
+    in the local log (other process, other database, or a trace id the log never saw).
+    Refused requests never start a span, so they only appear when the local log has them."""
+    calls = []
+    for row in rows:
+        pair = _a2a_pair(row["name"])
+        if not pair:
+            continue
+        metadata = row["metadata"]
+        calls.append(
+            {
+                "id": row["id"],
+                "sender": pair[0],
+                "recipient": pair[1],
+                "type": "peer_request",
+                "hop_count": int(metadata.get("hop_count") or 1),
+                "chain": list(metadata.get("chain") or [pair[0]]),
+                "refused": False,
+                "reason": None,
+                "content": f"{pair[0]} asked {pair[1]} ({_seconds_label(row['latency_ms'])})",
+                "created_at": row["start"],
+            }
+        )
+    return calls
+
+
+def _seconds_label(latency_ms: float | None) -> str:
+    return "duration unknown" if latency_ms is None else f"answered in {latency_ms / 1000:.1f} s"
 
 
 async def _trace_messages(trace_id: str) -> list[A2AMessage]:

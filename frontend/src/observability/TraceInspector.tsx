@@ -4,7 +4,7 @@ import type { ObsA2AMessage, ObsObservation, ObsTraceScore, ObservabilityTraceDe
 import { AgentTag } from "../components/AgentName";
 import { useTraceDetail } from "./hooks";
 import { StatusMark } from "./TraceFeed";
-import { agentHue, agentName, formatCompact, formatCost, formatSeconds, formatStamp, scoreLabel } from "./theme";
+import { agentHue, agentName, formatCompact, formatCost, formatSeconds, formatStamp, scoreGroup, scoreLabel } from "./theme";
 
 const KIND_STYLE = {
   a2a: { glyph: "⇄", label: "Peer call (a2a span)" },
@@ -188,14 +188,16 @@ function ScoreGrid({ scores }: { scores: ObsTraceScore[] }) {
   const agents = [...new Set(scores.map((s) => s.agent ?? "trace"))].sort();
   const lookup = new Map(scores.map((s) => [`${s.agent ?? "trace"}|${s.name ?? "score"}`, s]));
   return (
-    <table className="w-full text-left text-sm">
+    <div className="overflow-x-auto">
+    <table className="w-full min-w-max text-left text-sm">
       <caption className="sr-only">Eval scores by agent and stage</caption>
       <thead>
         <tr className="obs-cond obs-t3 text-xs">
           <th className="py-1 pr-4 font-normal">Agent</th>
           {names.map((n) => (
-            <th key={n} className="py-1 pr-4 font-normal">
+            <th key={n} className="py-1 pr-4 font-normal whitespace-nowrap" title={n}>
               {scoreLabel(n)}
+              {scoreGroup(n) === "Judge" ? <span className="obs-t3"> · judge</span> : null}
             </th>
           ))}
         </tr>
@@ -222,6 +224,7 @@ function ScoreGrid({ scores }: { scores: ObsTraceScore[] }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
@@ -343,8 +346,8 @@ export function TraceInspector({
                 ))}
               </div>
               <Waterfall detail={detail} supervisor={supervisor} />
-              <div className="grid gap-8 lg:grid-cols-2">
-                <section aria-labelledby="obs-scores-title">
+              <div className="grid gap-8">
+                <section aria-labelledby="obs-scores-title" className="min-w-0">
                   <h3 id="obs-scores-title" className="obs-panel-title mb-2">Eval scores</h3>
                   <ScoreGrid scores={detail.scores} />
                 </section>

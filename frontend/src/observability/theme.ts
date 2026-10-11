@@ -81,6 +81,11 @@ export function formatStamp(iso: string | null | undefined): string {
 }
 
 export function scoreLabel(name: string): string {
-  const stage = name.replace(/^eval_/, "");
+  const stage = name.replace(/^(eval|judge)_/, "").replaceAll("_", " ");
   return stage.charAt(0).toUpperCase() + stage.slice(1);
+}
+
+/** "Judge" for per-dimension judge scores, "Stage" for the eval pipeline stages. */
+export function scoreGroup(name: string): "Judge" | "Stage" {
+  return name.startsWith("judge_") ? "Judge" : "Stage";
 }

@@ -35,7 +35,7 @@ function FirstRun() {
         <p>
           Start one from the Runs tab, or from a terminal in <code className="font-mono text-xs">backend/</code>:
         </p>
-        <pre className="mt-3 overflow-x-auto rounded-block bg-subtle px-3 py-2 text-left font-mono text-2xs text-ink-2">
+        <pre className="mt-3 rounded-block bg-subtle px-3 py-2 text-left font-mono text-2xs whitespace-pre-wrap break-words text-ink-2">
           uv run python -m app.evals.run --dataset golden --trials 1
         </pre>
         <p className="mt-3">A first pass over the golden dataset with one trial takes about half an hour on the Gemini free tier.</p>

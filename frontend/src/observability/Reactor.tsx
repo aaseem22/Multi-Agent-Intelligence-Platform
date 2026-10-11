@@ -2,7 +2,7 @@ import { memo } from "react";
 import type { ObservabilitySummary } from "../types/observability";
 import { useCountUp } from "./hooks";
 import { Panel } from "./Panel";
-import { formatInt, formatPercent, formatSeconds, scoreLabel } from "./theme";
+import { formatInt, formatPercent, formatSeconds, scoreGroup, scoreLabel } from "./theme";
 
 const SIZE = 240;
 const C = SIZE / 2;
@@ -127,8 +127,11 @@ function ReactorImpl({ summary }: { summary: ObservabilitySummary }) {
           <p className="mb-2.5 text-xs font-medium text-muted">Eval stages</p>
           <ul className="space-y-2">
             {summary.scores.map((score) => (
-              <li key={score.name} className="grid grid-cols-[88px_1fr_44px] items-center gap-3">
-                <span className="text-sm text-ink-2">{scoreLabel(score.name)}</span>
+              <li key={score.name} className="grid grid-cols-[minmax(0,8.5rem)_1fr_44px] items-center gap-3">
+                <span className="truncate text-sm text-ink-2" title={score.name}>
+                  {scoreLabel(score.name)}
+                  {scoreGroup(score.name) === "Judge" ? <span className="text-muted"> · judge</span> : null}
+                </span>
                 <span className="relative h-1.5 rounded-full bg-subtle">
                   <span
                     className="absolute inset-y-0 left-0 rounded-full"

@@ -369,3 +369,16 @@ async def test_trace_detail_not_found(client, langfuse_keys):
 async def test_trace_id_is_validated(client):
     response = await client.get("/api/observability/traces/bad id!")
     assert response.status_code == 422
+
+
+async def test_trace_detail_peer_messages_fall_back_to_spans(client, langfuse_keys):
+    """No local A2A log for this trace (e.g. another process recorded it): the peer list comes
+    from the trace's own a2a:* spans instead of claiming no agent asked a peer."""
+    with respx.mock(assert_all_mocked=True) as router:
+        mock_langfuse(router)
+        body = (await client.get("/api/observability/traces/t1")).json()
+    assert len(body["a2a"]) == 1
+    call = body["a2a"][0]
+    assert (call["sender"], call["recipient"]) == ("tech", "hr")
+    assert call["type"] == "peer_request" and call["refused"] is False
+    assert call["hop_count"] == 1 and call["chain"] == ["tech"]

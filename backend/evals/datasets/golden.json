@@ -633,12 +633,18 @@
           "finance",
           "hr"
         ],
-        "peer_messages": "required",
+        "peer_messages": "any",
         "required_facts": [
           {
             "description": "states the team's payroll cost",
             "any_of": [
               "{db.understaffed_team_cost_prev}"
+            ]
+          },
+          {
+            "description": "names last quarter correctly",
+            "any_of": [
+              "{db.previous_period}"
             ]
           },
           {
@@ -648,11 +654,20 @@
             ]
           }
         ],
+        "forbidden_facts": [
+          {
+            "description": "costs the quarter before last instead",
+            "any_of": [
+              "{db.period_before_previous}"
+            ]
+          }
+        ],
         "reference_answer": "The {scenario.understaffed.project_name} team ({db.understaffed_lead_name} and {db.understaffed_member_name}) cost {db.understaffed_team_cost_prev} in payroll in {db.previous_period}."
       },
       "graders": [
         "routing",
         "peer_expectation",
+        "forbidden_facts",
         "required_facts",
         "clarification",
         "evidence_valid",
@@ -667,7 +682,7 @@
         "budget:llm=40",
         "budget:seconds=600"
       ],
-      "notes": "Finance owns payroll but not allocations: it must ask HR who is on the team instead of guessing employee ids."
+      "notes": "Finance owns payroll but not allocations: it must ask HR who is on the team (peer call or a depends_on subtask; the outcome is graded, not the route) instead of guessing employee ids, and must cost the right quarter: the team payroll is flat across quarters, so the period fact catches a wrong 'last quarter'."
     },
     {
       "id": "cap-dep-most-allocated-delivery",
@@ -742,6 +757,12 @@
             "description": "states their payroll cost",
             "any_of": [
               "{db.most_open_issues_lead_cost_prev}"
+            ]
+          },
+          {
+            "description": "names last quarter correctly",
+            "any_of": [
+              "{db.previous_period}"
             ]
           }
         ],

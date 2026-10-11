@@ -167,7 +167,7 @@ class ForbiddenFactsGrader(Grader):
         text = ctx.trial.answer_text
         hits = {f.description: find_fact(text, f.any_of) for f in facts}
         reasons = [
-            f"FAIL: states {desc} ({hit!r})" if hit else f"ok: does not state {desc}"
+            f"FAIL: forbidden — {desc} ({hit!r})" if hit else f"ok: avoided — {desc}"
             for desc, hit in hits.items()
         ]
         score = 1 - sum(hit is not None for hit in hits.values()) / len(facts)

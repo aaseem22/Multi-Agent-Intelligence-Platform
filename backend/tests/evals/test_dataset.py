@@ -23,7 +23,7 @@ def golden() -> Dataset:
 
 
 def test_golden_loads_and_is_balanced(golden: Dataset) -> None:
-    assert golden.version == "1.0.0"
+    assert golden.version == "1.0.1"
     assert 25 <= len(golden.tasks) <= 35
     suites = Counter(t.suite for t in golden.tasks)
     assert suites["regression"] >= 10 and suites["capability"] >= 10

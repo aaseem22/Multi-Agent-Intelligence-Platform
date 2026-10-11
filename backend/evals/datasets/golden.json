@@ -1,6 +1,6 @@
 {
   "name": "golden",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Golden tasks for the multi-agent system against the deterministic fixture seed (offline GitHub fixtures, SEED=42). Facts are templated over the run's scenarios.json ({scenario.*}) and deterministic database queries ({db.*}) so they stay correct as quarters move. Regression tasks should stay near 100%; capability tasks are the hill to climb.",
   "tasks": [
     {
@@ -226,7 +226,7 @@
       "id": "reg-fin-top-overrun",
       "suite": "regression",
       "category": "single-domain",
-      "question": "Which project has the largest budget overrun this quarter?",
+      "question": "Which project is furthest over its budget this quarter, as a percentage of that budget?",
       "expected": {
         "agents_required": [
           "finance"
@@ -263,7 +263,7 @@
       "tags": [
         "finance"
       ],
-      "notes": "Finance ranks overruns itself; no other agent is needed."
+      "notes": "Finance ranks overruns itself; no other agent is needed. Ranked by percentage, not rupees: 'largest overrun' alone is ambiguous (v1.0.1)."
     },
     {
       "id": "reg-fin-expense-categories",
@@ -1049,7 +1049,7 @@
       "id": "cap-nopeer-top-overruns",
       "suite": "capability",
       "category": "no-peer",
-      "question": "List the top three budget overruns this quarter.",
+      "question": "List the top three budget overruns this quarter, ranked by percentage over budget.",
       "expected": {
         "agents_required": [
           "finance"
@@ -1088,7 +1088,7 @@
         "negative-peer",
         "finance"
       ],
-      "notes": "Purely Finance data; a peer call here wastes the free-tier budget. Fewer than three projects overrun, so the answer should not pad the list."
+      "notes": "Purely Finance data; a peer call here wastes the free-tier budget. Fewer than three projects overrun, so the answer should not pad the list. Ranked by percentage, not rupees: 'largest overrun' alone is ambiguous (v1.0.1)."
     },
     {
       "id": "cap-nopeer-upcoming-leave",

@@ -181,6 +181,15 @@ class ObsA2AMessage(BaseModel):
     created_at: datetime
 
 
+class HumanLabelRequest(BaseModel):
+    """Body of POST /api/evals/runs/{run_id}/labels (other eval types: app/evals/contracts.py)."""
+
+    trial_id: str = Field(min_length=1, max_length=128)
+    grader: str = Field(min_length=1, max_length=64)
+    human_passed: bool
+    note: str = Field(default="", max_length=2000)
+
+
 class ObservabilityTraceDetail(ObservabilityStatus):
     trace: ObsTraceMeta | None = None
     observations: list[ObsObservation] = []

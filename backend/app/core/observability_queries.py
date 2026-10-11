@@ -664,15 +664,16 @@ def _edges(window: Window) -> list[dict[str, Any]]:
             edge["last_at"] = stamp
 
     supervisor = _supervisor_name()
-    peer_requests = [m for m in window.a2a if m.type == "peer_request"]
-    for message in peer_requests:
-        refused = bool(message.payload.get("refused"))
-        bump(message.sender, message.recipient, "peer", message.created_at, refused)
+    # Delivered peer calls come from a2a:* spans, which every instance (local app, eval runner,
+    # deployment) writes to the shared Langfuse project. Refused requests never start a span,
+    # so only those come from this instance's local A2A log.
+    for message in _refused_requests(window):
+        bump(message.sender, message.recipient, "peer", message.created_at, True)
     for obs in window.observations:
         start = _parse_time(obs.get("startTime"))
         if _name(obs).startswith(AGENT_PREFIX) and (agent := _run_agent(obs)):
             bump(supervisor, agent, "task", start, False)
-        elif not peer_requests and (pair := _a2a_pair(_name(obs))):
+        elif pair := _a2a_pair(_name(obs)):
             bump(pair[0], pair[1], "peer", start, False)
     for edge in edges.values():
         edge.setdefault("last_at", None)
@@ -731,12 +732,14 @@ def _score_summary(scores: list[dict[str, Any]]) -> list[dict[str, Any]]:
     ]
 
 
+def _refused_requests(window: Window) -> list[A2AMessage]:
+    return [m for m in window.a2a if m.type == "peer_request" and m.payload.get("refused")]
+
+
 def _peer_counts(window: Window) -> tuple[int, int]:
-    requests = [m for m in window.a2a if m.type == "peer_request"]
-    if requests:
-        refusals = sum(1 for m in requests if m.payload.get("refused"))
-        return len(requests) - refusals, refusals
-    return sum(1 for o in window.observations if _a2a_pair(_name(o))), 0
+    """(delivered peer calls from a2a:* spans, refusals from the local A2A log)."""
+    delivered = sum(1 for o in window.observations if _a2a_pair(_name(o)))
+    return delivered, len(_refused_requests(window))
 
 
 def build_summary(window: Window) -> dict[str, Any]:

@@ -73,7 +73,7 @@ def test_material_is_truncated_to_budget():
         for i in range(200)
     ]
     material = render_material(JudgeInput(question="q" * 5000, answer="a" * 20000, evidence=many))
-    assert len(material) < 10_000  # ~2.5K tokens
+    assert len(material) < 13_000  # ~3.3K tokens, inside Groq's 8K tokens/min
     assert "more evidence items omitted" in material
     assert "[truncated]" in material
 
@@ -213,3 +213,17 @@ def test_groq_retry_delay_reads_headers():
     )
     assert groq_retry_delay(_rate_limited({})) is None
     assert parse_duration("120ms") == pytest.approx(0.12)
+
+
+def test_peer_evidence_shows_the_peer_answer_and_its_sources():
+    peer = Evidence(
+        source_type="peer",
+        source_ref="peer:hr:msg_1",
+        summary="hr answered (ok): ...",
+        data={
+            "answer": "Ml Forecasting is 47 days late; lead allocated 180%.",
+            "peer_evidence": [{"source_ref": "allocations:id=16", "summary": "Lead at 180%"}],
+        },
+    )
+    material = render_material(JudgeInput(question="q", answer="a", evidence=[peer]))
+    assert "47 days late" in material and "allocations:id=16: Lead at 180%" in material

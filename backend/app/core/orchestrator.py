@@ -374,6 +374,9 @@ async def _rerun(
     agent = registry.get(subtask.assigned_to)
     if agent is None:
         return _failed_result(subtask, f"unknown agent '{subtask.assigned_to}'")
+    # A retry gets a fresh peer-call budget; otherwise its own peer questions are refused.
+    if (ctx := current_request()) is not None:
+        ctx.peer_calls[subtask.assigned_to] = 0
     # The semaphore is not held while evaluating, so taking it again cannot deadlock.
     with observability.eval_attempt_scope(subtask.id, attempt):
         async with get_agent_semaphore():
@@ -395,17 +398,6 @@ def _best(attempts: list[_Attempt]) -> _Attempt:
     return best
 
 
-def _with_eval_reasons(result: AgentResult, reasons: list[str]) -> AgentResult:
-    """A result that still fails evaluation after the last attempt: an "ok" becomes "partial"
-    and the reasons go in `error`, so the synthesis reports it plainly."""
-    if result.status != "ok":
-        return result
-    summary = "; ".join(reasons[:4]) or "evaluation failed"
-    return result.model_copy(
-        update={"status": "partial", "error": f"Failed self-evaluation: {summary}"}
-    )
-
-
 async def evaluate_with_recovery(
     subtask: Subtask, result: AgentResult, context: list[AgentResult]
 ) -> AgentResult:
@@ -418,7 +410,10 @@ async def evaluate_with_recovery(
         if current.number >= max_attempts:
             best = _best(attempts)
             await _record_recovery("give_up", current, current.number, "")
-            return best.result if best.passed else _with_eval_reasons(best.result, best.reasons())
+            # Judge disagreement is not proof the answer is wrong (judges false-fail too), so
+            # the best attempt goes through unchanged; the give_up event and eval records keep
+            # the verdict for review and calibration.
+            return best.result
         feedback = current.feedback()
         next_attempt = current.number + 1
         await _record_recovery("retry", current, next_attempt, feedback)

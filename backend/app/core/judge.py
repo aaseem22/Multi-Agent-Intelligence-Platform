@@ -88,9 +88,13 @@ AGENT_ANSWER_RUBRIC = Rubric(
         ),
         RubricDimension(
             name="completeness",
-            question="Does the answer address every part of the instruction?",
+            question=(
+                "Does the answer provide every piece of information the instruction asks for? "
+                "Directions about how to work (which agents or tools to consult) are not "
+                "requirements on the answer."
+            ),
             pass_description="Each requested item is answered, or a gap is stated plainly.",
-            fail_description="Part of the instruction is ignored without saying so.",
+            fail_description="Requested information is missing without saying so.",
         ),
         RubricDimension(
             name="scope",
@@ -144,8 +148,10 @@ async def judge(rubric: Rubric, item: JudgeInput, *, isolated: bool = False) -> 
 # Input budget: the whole prompt must stay near ~2.5K tokens so a call fits Groq's 8K TPM.
 QUESTION_CHARS = 800
 ANSWER_CHARS = 3000
-EVIDENCE_CHARS = 4500
+EVIDENCE_CHARS = 7000
 EVIDENCE_DATA_CHARS = 240
+PEER_ANSWER_CHARS = 700
+PEER_EVIDENCE_ITEMS = 8
 REFERENCE_CHARS = 1000
 CONTEXT_CHARS = 400
 
@@ -191,10 +197,25 @@ def _clip(text: str, limit: int) -> str:
 
 def _evidence_line(evidence: Evidence) -> str:
     line = f"- {evidence.source_ref}: {_clip(evidence.summary, 200)}"
+    if evidence.source_type == "peer" and evidence.data:
+        return line + _peer_detail(evidence.data)
     if evidence.data:
         data = json.dumps(evidence.data, default=str, separators=(",", ":"))
         line += f" | data: {_clip(data, EVIDENCE_DATA_CHARS)}"
     return line
+
+
+def _peer_detail(data: dict[str, Any]) -> str:
+    """A peer's answer and the evidence it cited, so multi-hop figures can be checked."""
+    lines = []
+    if answer := data.get("answer"):
+        lines.append(f"\n  peer answer: {_clip(str(answer), PEER_ANSWER_CHARS)}")
+    for item in (data.get("peer_evidence") or [])[:PEER_EVIDENCE_ITEMS]:
+        if isinstance(item, dict):
+            lines.append(
+                f"\n  - {item.get('source_ref', '')}: {_clip(str(item.get('summary', '')), 160)}"
+            )
+    return "".join(lines)
 
 
 def render_material(item: JudgeInput) -> str:

@@ -382,3 +382,22 @@ async def test_trace_detail_peer_messages_fall_back_to_spans(client, langfuse_ke
     assert (call["sender"], call["recipient"]) == ("tech", "hr")
     assert call["type"] == "peer_request" and call["refused"] is False
     assert call["hop_count"] == 1 and call["chain"] == ["tech"]
+
+
+async def test_peer_calls_come_from_spans_not_the_local_log(client, langfuse_keys):
+    """The local A2A log only covers this process; spans cover every instance that shares the
+    Langfuse project. Delivered calls are counted from spans, refusals from the log."""
+    await log_peer(refused=False, recipient="finance")  # logged here but no span in Langfuse
+    await log_peer(refused=True, recipient="hr")
+    with respx.mock(assert_all_mocked=True) as router:
+        mock_langfuse(router)
+        body = (await client.get("/api/observability/summary?days=7")).json()
+    assert body["peer_calls"] == 1  # the single a2a:tech->hr span
+    assert body["refusals"] == 1
+    edges = {(e["source"], e["target"], e["kind"]): e for e in body["edges"]}
+    assert edges[("tech", "hr", "peer")] == {
+        **edges[("tech", "hr", "peer")],
+        "count": 1,
+        "refusals": 1,
+    }
+    assert ("tech", "finance", "peer") not in edges

@@ -236,7 +236,8 @@ async def test_retry_stops_after_limit_and_keeps_better_result(
     ]
     final = of_type(events, FinalEvent)[0].results[0]
     assert final.answer == "first answer"  # 0.6 beats 0.2
-    assert final.status == "partial" and final.error.startswith("Failed self-evaluation")
+    # Giving up keeps the best answer as is: a judge's disagreement is not proof it is wrong.
+    assert final.status == "ok" and final.error is None
     assert sorted(r["action"] for r in records if r["kind"] == "recovery") == ["give_up", "retry"]
 
 

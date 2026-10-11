@@ -66,6 +66,7 @@ class Repo(BaseModel):
     description: str | None = None
     html_url: str | None = None
     private: bool = False
+    fork: bool = False
     archived: bool = False
     language: str | None = None
     default_branch: str | None = None

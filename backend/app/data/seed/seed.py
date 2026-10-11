@@ -90,7 +90,8 @@ async def fetch_repos(max_repos: int) -> tuple[list[Repo], str, str | None]:
         client = GitHubClient(use_cache=False)
         try:
             result = await client.list_owner_repos(settings.github_owner)
-            repos = [r for r in result.items if not r.private][:max_repos]
+            repos = [r for r in result.items if _is_project_repo(r, settings.github_owner)]
+            repos = repos[:max_repos]
             if repos:
                 return repos, "github", settings.github_owner
             logger.warning("No public repos found for %s; using fixtures", settings.github_owner)
@@ -106,6 +107,12 @@ async def fetch_repos(max_repos: int) -> tuple[list[Repo], str, str | None]:
         await client.aclose()
     login = fixtures["repos"][0]["contributors"][0]["login"]
     return result.items[:max_repos], "fixtures", login
+
+
+def _is_project_repo(repo: Repo, owner: str) -> bool:
+    """Public, original, active repos only: no forks, archives or the profile README repo."""
+    is_profile = repo.name.lower() == owner.lower()
+    return not (repo.private or repo.fork or repo.archived or is_profile)
 
 
 def _title_case(repo_name: str) -> str:

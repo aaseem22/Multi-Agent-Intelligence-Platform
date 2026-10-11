@@ -206,7 +206,9 @@ def build_agent_graph(
     async def self_check(state: AgentRunState) -> dict[str, Any]:
         result = AgentResult.model_validate(state["result"])
         evaluation = await eval_hooks.self_check(result, subtask)
-        observability.record_eval(evaluation, invocation.agent, invocation.subtask_id)
+        await observability.record_and_persist_eval(
+            evaluation, invocation.agent, invocation.subtask_id
+        )
         return {}
 
     return (

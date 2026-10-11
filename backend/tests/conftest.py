@@ -12,6 +12,18 @@ from app.core.registry import registry
 from app.data import db
 
 
+@pytest.fixture(autouse=True)
+def offline_self_eval(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Unit tests never call the real judge (Groq) and never re-run agents for recovery,
+    whatever the local .env says. Tests of those features opt back in explicitly."""
+    if request.node.get_closest_marker("live"):
+        return
+    settings = get_settings()
+    monkeypatch.setattr(settings, "eval_judge_enabled", False)
+    monkeypatch.setattr(settings, "eval_recovery", "observe")
+    monkeypatch.setattr(settings, "groq_api_key", "")
+
+
 @pytest.fixture(scope="session")
 def seeded_db(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Path]:
     from app.data.seed import seed as seed_module

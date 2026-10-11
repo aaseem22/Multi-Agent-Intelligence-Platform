@@ -14,6 +14,7 @@ import asyncio
 import logging
 import uuid
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -22,7 +23,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.types import Command, Send
 
-from app.core import eval_hooks, observability
+from app.core import eval_hooks, observability, prompts
 from app.core.a2a import new_message_id, publish
 from app.core.config import BACKEND_DIR, get_settings
 from app.core.context import RequestContext, current_request, emit, request_scope
@@ -42,7 +43,9 @@ from app.core.events import (
     ErrorEvent,
     FinalEvent,
     PlanEvent,
+    RecoveryEvent,
 )
+from app.core.judge import JudgeVerdict
 from app.core.llm import get_agent_semaphore
 from app.core.registry import registry
 from app.core.state import (
@@ -275,33 +278,161 @@ async def run_agent(state: AgentTaskState) -> Command[Literal["eval_gate"]]:
             result = await agent.run(
                 subtask.instruction, subtask_id=subtask.id, mode="task", context=context
             )
-    return Command(
-        goto=Send(
-            "eval_gate",
-            EvalTaskState(
-                subtask=subtask.model_dump(mode="json"), result=result.model_dump(mode="json")
-            ),
-        )
+    payload = EvalTaskState(
+        subtask=subtask.model_dump(mode="json"), result=result.model_dump(mode="json")
+    )
+    # Dependency results travel with the payload so a recovery retry can re-run with them.
+    payload["context"] = state.get("context", [])  # type: ignore[typeddict-unknown-key]
+    return Command(goto=Send("eval_gate", payload))
+
+
+# --- evaluation and recovery ---
+
+
+@dataclass
+class _Attempt:
+    number: int
+    result: AgentResult
+    evaluations: list[EvalResult]
+    verdict: JudgeVerdict | None
+
+    @property
+    def passed(self) -> bool:
+        return all(e.passed for e in self.evaluations)
+
+    @property
+    def score(self) -> float:
+        scores = [e.score for e in self.evaluations if e.score is not None]
+        return sum(scores) / len(scores) if scores else 0.0
+
+    def failing(self) -> list[EvalResult]:
+        return [e for e in self.evaluations if eval_hooks.recovery_router(e) == "retry"]
+
+    def reasons(self) -> list[str]:
+        return [f"{e.stage}: {r}" for e in self.evaluations if not e.passed for r in e.reasons]
+
+    def feedback(self) -> str:
+        """Reviewer feedback for a retry: the judge's feedback plus deterministic reasons."""
+        parts: list[str] = []
+        if self.verdict is not None and self.verdict.feedback and not self.verdict.passed:
+            parts.append(self.verdict.feedback)
+        for evaluation in self.evaluations:
+            if evaluation.passed or evaluation.stage == "independent":
+                continue
+            parts.extend(evaluation.reasons)
+        return "\n".join(f"- {p}" for p in parts if p.strip())
+
+
+async def _evaluate(result: AgentResult, subtask: Subtask, attempt: int) -> _Attempt:
+    """Self-check (already recorded inside the agent subgraph, recomputed here because it is a
+    pure function), then the independent judge and the evidence check, each recorded."""
+    self_eval = await eval_hooks.self_check(result, subtask)
+    independent, verdict = await eval_hooks.independent_eval_detailed(result, subtask)
+    evidence = await eval_hooks.evidence_check(result)
+    await observability.record_and_persist_eval(
+        independent, result.agent, result.subtask_id, attempt=attempt, judge=verdict
+    )
+    await observability.record_and_persist_eval(
+        evidence, result.agent, result.subtask_id, attempt=attempt
+    )
+    return _Attempt(attempt, result, [self_eval, independent, evidence], verdict)
+
+
+async def _record_recovery(
+    action: Literal["retry", "give_up"], current: _Attempt, attempt: int, feedback: str
+) -> None:
+    agent, subtask_id = current.result.agent, current.result.subtask_id
+    reasons = current.reasons()
+    emit(
+        RecoveryEvent,
+        agent=agent,
+        subtask_id=subtask_id,
+        action=action,
+        attempt=attempt,
+        reasons=reasons,
+        feedback=feedback,
+    )
+    await observability.persist_eval_record(
+        kind="recovery",
+        agent=agent,
+        subtask_id=subtask_id,
+        attempt=attempt,
+        action=action,
+        passed=current.passed,
+        score=current.score,
+        payload={"reasons": reasons, "feedback": feedback, "from_attempt": current.number},
     )
 
 
-def _record(evaluation: EvalResult, result: AgentResult) -> None:
-    observability.record_eval(evaluation, result.agent, result.subtask_id)
-    action = eval_hooks.recovery_router(evaluation)
-    if action != "pass":
-        logger.info(
-            "Recovery action %r requested for %s; not implemented yet", action, result.subtask_id
-        )
+def _retry_instruction(instruction: str, feedback: str) -> str:
+    return f"{instruction}\n\n{prompts.RETRY_FEEDBACK_HEADER}\n{feedback}"
+
+
+async def _rerun(
+    subtask: Subtask, context: list[AgentResult], feedback: str, attempt: int
+) -> AgentResult:
+    agent = registry.get(subtask.assigned_to)
+    if agent is None:
+        return _failed_result(subtask, f"unknown agent '{subtask.assigned_to}'")
+    # The semaphore is not held while evaluating, so taking it again cannot deadlock.
+    with observability.eval_attempt_scope(subtask.id, attempt):
+        async with get_agent_semaphore():
+            return await agent.run(
+                _retry_instruction(subtask.instruction, feedback),
+                subtask_id=subtask.id,
+                mode="task",
+                context=context,
+                metadata={"recovery_attempt": attempt},
+            )
+
+
+def _best(attempts: list[_Attempt]) -> _Attempt:
+    """Prefer a passing attempt, then the higher score; ties go to the later attempt."""
+    best = attempts[0]
+    for candidate in attempts[1:]:
+        if (candidate.passed, candidate.score) >= (best.passed, best.score):
+            best = candidate
+    return best
+
+
+def _with_eval_reasons(result: AgentResult, reasons: list[str]) -> AgentResult:
+    """A result that still fails evaluation after the last attempt: an "ok" becomes "partial"
+    and the reasons go in `error`, so the synthesis reports it plainly."""
+    if result.status != "ok":
+        return result
+    summary = "; ".join(reasons[:4]) or "evaluation failed"
+    return result.model_copy(
+        update={"status": "partial", "error": f"Failed self-evaluation: {summary}"}
+    )
+
+
+async def evaluate_with_recovery(
+    subtask: Subtask, result: AgentResult, context: list[AgentResult]
+) -> AgentResult:
+    """Evaluate a result and, when the recovery router asks for it, re-run the agent with
+    reviewer feedback (at most settings.eval_max_retries times). Returns the best attempt."""
+    max_attempts = 1 + max(0, get_settings().eval_max_retries)
+    attempts = [await _evaluate(result, subtask, 1)]
+    while attempts[-1].failing():
+        current = attempts[-1]
+        if current.number >= max_attempts:
+            best = _best(attempts)
+            await _record_recovery("give_up", current, current.number, "")
+            return best.result if best.passed else _with_eval_reasons(best.result, best.reasons())
+        feedback = current.feedback()
+        next_attempt = current.number + 1
+        await _record_recovery("retry", current, next_attempt, feedback)
+        retried = await _rerun(subtask, context, feedback, next_attempt)
+        attempts.append(await _evaluate(retried, subtask, next_attempt))
+    return _best(attempts).result
 
 
 async def eval_gate(state: EvalTaskState) -> dict[str, Any]:
     subtask = Subtask.model_validate(state["subtask"])
-    result = AgentResult.model_validate(state["result"])
-    for evaluation in (
-        await eval_hooks.independent_eval(result, subtask),
-        await eval_hooks.evidence_check(result),
-    ):
-        _record(evaluation, result)
+    context = [AgentResult.model_validate(r) for r in state.get("context", [])]  # type: ignore[typeddict-item]
+    result = await evaluate_with_recovery(
+        subtask, AgentResult.model_validate(state["result"]), context
+    )
     await _publish_ceo_message(
         "error" if result.status == "failed" else "result",
         result.agent,

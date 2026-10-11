@@ -11,6 +11,7 @@ import asyncio
 import logging
 from collections.abc import AsyncIterator, Iterator
 from contextlib import ExitStack, asynccontextmanager, contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
@@ -21,6 +22,8 @@ from app.core.events import EvalResultEvent
 
 if TYPE_CHECKING:
     from langfuse import Langfuse
+
+    from app.core.judge import JudgeVerdict
 
 logger = logging.getLogger(__name__)
 
@@ -156,13 +159,49 @@ def agent_tags(*tags: str) -> Iterator[None]:
         yield
 
 
-def record_eval(result: EvalResult, agent: str, subtask_id: str) -> None:
-    """Emit an eval_result event and record the result as a Langfuse score. Never raises."""
-    emit(EvalResultEvent, agent=agent, subtask_id=subtask_id, result=result)
+# (subtask_id, attempt) of the agent run the recovery router is re-running, so evaluations
+# recorded inside that run (self_check at the end of the subgraph) carry the right attempt.
+_eval_attempt: ContextVar[tuple[str, int] | None] = ContextVar("eval_attempt", default=None)
+
+
+@contextmanager
+def eval_attempt_scope(subtask_id: str, attempt: int) -> Iterator[None]:
+    token = _eval_attempt.set((subtask_id, attempt))
+    try:
+        yield
+    finally:
+        _eval_attempt.reset(token)
+
+
+def current_attempt(subtask_id: str) -> int:
+    scope = _eval_attempt.get()
+    return scope[1] if scope is not None and scope[0] == subtask_id else 1
+
+
+def record_eval(
+    result: EvalResult,
+    agent: str,
+    subtask_id: str,
+    *,
+    attempt: int | None = None,
+    judge: "JudgeVerdict | None" = None,
+) -> None:
+    """Emit an eval_result event and record the result as Langfuse scores (one per eval stage,
+    plus one per judge dimension, e.g. `judge_groundedness`). Never raises."""
+    attempt = attempt or current_attempt(subtask_id)
+    emit(
+        EvalResultEvent,
+        agent=agent,
+        subtask_id=subtask_id,
+        result=result,
+        attempt=attempt,
+        judge=judge,
+    )
     client = get_langfuse()
     ctx = current_request()
     if client is None or ctx is None or ctx.trace_id is None:
         return
+    metadata = {"agent": agent, "subtask_id": subtask_id, "attempt": attempt}
     try:
         client.create_score(
             name=f"eval_{result.stage}",
@@ -170,7 +209,82 @@ def record_eval(result: EvalResult, agent: str, subtask_id: str) -> None:
             trace_id=ctx.trace_id,
             data_type="BOOLEAN",
             comment="; ".join(result.reasons) or None,
-            metadata={"agent": agent, "subtask_id": subtask_id, "score": result.score},
+            metadata={**metadata, "score": result.score},
         )
+        if judge is None or judge.error:
+            return
+        for dimension in judge.dimensions:
+            if dimension.verdict == "unknown":
+                continue
+            client.create_score(
+                name=f"judge_{dimension.dimension}",
+                value=dimension.score,
+                trace_id=ctx.trace_id,
+                data_type="NUMERIC",
+                comment=dimension.reasoning or None,
+                metadata={**metadata, "verdict": dimension.verdict, "model": judge.model},
+            )
     except Exception as exc:
         logger.warning("Could not record eval score: %s", exc)
+
+
+async def persist_eval_record(
+    *,
+    kind: str,
+    agent: str,
+    subtask_id: str,
+    attempt: int,
+    stage: str | None = None,
+    action: str | None = None,
+    passed: bool | None = None,
+    score: float | None = None,
+    payload: dict[str, Any] | None = None,
+) -> None:
+    """Write one row to eval_records for the active request. Best effort, never raises."""
+    ctx = current_request()
+    if ctx is None:
+        return
+    try:
+        from app.data.repositories import platform
+
+        await platform.log_eval_record(
+            request_id=ctx.request_id,
+            conversation_id=ctx.conversation_id,
+            kind=kind,
+            agent=agent,
+            subtask_id=subtask_id,
+            stage=stage,
+            action=action,
+            passed=passed,
+            score=score,
+            attempt=attempt,
+            payload=payload,
+        )
+    except Exception as exc:
+        logger.warning("Could not write eval record: %s", exc)
+
+
+async def record_and_persist_eval(
+    result: EvalResult,
+    agent: str,
+    subtask_id: str,
+    *,
+    attempt: int | None = None,
+    judge: "JudgeVerdict | None" = None,
+) -> None:
+    """record_eval plus an eval_records row (kind="eval") with reasons and judge detail."""
+    attempt = attempt or current_attempt(subtask_id)
+    record_eval(result, agent, subtask_id, attempt=attempt, judge=judge)
+    payload: dict[str, Any] = {"reasons": result.reasons}
+    if judge is not None:
+        payload["judge"] = judge.model_dump(mode="json")
+    await persist_eval_record(
+        kind="eval",
+        agent=agent,
+        subtask_id=subtask_id,
+        attempt=attempt,
+        stage=result.stage,
+        passed=result.passed,
+        score=result.score,
+        payload=payload,
+    )

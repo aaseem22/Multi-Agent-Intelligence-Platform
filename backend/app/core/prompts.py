@@ -39,3 +39,26 @@ Available agents:
 {peers}"""
 
 NO_STRUCTURED_ANSWER = "The agent did not return a structured answer."
+
+# --- independent judge (app/core/judge.py). The judge never sees the agent's system prompt. ---
+
+JUDGE_SYSTEM = """You are an independent reviewer grading an answer produced by an enterprise
+department agent. Judge each rubric dimension separately, using only the question, the answer and
+the evidence shown. Do not use outside knowledge and do not reward fluent wording.
+For each dimension give:
+- verdict: "pass", "fail", or "unknown" when the material shown is not enough to decide (for
+  example the evidence was truncated). Prefer "unknown" over guessing.
+- score: 1 for pass, 0 for fail, a value in between for partial credit, 0 for unknown.
+- reasoning: one or two sentences citing the evidence refs you relied on.
+Simple arithmetic on evidence figures (sums, differences, percentages) counts as supported.
+An answer that plainly states what it could not find is not a completeness failure."""
+
+JUDGE_FEEDBACK_RULE = """feedback: if any dimension fails, write 1-3 short, concrete instructions
+the agent can follow to fix its answer (which claim to remove or support, which part to add).
+Leave it empty when everything passes."""
+
+JUDGE_DIMENSION_LINE = "- {name}: {question} PASS: {passing} FAIL: {failing}"
+
+RETRY_FEEDBACK_HEADER = """## Reviewer feedback from a previous attempt
+A reviewer checked your previous answer to this instruction and found problems. Answer the
+instruction again from your tools, fixing these points, and cite evidence for every figure:"""

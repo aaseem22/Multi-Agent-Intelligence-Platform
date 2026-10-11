@@ -8,7 +8,13 @@ from sqlalchemy import select
 
 from app.core.contracts import A2AMessage, utcnow
 from app.data.db import session_scope
-from app.data.models import A2AMessageRecord, ChatTurn, Conversation, GitHubCacheEntry
+from app.data.models import (
+    A2AMessageRecord,
+    ChatTurn,
+    Conversation,
+    EvalRecord,
+    GitHubCacheEntry,
+)
 
 # --- A2A log ---
 
@@ -166,3 +172,66 @@ async def put_github_cache(key: str, status_code: int, body: Any, fetched_at: da
             )
         else:
             row.status_code, row.body, row.fetched_at = status_code, body, fetched_at
+
+
+# --- Live self-evaluation records ---
+
+
+async def log_eval_record(
+    *,
+    request_id: str,
+    conversation_id: str | None,
+    kind: str,
+    agent: str,
+    subtask_id: str,
+    stage: str | None = None,
+    action: str | None = None,
+    passed: bool | None = None,
+    score: float | None = None,
+    attempt: int = 1,
+    payload: dict[str, Any] | None = None,
+) -> None:
+    async with session_scope() as session:
+        session.add(
+            EvalRecord(
+                request_id=request_id,
+                conversation_id=conversation_id,
+                kind=kind,
+                agent=agent,
+                subtask_id=subtask_id,
+                stage=stage,
+                action=action,
+                passed=passed,
+                score=score,
+                attempt=attempt,
+                payload=payload or {},
+                created_at=utcnow(),
+            )
+        )
+
+
+async def list_eval_records(*, since: datetime, limit: int = 2000) -> list[dict[str, Any]]:
+    async with session_scope() as session:
+        rows = await session.scalars(
+            select(EvalRecord)
+            .where(EvalRecord.created_at >= since)
+            .order_by(EvalRecord.created_at.desc())
+            .limit(limit)
+        )
+        return [
+            {
+                "request_id": r.request_id,
+                "conversation_id": r.conversation_id,
+                "kind": r.kind,
+                "agent": r.agent,
+                "subtask_id": r.subtask_id,
+                "stage": r.stage,
+                "action": r.action,
+                "passed": r.passed,
+                "score": r.score,
+                "attempt": r.attempt,
+                "payload": r.payload or {},
+                "created_at": r.created_at,
+            }
+            for r in rows
+        ]

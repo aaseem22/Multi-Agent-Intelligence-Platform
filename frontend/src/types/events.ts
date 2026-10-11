@@ -1,6 +1,7 @@
 // Mirrors backend/app/core/events.py exactly. Fixed interface: do not edit in Phase 1.
 // SSE wire format from POST /api/chat:  "event: <type>\ndata: <JSON of the event>\n\n"
 
+import type { JudgeVerdict } from "./evals";
 import type {
   A2AMessage,
   AgentResult,
@@ -58,6 +59,19 @@ export interface EvalResultEvent extends BaseEvent {
   agent: string;
   subtask_id: string;
   result: EvalResult;
+  attempt: number; // 2+ when the agent was re-run by the recovery router
+  judge: JudgeVerdict | null; // per-dimension detail for stage="independent"
+}
+
+// The recovery router acted on a failed evaluation.
+export interface RecoveryEvent extends BaseEvent {
+  type: "recovery";
+  agent: string;
+  subtask_id: string;
+  action: "retry" | "replan" | "clarify" | "give_up";
+  attempt: number;
+  reasons: string[];
+  feedback: string;
 }
 
 export interface FinalEvent extends BaseEvent {
@@ -85,6 +99,7 @@ export type StreamEvent =
   | PeerMessageEvent
   | AgentResultEvent
   | EvalResultEvent
+  | RecoveryEvent
   | FinalEvent
   | ClarificationEvent
   | ErrorEvent;

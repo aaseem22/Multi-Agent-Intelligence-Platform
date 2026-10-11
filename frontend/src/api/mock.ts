@@ -258,6 +258,8 @@ function evals(ctx: RunContext, agent: string, subtaskId: string): StreamEvent[]
     type: "eval_result" as const,
     agent,
     subtask_id: subtaskId,
+    attempt: 1,
+    judge: null,
     result: {
       passed: true,
       stage,

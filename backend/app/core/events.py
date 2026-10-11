@@ -17,6 +17,7 @@ from app.core.contracts import (
     Subtask,
     utcnow,
 )
+from app.core.judge import JudgeVerdict
 
 AgentMode = Literal["task", "peer"]
 
@@ -67,6 +68,20 @@ class EvalResultEvent(BaseEvent):
     agent: str
     subtask_id: str
     result: EvalResult
+    attempt: int = 1  # 2+ when the agent was re-run by the recovery router
+    judge: JudgeVerdict | None = None  # per-dimension detail for stage="independent"
+
+
+class RecoveryEvent(BaseEvent):
+    """The recovery router acted on a failed evaluation (retry, replan or clarify)."""
+
+    type: Literal["recovery"] = "recovery"
+    agent: str
+    subtask_id: str
+    action: Literal["retry", "replan", "clarify", "give_up"]
+    attempt: int  # the attempt about to start (retry) or the last attempt (give_up)
+    reasons: list[str] = []
+    feedback: str = ""  # judge feedback handed to the agent on retry
 
 
 class FinalEvent(BaseEvent):
@@ -94,6 +109,7 @@ StreamEvent = Annotated[
     | PeerMessageEvent
     | AgentResultEvent
     | EvalResultEvent
+    | RecoveryEvent
     | FinalEvent
     | ClarificationEvent
     | ErrorEvent,

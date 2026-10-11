@@ -165,6 +165,9 @@ export function reduceRun(state: RunState, event: StreamEvent): RunState {
       const phase = base.phase === "running" && allTasksSettled(runs) ? "synthesising" : base.phase;
       return { ...base, runs, phase };
     }
+    case "recovery":
+      // Shown by the evals page; the run view picks up the retry from agent_started.
+      return base;
     case "eval_result": {
       const key = runKey(event.agent, event.subtask_id, "task");
       const runs = upsertRun(base.runs, key, (run) => {

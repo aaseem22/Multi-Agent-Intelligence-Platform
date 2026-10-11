@@ -22,3 +22,4 @@ ui-screenshots/
 ui-screenshots.zip
 .DS_Store
 backend/data/backups/
+backend/data/evals/

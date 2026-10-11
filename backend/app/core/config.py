@@ -24,6 +24,21 @@ class Settings(BaseSettings):
     llm_max_retries: int = 4
     llm_timeout_seconds: float = 120.0
 
+    # Judge (independent evaluation). Groq by default; it must differ from the agent model.
+    groq_api_key: str = ""
+    judge_provider: str = "groq"  # "groq" | "gemini" (uses gemini_judge_model)
+    groq_judge_model: str = "openai/gpt-oss-120b"
+    judge_tokens_per_minute: int = 7000  # Groq free tier allows 8000 TPM; keep headroom
+    judge_max_retries: int = 4
+
+    # Self-evaluation in live requests
+    eval_recovery: str = "retry"  # "retry": re-run an agent once with judge feedback | "observe"
+    eval_max_retries: int = 1
+    eval_judge_enabled: bool = True
+
+    # Offline eval harness
+    evals_dir: str = "./data/evals"
+
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = Field(

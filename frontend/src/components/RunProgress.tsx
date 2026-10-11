@@ -5,28 +5,9 @@ import type { AgentRun, RunState } from "../lib/run";
 import { AgentAvatar, AgentName } from "./AgentName";
 import { RichText } from "./RichText";
 import { RunStateLabel } from "./RunStatus";
+import { SelfReview } from "./SelfReview";
 
 const NO_DEPS: string[] = [];
-
-/** Eval results as small chips; a failed check turns red. */
-function EvalLine({ run }: { run: AgentRun }) {
-  if (run.evals.length === 0) return null;
-  return (
-    <p className="flex flex-wrap items-center gap-1.5" aria-label="Evaluation results">
-      <span className="text-2xs text-faint">Checks</span>
-      {run.evals.map((result, index) => (
-        <span
-          key={`${result.stage}-${index}`}
-          title={result.reasons.join(" ") || undefined}
-          className={`chip ${result.passed ? "bg-subtle text-ink-2" : "bg-danger-soft text-danger"}`}
-        >
-          {result.stage} {result.passed ? "passed" : "failed"}
-          {result.score !== null ? ` ${result.score.toFixed(2)}` : ""}
-        </span>
-      ))}
-    </p>
-  );
-}
 
 function WorkLog({ run, live }: { run: AgentRun; live: boolean }) {
   const hasDetail = run.tools.length > 0 || run.result !== null;
@@ -87,7 +68,7 @@ function RunRow({ run, live, peer = false, dependsOn = NO_DEPS }: RunRowProps) {
           <p className="text-sm text-muted">Answering a peer request</p>
         ) : null}
         <WorkLog run={run} live={live} />
-        <EvalLine run={run} />
+        <SelfReview run={run} />
       </div>
     </li>
   );

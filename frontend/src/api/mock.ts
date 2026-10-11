@@ -15,6 +15,7 @@ import type {
   ConversationTurn,
   HealthResponse,
 } from "../types/api";
+import type { DimensionVerdict, JudgeVerdict } from "../types/evals";
 import type { AgentMode, StreamEvent } from "../types/events";
 import type { Backend } from "./types";
 
@@ -252,21 +253,81 @@ function resultEvent(ctx: RunContext, mode: AgentMode, result: AgentResult): Str
   return { ...base(ctx), type: "agent_result", mode, result };
 }
 
-function evals(ctx: RunContext, agent: string, subtaskId: string): StreamEvent[] {
-  return (["self", "independent", "evidence"] as const).map((stage) => ({
+const JUDGE_MODEL = "groq/llama-3.3-70b-versatile";
+
+function judgeFor(agent: string, passed: boolean): JudgeVerdict {
+  const dimensions: DimensionVerdict[] = passed
+    ? [
+        { dimension: "correctness", verdict: "pass", score: 0.9, reasoning: "Figures match the cited records." },
+        { dimension: "groundedness", verdict: "pass", score: 0.86, reasoning: "Every statement points to evidence." },
+        { dimension: "completeness", verdict: "pass", score: 0.82, reasoning: "The subtask is fully answered." },
+      ]
+    : [
+        { dimension: "correctness", verdict: "pass", score: 0.8, reasoning: "The budget percentages match the budget records." },
+        {
+          dimension: "groundedness",
+          verdict: "fail",
+          score: 0.35,
+          reasoning: "Claims contractors drove the Atlas Portal overrun but cites no expense record for it.",
+        },
+        {
+          dimension: "completeness",
+          verdict: "unknown",
+          score: 0.5,
+          reasoning: "The subtask asks to flag overruns above 10%; it is unclear whether other projects were checked.",
+        },
+      ];
+  return {
+    rubric: "agent_answer",
+    passed,
+    score: passed ? 0.86 : 0.58,
+    dimensions,
+    model: JUDGE_MODEL,
+    feedback: passed
+      ? `${agent === "finance" ? "Finance's" : "The"} answer is grounded and complete.`
+      : "Cite the expense records behind the contractor claim and say which projects you checked for overruns.",
+    error: null,
+  };
+}
+
+function evals(ctx: RunContext, agent: string, subtaskId: string, attempt = 1, judgePass = true): StreamEvent[] {
+  return (["self", "independent", "evidence"] as const).map((stage) => {
+    const judge = stage === "independent" ? judgeFor(agent, judgePass) : null;
+    return {
+      ...base(ctx),
+      type: "eval_result" as const,
+      agent,
+      subtask_id: subtaskId,
+      attempt,
+      judge,
+      result: {
+        passed: judge ? judge.passed : true,
+        stage,
+        reasons:
+          stage === "evidence"
+            ? ["Every evidence reference resolves to a record."]
+            : stage === "self"
+              ? ["Result parsed; status is not failed and evidence is cited."]
+              : judge && !judge.passed
+                ? judge.dimensions.filter((d) => d.verdict === "fail").map((d) => `${d.dimension}: ${d.reasoning}`)
+                : [],
+        score: judge ? judge.score : null,
+      },
+    };
+  });
+}
+
+function recovery(ctx: RunContext, agent: string, subtaskId: string, feedback: string): StreamEvent {
+  return {
     ...base(ctx),
-    type: "eval_result" as const,
+    type: "recovery",
     agent,
     subtask_id: subtaskId,
+    action: "retry",
     attempt: 1,
-    judge: null,
-    result: {
-      passed: true,
-      stage,
-      reasons: stage === "evidence" ? ["Result cites at least one evidence record."] : ["Stub: evaluation not implemented in Phase 1."],
-      score: null,
-    },
-  }));
+    reasons: ["independent: groundedness failed (0.35)"],
+    feedback,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -634,7 +695,13 @@ function crossDepartmentScenario(ctx: RunContext): ScenarioOutcome {
         peerEvent(ctx, a2a(ctx, "finance", "ceo", "result", financeResult.answer, 0, ["ceo", "finance"], { subtask_id: "st_fin" })),
       ],
     ],
-    [300, () => evals(ctx, "finance", "st_fin")],
+    // Live self-evaluation: the judge fails Finance's first answer, so the router retries it with feedback.
+    [300, () => evals(ctx, "finance", "st_fin", 1, false)],
+    [300, () => recovery(ctx, "finance", "st_fin", judgeFor("finance", false).feedback)],
+    [250, () => started(ctx, "finance", "st_fin", "task", `${subtasks[1].instruction} Reviewer feedback: cite the expense records behind each claim.`)],
+    [500, () => tool(ctx, "finance", "st_fin", "expenses_by_category", { project_id: 3, start: "2026-07-01", end: "2026-09-30" })],
+    [500, () => resultEvent(ctx, "task", financeResult)],
+    [300, () => evals(ctx, "finance", "st_fin", 2, true)],
     [
       700,
       () => {

@@ -1,6 +1,7 @@
 import {
   Activity,
   Bot,
+  FlaskConical,
   MessageSquarePlus,
   Monitor,
   Moon,
@@ -11,7 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { formatRelative } from "../lib/format";
-import { AGENTS_HREF, chatHref, observabilityHref, type Route } from "../hooks/useHashRoute";
+import { AGENTS_HREF, chatHref, evalsHref, observabilityHref, type Route } from "../hooks/useHashRoute";
 import type { ThemeChoice } from "../hooks/usePreferences";
 import type { Resource } from "../hooks/useResource";
 import type { ConversationSummary, HealthResponse } from "../types/api";
@@ -233,6 +234,7 @@ export function Sidebar({
   const links: { href: string; icon: LucideIcon; label: string; active: boolean }[] = [
     { href: chatHref(null), icon: MessageSquarePlus, label: "New question", active: route.page === "chat" && route.conversationId === null },
     { href: AGENTS_HREF, icon: Bot, label: "Agents", active: route.page === "agents" },
+    { href: evalsHref(), icon: FlaskConical, label: "Evals", active: route.page === "evals" },
     { href: observabilityHref(), icon: Activity, label: "Observability", active: route.page === "observability" },
   ];
 

@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+.claude
+.DS_Store
+presentation
+ui-screenshots
+ui-screenshots.zip
+*.pptx
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+frontend/dist
+backend/.venv
+backend/data

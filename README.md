@@ -80,6 +80,33 @@ npm run build && npm run lint
 The live questions run at `LLM_REQUESTS_PER_SECOND` (default 0.2), so a full live run takes
 several minutes.
 
+## Deploying to Railway
+
+One service runs everything: the Docker image builds the React app and FastAPI serves it from the
+same origin as the API. SQLite databases, LangGraph checkpoints and eval runs live on a Railway
+volume mounted at `/data`. The first boot seeds the org (from your GitHub repos if
+`GITHUB_TOKEN` is set); later boots skip the seed.
+
+1. Railway → New Project → Deploy from GitHub repo → pick this repo (grant the Railway GitHub
+   app access if it is private). The root `Dockerfile` is detected automatically.
+2. Service → Variables: `GOOGLE_API_KEY`, `GROQ_API_KEY`, `GITHUB_TOKEN`, `GITHUB_OWNER`,
+   `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`, and set
+   `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` so the public URL cannot spend your API quota.
+3. Add a volume to the service with mount path `/data`.
+4. Service → Settings: health check path `/api/health`; Networking → Generate Domain.
+5. Deploy, wait for `Uvicorn running` in the logs, open the domain and sign in.
+
+Keep one replica: volumes cannot be shared across replicas, and the eval runner allows one
+run at a time. Redeploys with a volume have a few seconds of downtime.
+
+Test the image locally first:
+
+```bash
+docker build --platform linux/amd64 -t mas .
+docker run -p 8090:8000 -e BASIC_AUTH_USERNAME=demo -e BASIC_AUTH_PASSWORD=pass \
+  -v mas-data:/data --env-file .env.docker mas   # .env.docker: KEY=value lines, no quotes
+```
+
 ## Architecture in brief
 
 | Path | What it is |

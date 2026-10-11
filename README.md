@@ -90,8 +90,8 @@ volume mounted at `/data`. The first boot seeds the org (from your GitHub repos 
 1. Railway → New Project → Deploy from GitHub repo → pick this repo (grant the Railway GitHub
    app access if it is private). The root `Dockerfile` is detected automatically.
 2. Service → Variables: `GOOGLE_API_KEY`, `GROQ_API_KEY`, `GITHUB_TOKEN`, `GITHUB_OWNER`,
-   `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`, and set
-   `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` so the public URL cannot spend your API quota.
+   `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`. The site is open to anyone with
+   the URL, and every question uses your Gemini and Groq quota.
 3. Add a volume to the service with mount path `/data`.
 4. Service → Settings: health check path `/api/health`; Networking → Generate Domain.
 5. Deploy, wait for `Uvicorn running` in the logs, open the domain and sign in.
@@ -112,7 +112,7 @@ Test the image locally first:
 
 ```bash
 docker build --platform linux/amd64 -t mas .
-docker run -p 8090:8000 -e BASIC_AUTH_USERNAME=demo -e BASIC_AUTH_PASSWORD=pass \
+docker run -p 8090:8000 \
   -v mas-data:/data --env-file .env.docker mas   # .env.docker: KEY=value lines, no quotes
 ```
 

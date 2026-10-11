@@ -11,7 +11,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
-from app.api.security import BasicAuthMiddleware
 from app.core.config import get_settings
 from app.core.context import configure_logging
 from app.core.orchestrator import Orchestrator
@@ -59,12 +58,6 @@ def create_app(orchestrator: Orchestrator | None = None) -> FastAPI:
         allow_headers=["*"],
     )
     settings = get_settings()
-    if settings.basic_auth_password:
-        app.add_middleware(
-            BasicAuthMiddleware,
-            username=settings.basic_auth_username or "admin",
-            password=settings.basic_auth_password,
-        )
     app.include_router(router)
     mount_frontend(app, settings.frontend_dist)
     return app

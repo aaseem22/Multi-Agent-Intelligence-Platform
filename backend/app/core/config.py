@@ -63,11 +63,8 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
-    # Deployment: serve the built frontend from this app (same origin, so no CORS and SSE just
-    # works) and optionally protect everything except /api/health with HTTP Basic auth.
+    # Deployment: serve the built frontend from this app (same origin, so no CORS and SSE just works).
     frontend_dist: str = ""  # e.g. /app/frontend/dist in the Docker image; empty = API only
-    basic_auth_username: str = ""
-    basic_auth_password: str = ""  # empty = no auth (local development)
 
     @property
     def langfuse_enabled(self) -> bool:

@@ -2,16 +2,18 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { ObsEdge, ObservabilitySummary } from "../types/observability";
 import { useReducedMotion } from "./hooks";
 import { Panel } from "./Panel";
-import { agentHue, agentName, formatAgo, formatInt } from "./theme";
+import { agentHue, agentName, agentSoftHue, formatAgo, formatInt } from "./theme";
+
+const TASK_STROKE = "var(--color-faint)";
 
 const W = 560;
 const H = 430;
 const CX = W / 2;
 const CY = H / 2 + 8;
-const ORBIT_RX = 205;
-const ORBIT_RY = 140;
-const NODE_R = 28;
-const CORE_R = 40;
+const ORBIT_RX = 172;
+const ORBIT_RY = 132;
+const NODE_R = 32;
+const CORE_R = 42;
 const RECENT_MS = 24 * 3_600_000;
 
 interface Point {
@@ -128,7 +130,7 @@ function useLabelScale(): [React.RefObject<HTMLDivElement | null>, number] {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
-  return [ref, Math.min(Math.max((W / width) * 0.8, 1), 1.55)];
+  return [ref, Math.min(Math.max((W / width) * 0.75, 1), 1.3)];
 }
 
 function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
@@ -162,7 +164,7 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
 
   return (
     <Panel
-      title="Agent constellation"
+      title="Agent network"
       labelId="obs-constellation"
       meta={`${formatInt(summary.peer_calls)} peer calls, ${formatInt(summary.refusals)} refused`}
       className="obs-area-constellation"
@@ -177,15 +179,11 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
               <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--obs-ice)" />
             </marker>
             <marker id="obs-arrow-dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--obs-ice-dim)" />
+              <path d="M 0 1 L 9 5 L 0 9 z" fill={TASK_STROKE} />
             </marker>
             <marker id="obs-arrow-alert" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 1 L 9 5 L 0 9 z" fill="var(--obs-alert)" />
             </marker>
-            <radialGradient id="obs-node-grad">
-              <stop offset="0%" stopColor="#13233a" />
-              <stop offset="100%" stopColor="#0a111c" />
-            </radialGradient>
           </defs>
 
           <g aria-hidden>
@@ -196,7 +194,7 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
           {edges.map((g) => {
             const active = hovered === g.key;
             const dim = hovered !== null && !active;
-            const stroke = g.refused ? "var(--obs-alert)" : g.edge.kind === "task" ? "var(--obs-ice-dim)" : "var(--obs-ice)";
+            const stroke = g.refused ? "var(--obs-alert)" : g.edge.kind === "task" ? TASK_STROKE : "var(--obs-ice)";
             const marker = g.refused ? "url(#obs-arrow-alert)" : g.edge.kind === "task" ? "url(#obs-arrow-dim)" : "url(#obs-arrow)";
             return (
               <g key={g.key} opacity={dim ? 0.3 : 1} style={{ transition: "opacity 150ms" }}>
@@ -205,14 +203,13 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
                   fill="none"
                   stroke={stroke}
                   strokeWidth={active ? g.width + 1 : g.width}
-                  strokeOpacity={g.edge.kind === "task" && !g.refused ? 0.7 : 0.95}
+                  strokeOpacity={g.edge.kind === "task" && !g.refused ? 0.85 : 1}
                   strokeDasharray={g.refused ? "5 5" : undefined}
                   strokeLinecap="round"
                   markerEnd={marker}
-                  style={g.refused || g.edge.kind === "task" ? undefined : { filter: "drop-shadow(0 0 3px rgba(127,220,255,0.6))" }}
                 />
                 {g.recent && !reduced && !g.refused ? (
-                  <circle r={g.edge.kind === "task" ? 2.5 : 3.5} fill={g.edge.kind === "task" ? "var(--obs-ice-dim)" : "#e8f9ff"}>
+                  <circle r={g.edge.kind === "task" ? 2.5 : 3.5} fill={g.edge.kind === "task" ? TASK_STROKE : "var(--obs-ice)"} stroke="var(--color-surface)" strokeWidth={1.5}>
                     <animateMotion dur={g.edge.kind === "task" ? "3.2s" : "2.2s"} repeatCount="indefinite" path={g.path} />
                   </circle>
                 ) : null}
@@ -256,12 +253,12 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
           })}
 
           <g>
-            <circle cx={CX} cy={CY} r={CORE_R + 9} fill="none" stroke="var(--obs-ice-dim)" strokeWidth={1} strokeDasharray="3 3" className={reduced ? undefined : "obs-sweep"} />
-            <circle cx={CX} cy={CY} r={CORE_R} fill="url(#obs-node-grad)" stroke="#e6f5ff" strokeWidth={2} style={{ filter: "drop-shadow(0 0 8px rgba(127,220,255,0.45))" }} />
-            <text x={CX} y={CY} textAnchor="middle" fontSize={16 * k} fontWeight={600} fill="var(--obs-text)" className="obs-cond">
+            <circle cx={CX} cy={CY} r={CORE_R + 8} fill="none" stroke="var(--obs-line-strong)" strokeWidth={1} strokeDasharray="3 4" />
+            <circle cx={CX} cy={CY} r={CORE_R} fill="var(--color-ink)" />
+            <text x={CX} y={CY + 1} textAnchor="middle" fontSize={15 * k} fontWeight={600} fill="var(--color-on-ink)">
               {agentName(supervisor)}
             </text>
-            <text x={CX} y={CY + 16} textAnchor="middle" fontSize={11 * k} fill="var(--obs-text-2)" className="obs-mono">
+            <text x={CX} y={CY + 15} textAnchor="middle" fontSize={9.5 * k} fill="var(--color-on-ink)" fillOpacity={0.7} className="obs-mono">
               {supervisorStats ? `${supervisorStats.runs} plans` : "supervisor"}
             </text>
           </g>
@@ -276,16 +273,16 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
             const ly = point.y + Math.sin(angle) * (NODE_R + 14) + 4;
             const anchor = Math.abs(Math.cos(angle)) < 0.35 ? "middle" : Math.cos(angle) > 0 ? "start" : "end";
             const vertical = Math.abs(Math.cos(angle)) < 0.35;
-            const labelX = vertical ? point.x + NODE_R + 12 : lx;
+            const labelX = vertical ? point.x + NODE_R + 10 : lx;
             const labelY = vertical ? point.y + 4 : ly + 8;
             return (
               <g key={agent}>
-                <circle cx={point.x} cy={point.y} r={NODE_R + 6} fill="none" stroke={hue} strokeOpacity={0.35} strokeDasharray="2 3" />
-                <circle cx={point.x} cy={point.y} r={NODE_R} fill="url(#obs-node-grad)" stroke={hue} strokeWidth={2} style={{ filter: `drop-shadow(0 0 6px ${hue}88)` }} />
-                <text x={point.x} y={point.y + 5} textAnchor="middle" fontSize={14 * k} fontWeight={600} fill="var(--obs-text)" className="obs-cond">
+                <circle cx={point.x} cy={point.y} r={NODE_R + 6} fill="none" stroke={hue} strokeOpacity={0.25} />
+                <circle cx={point.x} cy={point.y} r={NODE_R} fill={agentSoftHue(agent, supervisor)} stroke={hue} strokeWidth={1.75} />
+                <text x={point.x} y={point.y + 4} textAnchor="middle" fontSize={12 * k} fontWeight={600} fill={hue}>
                   {agentName(agent)}
                 </text>
-                <text x={labelX} y={labelY} textAnchor={vertical ? "start" : anchor} fontSize={12 * k} className="obs-mono">
+                <text x={labelX} y={labelY} textAnchor={vertical ? "start" : anchor} fontSize={11 * k}>
                   <tspan fill="var(--obs-text-2)">{row ? `${row.runs} runs` : "no runs"}</tspan>
                   {row && row.failures > 0 ? <tspan fill="var(--obs-alert)">{`  ${row.failures} failed`}</tspan> : null}
                 </text>
@@ -304,7 +301,7 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
               transform: "translate(-50%, calc(-100% - 14px))",
             }}
           >
-            <p className="obs-cond font-semibold">
+            <p className="font-medium">
               {agentName(hoveredEdge.edge.source)} <span className="obs-t3">to</span> {agentName(hoveredEdge.edge.target)}
             </p>
             <p className="obs-mono text-xs obs-t2">
@@ -321,9 +318,9 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
         ) : null}
       </div>
 
-      <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-(--obs-text-2)" aria-label="Legend">
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted" aria-label="Legend">
         <li className="flex items-center gap-2">
-          <svg width="26" height="8" aria-hidden><line x1="1" y1="4" x2="25" y2="4" stroke="var(--obs-ice-dim)" strokeWidth="2" /></svg>
+          <svg width="26" height="8" aria-hidden><line x1="1" y1="4" x2="25" y2="4" stroke={TASK_STROKE} strokeWidth="2" /></svg>
           Subtask dispatched
         </li>
         <li className="flex items-center gap-2">
@@ -336,15 +333,15 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
         </li>
         {!reduced ? (
           <li className="flex items-center gap-2">
-            <svg width="10" height="10" aria-hidden><circle cx="5" cy="5" r="3.5" fill="#e8f9ff" /></svg>
+            <svg width="10" height="10" aria-hidden><circle cx="5" cy="5" r="3.5" fill="var(--obs-ice)" /></svg>
             Traffic in the last 24 h
           </li>
         ) : null}
       </ul>
 
       {peerRoutes.length ? (
-        <table className="mt-4 w-full border-t border-(--obs-line) text-left text-sm">
-          <caption className="obs-cond obs-t3 pt-3 pb-1.5 text-left text-xs">Peer routes</caption>
+        <table className="mt-4 w-full border-t border-line text-left text-sm">
+          <caption className="pt-3 pb-1.5 text-left text-xs font-medium text-muted">Peer routes</caption>
           <thead className="sr-only">
             <tr>
               <th>Route</th>
@@ -355,15 +352,15 @@ function ConstellationImpl({ summary }: { summary: ObservabilitySummary }) {
           </thead>
           <tbody>
             {peerRoutes.map((edge) => (
-              <tr key={`${edge.source}:${edge.target}`} className="border-t border-(--obs-line)/60">
-                <th scope="row" className="obs-cond py-1.5 pr-3 font-medium text-(--obs-text)">
+              <tr key={`${edge.source}:${edge.target}`} className="border-t border-line">
+                <th scope="row" className="py-1.5 pr-3 font-medium whitespace-nowrap text-ink">
                   {agentName(edge.source)} <span className="obs-ice">→</span> {agentName(edge.target)}
                 </th>
                 <td className="obs-mono obs-t1 py-1.5 pr-3 text-right">{edge.count}</td>
-                <td className={`obs-mono py-1.5 pr-3 text-right ${edge.refusals ? "obs-alert" : "obs-t3"}`}>
-                  {edge.refusals ? `⊘ ${edge.refusals}` : "–"}
+                <td className={`py-1.5 pr-3 text-right text-xs whitespace-nowrap ${edge.refusals ? "text-danger" : "text-faint"}`}>
+                  {edge.refusals ? `${edge.refusals} refused` : "-"}
                 </td>
-                <td className="obs-mono obs-t3 py-1.5 text-right text-xs">{formatAgo(edge.last_at)}</td>
+                <td className="py-1.5 text-right text-xs whitespace-nowrap text-muted">{formatAgo(edge.last_at)}</td>
               </tr>
             ))}
           </tbody>

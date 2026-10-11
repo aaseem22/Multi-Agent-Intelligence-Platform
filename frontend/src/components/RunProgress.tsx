@@ -1,24 +1,27 @@
+import { ChevronRight, CornerDownRight, ListChecks } from "lucide-react";
 import { memo } from "react";
 import { formatArgs } from "../lib/format";
 import type { AgentRun, RunState } from "../lib/run";
-import { AgentName } from "./AgentName";
+import { AgentAvatar, AgentName } from "./AgentName";
+import { RichText } from "./RichText";
 import { RunStateLabel } from "./RunStatus";
 
 const NO_DEPS: string[] = [];
 
-/** Eval results written out as a sentence; failures switch to red ink. */
+/** Eval results as small chips; a failed check turns red. */
 function EvalLine({ run }: { run: AgentRun }) {
   if (run.evals.length === 0) return null;
   return (
-    <p className="text-2xs text-pencil" aria-label="Evaluation results">
-      Checks:{" "}
+    <p className="flex flex-wrap items-center gap-1.5" aria-label="Evaluation results">
+      <span className="text-2xs text-faint">Checks</span>
       {run.evals.map((result, index) => (
-        <span key={`${result.stage}-${index}`} title={result.reasons.join(" ") || undefined}>
-          {index > 0 ? ", " : ""}
-          <span className={result.passed ? "text-graphite" : "font-semibold text-refuse"}>
-            {result.stage} {result.passed ? "passed" : "failed"}
-            {result.score !== null ? ` (${result.score.toFixed(2)})` : ""}
-          </span>
+        <span
+          key={`${result.stage}-${index}`}
+          title={result.reasons.join(" ") || undefined}
+          className={`chip ${result.passed ? "bg-subtle text-ink-2" : "bg-danger-soft text-danger"}`}
+        >
+          {result.stage} {result.passed ? "passed" : "failed"}
+          {result.score !== null ? ` ${result.score.toFixed(2)}` : ""}
         </span>
       ))}
     </p>
@@ -31,25 +34,29 @@ function WorkLog({ run, live }: { run: AgentRun; live: boolean }) {
   const evidenceCount = run.result?.evidence.length ?? 0;
   return (
     <details className="group/log" open={live}>
-      <summary className="cursor-pointer text-2xs text-pencil hover:text-ink">
-        <span aria-hidden className="mr-1 inline-block font-mono transition-transform group-open/log:rotate-90">
-          ›
-        </span>
+      <summary className="inline-flex cursor-pointer items-center gap-1 rounded-md text-xs text-muted transition-colors hover:text-ink">
+        <ChevronRight aria-hidden size={13} strokeWidth={2} className="transition-transform duration-200 group-open/log:rotate-90" />
         {run.tools.length} tool {run.tools.length === 1 ? "call" : "calls"}
         {run.result ? `, ${evidenceCount} ${evidenceCount === 1 ? "piece" : "pieces"} of evidence` : ""}
       </summary>
-      <ol className="mt-1.5 space-y-0.5 border-l border-rule pl-3">
-        {run.tools.map((call, index) => (
-          <li key={`${call.tool}-${index}`} className="flex min-w-0 font-mono text-2xs animate-enter">
-            <span className="shrink-0 text-ink">{call.tool}</span>
-            <span className="min-w-0 truncate text-pencil" title={formatArgs(call.args)}>
-              ({formatArgs(call.args)})
-            </span>
-          </li>
-        ))}
-        {run.result ? <li className="pt-1 text-xs text-graphite italic">{run.result.answer}</li> : null}
-        {run.result?.error ? <li className="text-xs text-refuse">{run.result.error}</li> : null}
-      </ol>
+      <div className="mt-2 space-y-2 rounded-block bg-subtle p-3">
+        {run.tools.length > 0 ? (
+          <ol className="space-y-1">
+            {run.tools.map((call, index) => (
+              <li key={`${call.tool}-${index}`} className="flex min-w-0 items-baseline gap-1 font-mono text-2xs animate-enter">
+                <span className="shrink-0 font-medium text-ink">{call.tool}</span>
+                <span className="min-w-0 truncate text-muted" title={formatArgs(call.args)}>
+                  ({formatArgs(call.args)})
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : null}
+        {run.result ? <p className="text-sm leading-relaxed text-ink-2">
+            <RichText text={run.result.answer} />
+          </p> : null}
+        {run.result?.error ? <p className="text-sm text-danger">{run.result.error}</p> : null}
+      </div>
     </details>
   );
 }
@@ -57,26 +64,27 @@ function WorkLog({ run, live }: { run: AgentRun; live: boolean }) {
 interface RunRowProps {
   run: AgentRun;
   live: boolean;
-  marker: string;
+  peer?: boolean;
   dependsOn?: string[];
 }
 
-function RunRow({ run, live, marker, dependsOn = NO_DEPS }: RunRowProps) {
+function RunRow({ run, live, peer = false, dependsOn = NO_DEPS }: RunRowProps) {
   return (
-    <li className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-2 border-t border-rule py-2.5 first:border-t-0 sm:grid-cols-[1.75rem_5.5rem_minmax(0,1fr)_auto]">
-      <span className="pt-px font-mono text-2xs text-pencil">{marker}</span>
-      <div className="flex items-baseline justify-between gap-3 sm:contents">
-        <AgentName name={run.agent} className="text-sm" />
-        <span className="sm:order-last sm:pt-px">
+    <li className="flex gap-3 border-t border-line px-4 py-3.5 first:border-t-0">
+      {peer ? (
+        <CornerDownRight aria-hidden size={16} strokeWidth={1.75} className="mt-2 shrink-0 text-faint" />
+      ) : null}
+      <AgentAvatar name={run.agent} />
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 pt-1">
+          <AgentName name={run.agent} className="text-base" />
           <RunStateLabel state={run.state} />
-        </span>
-      </div>
-      <div className="col-start-2 min-w-0 space-y-1.5 sm:col-start-3 sm:row-start-1">
-        {dependsOn.length > 0 ? <p className="text-2xs text-pencil">Waits for {dependsOn.join(", ")}</p> : null}
+        </div>
+        {dependsOn.length > 0 ? <p className="text-2xs text-faint">Waits for {dependsOn.join(", ")}</p> : null}
         {run.instruction ? (
-          <p className="text-sm text-ink">{run.instruction}</p>
-        ) : run.mode === "peer" ? (
-          <p className="text-sm text-graphite italic">Answering a peer request</p>
+          <p className="text-sm leading-relaxed text-ink-2">{run.instruction}</p>
+        ) : peer ? (
+          <p className="text-sm text-muted">Answering a peer request</p>
         ) : null}
         <WorkLog run={run} live={live} />
         <EvalLine run={run} />
@@ -90,7 +98,7 @@ interface RunProgressProps {
   live: boolean;
 }
 
-/** The CEO's plan as a numbered table, with each agent's working notes beneath its row. */
+/** The CEO's plan as a card: one row per department, with each agent's working notes beneath. */
 export const RunProgress = memo(function RunProgress({ run, live }: RunProgressProps) {
   if (!run.plan && run.runs.length === 0) return null;
 
@@ -101,43 +109,49 @@ export const RunProgress = memo(function RunProgress({ run, live }: RunProgressP
   const dependsOn = new Map((run.plan?.subtasks ?? []).map((s) => [s.id, s.depends_on]));
 
   return (
-    <details open={live} className="group/plan border-y border-rule-strong">
-      <summary className="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2 hover:text-ink">
-        <span className="text-sm font-semibold">
-          <span aria-hidden className="mr-1.5 inline-block font-mono text-pencil transition-transform group-open/plan:rotate-90">
-            ›
+    <details open={live} className="group/plan card overflow-hidden animate-enter">
+      <summary className="flex cursor-pointer flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 transition-colors hover:bg-subtle/60">
+        <span className="flex items-center gap-2 text-base font-medium text-ink">
+          <ListChecks aria-hidden size={16} strokeWidth={1.75} className="text-muted" />
+          Execution plan
+        </span>
+        <span className="flex flex-wrap items-center gap-1.5">
+          <span className="mono-tag">
+            {subtaskCount} {subtaskCount === 1 ? "subtask" : "subtasks"}
           </span>
-          The CEO's plan
+          <span className="mono-tag">
+            {toolCount} tool {toolCount === 1 ? "call" : "calls"}
+          </span>
+          {peerRuns.length > 0 ? (
+            <span className="mono-tag bg-accent-soft! text-accent-strong!">
+              {peerRuns.length} peer {peerRuns.length === 1 ? "answer" : "answers"}
+            </span>
+          ) : null}
         </span>
-        <span className="text-xs text-graphite">
-          {subtaskCount} {subtaskCount === 1 ? "subtask" : "subtasks"}, {toolCount} tool{" "}
-          {toolCount === 1 ? "call" : "calls"}
-          {peerRuns.length > 0 ? `, ${peerRuns.length} peer ${peerRuns.length === 1 ? "answer" : "answers"}` : ""}
-        </span>
+        <ChevronRight
+          aria-hidden
+          size={16}
+          strokeWidth={1.75}
+          className="ml-auto text-faint transition-transform duration-200 group-open/plan:rotate-90"
+        />
       </summary>
-      <div className="border-t border-rule pb-1">
+      <div className="border-t border-line">
         {run.plan?.rationale ? (
-          <p className="max-w-[68ch] pt-2.5 pb-1 text-sm text-graphite italic">{run.plan.rationale}</p>
+          <p className="border-b border-line bg-subtle/50 px-4 py-3 text-sm leading-relaxed text-muted">{run.plan.rationale}</p>
         ) : null}
         <ol>
-          {taskRuns.map((item, index) => (
-            <RunRow
-              key={item.key}
-              run={item}
-              live={live}
-              marker={`${index + 1}.`}
-              dependsOn={dependsOn.get(item.subtaskId) ?? []}
-            />
+          {taskRuns.map((item) => (
+            <RunRow key={item.key} run={item} live={live} dependsOn={dependsOn.get(item.subtaskId) ?? []} />
           ))}
         </ol>
         {peerRuns.length > 0 ? (
           <>
-            <p className="mt-1 border-t border-rule pt-2.5 text-xs text-graphite italic">
+            <p className="border-t border-line bg-subtle/50 px-4 py-2 text-xs font-medium text-muted">
               Answered for other departments
             </p>
             <ul>
               {peerRuns.map((item) => (
-                <RunRow key={item.key} run={item} live={live} marker="↳" />
+                <RunRow key={item.key} run={item} live={live} peer />
               ))}
             </ul>
           </>

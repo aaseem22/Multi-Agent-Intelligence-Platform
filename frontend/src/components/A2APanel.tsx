@@ -1,27 +1,36 @@
+import { ArrowRight, Ban, MessagesSquare, PanelRightClose } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { agentLabel, agentStroke } from "../lib/agents";
+import { agentLabel } from "../lib/agents";
 import { formatTime } from "../lib/format";
 import type { FeedMessage, Turn } from "../lib/run";
 import type { A2AMessageType } from "../types/contracts";
-import { AgentName } from "./AgentName";
+import { AgentAvatar, AgentName } from "./AgentName";
+import { RichText } from "./RichText";
 import { EmptyState } from "./States";
 
 type Filter = "all" | "peer" | "refused";
 
 const TYPE_LABEL: Record<A2AMessageType, string> = {
-  task: "task",
-  peer_request: "peer request",
-  peer_response: "peer response",
-  result: "result",
-  error: "error",
-  clarification: "clarification",
+  task: "Task",
+  peer_request: "Peer request",
+  peer_response: "Peer response",
+  result: "Result",
+  error: "Error",
+  clarification: "Clarification",
 };
 
-// Geometry of the delegation tree: each hop steps the node 18px to the right.
-const STEP = 18;
-const SPINE = 5;
-const MAX_DEPTH = 4;
-const nodeX = (depth: number) => SPINE + depth * STEP;
+const TYPE_TONE: Record<A2AMessageType, string> = {
+  task: "bg-subtle text-ink-2",
+  peer_request: "bg-accent-soft text-accent-strong",
+  peer_response: "bg-accent-soft text-accent-strong",
+  result: "bg-ok-soft text-ok",
+  error: "bg-danger-soft text-danger",
+  clarification: "bg-warn-soft text-warn",
+};
+
+// Each hop indents the message so delegation chains read as a tree.
+const INDENT = 18;
+const MAX_DEPTH = 3;
 
 function matches(item: FeedMessage, filter: Filter): boolean {
   if (filter === "refused") return item.refused;
@@ -33,78 +42,61 @@ const MessageRow = memo(function MessageRow({ item }: { item: FeedMessage }) {
   const { message, refused, refusalReason } = item;
   const [expanded, setExpanded] = useState(false);
   const depth = Math.min(message.hop_count, MAX_DEPTH);
-  const x = nodeX(depth);
-  const guides = Array.from({ length: depth }, (_, level) => nodeX(level));
 
   return (
-    <li className="relative animate-enter pt-1 pb-3" style={{ paddingLeft: x + 14 }}>
-      {guides.map((left) => (
-        <span key={left} aria-hidden className="absolute inset-y-0 w-px bg-rule-strong" style={{ left }} />
-      ))}
-      {depth === 0 ? <span aria-hidden className="absolute inset-y-0 w-px bg-rule-strong" style={{ left: SPINE }} /> : null}
-      {depth > 0 ? (
-        <span
-          aria-hidden
-          className="absolute top-0 h-[0.95rem] rounded-bl-[5px] border-b border-l border-rule-strong"
-          style={{ left: nodeX(depth - 1), width: STEP }}
-        />
-      ) : null}
-      {refused ? (
-        <span
-          aria-hidden
-          className="absolute top-[0.3rem] -ml-[7px] bg-paper-deep text-sm leading-none text-refuse"
-          style={{ left: x }}
-        >
-          ⊘
-        </span>
-      ) : (
-        <span
-          aria-hidden
-          className={`absolute top-[0.6rem] size-[7px] -translate-x-[3px] ${agentStroke(message.sender)} ${
-            message.type === "peer_response" ? "rounded-full" : ""
-          }`}
-          style={{ left: x }}
-        />
-      )}
-
-      <div className="flex items-baseline gap-2 text-xs">
-        <span className="min-w-0">
-          <AgentName name={message.sender} />
-          <span aria-label="to" className="px-1 text-pencil">
-            →
+    <li className="relative pb-4 animate-enter" style={{ paddingLeft: depth * INDENT }}>
+      <div
+        className={`rounded-block border bg-surface p-3 shadow-card transition-colors ${
+          refused ? "border-danger/30" : "border-line"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <AgentAvatar name={message.sender} size="sm" />
+          <span className="flex min-w-0 items-center gap-1 text-sm">
+            <AgentName name={message.sender} />
+            <ArrowRight aria-label="to" size={12} strokeWidth={2} className="shrink-0 text-faint" />
+            <AgentName name={message.recipient} />
           </span>
-          <AgentName name={message.recipient} />
-          <span className={`ml-2 italic ${refused ? "text-refuse" : "text-graphite"}`}>
-            {refused ? "refused" : TYPE_LABEL[message.type]}
-          </span>
-        </span>
-        <span className="ml-auto shrink-0 font-mono text-2xs whitespace-nowrap text-pencil">
-          hop {message.hop_count}{" "}
-          <time dateTime={message.created_at} className="ml-1">
+          <time dateTime={message.created_at} className="ml-auto shrink-0 font-mono text-2xs text-faint">
             {formatTime(message.created_at)}
           </time>
-        </span>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {refused ? (
+            <span className="chip bg-danger-soft text-danger">
+              <Ban aria-hidden size={11} strokeWidth={2} />
+              Refused
+            </span>
+          ) : (
+            <span className={`chip ${TYPE_TONE[message.type]}`}>{TYPE_LABEL[message.type]}</span>
+          )}
+          <span className="mono-tag">hop {message.hop_count}</span>
+          {message.chain.length > 1 ? (
+            <span className="truncate font-mono text-2xs text-faint">
+              <span className="sr-only">Chain: </span>
+              {message.chain.map(agentLabel).join(" › ")}
+            </span>
+          ) : null}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className={`mt-2 block w-full text-left text-sm leading-relaxed text-ink-2 transition-colors hover:text-ink ${
+            expanded ? "" : "line-clamp-3"
+          }`}
+        >
+          <RichText text={message.content} />
+        </button>
+
+        {refused ? (
+          <p className="mt-2 rounded-md bg-danger-soft px-2.5 py-1.5 text-xs font-medium text-danger">
+            {refusalReason ?? "No reason given"}
+          </p>
+        ) : null}
       </div>
-
-      <button
-        type="button"
-        onClick={() => setExpanded((value) => !value)}
-        aria-expanded={expanded}
-        className={`mt-0.5 block w-full text-left text-xs text-ink/85 hover:text-ink ${expanded ? "" : "line-clamp-2"}`}
-      >
-        {message.content}
-      </button>
-
-      {refused ? (
-        <p className="mt-1 text-xs font-semibold text-refuse">Refused: {refusalReason ?? "no reason given"}</p>
-      ) : null}
-
-      {message.chain.length > 1 ? (
-        <p className="mt-0.5 font-mono text-2xs text-pencil">
-          <span className="sr-only">Chain: </span>
-          {message.chain.map(agentLabel).join(" › ")}
-        </p>
-      ) : null}
     </li>
   );
 });
@@ -112,9 +104,11 @@ const MessageRow = memo(function MessageRow({ item }: { item: FeedMessage }) {
 interface A2APanelProps {
   turns: Turn[];
   streaming: boolean;
+  /** Shown on wide screens, where the panel can be closed. */
+  onClose?: () => void;
 }
 
-export const A2APanel = memo(function A2APanel({ turns, streaming }: A2APanelProps) {
+export const A2APanel = memo(function A2APanel({ turns, streaming, onClose }: A2APanelProps) {
   const [filter, setFilter] = useState<Filter>("all");
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -151,27 +145,48 @@ export const A2APanel = memo(function A2APanel({ turns, streaming }: A2APanelPro
 
   const filters: { id: Filter; label: string; count: number }[] = [
     { id: "all", label: "All", count: total },
-    { id: "peer", label: "Between departments", count: peerMessages },
+    { id: "peer", label: "Peer", count: peerMessages },
     { id: "refused", label: "Refused", count: refusedCount },
   ];
 
+  const stats = [
+    { label: "Messages", value: total },
+    { label: "Peer requests", value: peerCount },
+    { label: "Refusals", value: refusedCount, alert: refusedCount > 0 },
+  ];
+
   return (
-    <aside aria-label="Agent-to-agent activity" className="flex min-h-0 flex-1 flex-col bg-paper-deep">
-      <header className="px-5 pt-4">
-        <div className="flex items-baseline gap-3">
-          <h2 className="text-base font-semibold">Messages between agents</h2>
+    <aside aria-label="Agent-to-agent activity" className="frost flex min-h-0 flex-1 flex-col">
+      <header className="border-b border-line px-5 pt-5 pb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-base font-semibold text-ink">Agent messages</h2>
           {streaming ? (
-            <span className="ml-auto inline-flex items-baseline gap-1.5 text-xs text-ink">
-              <span aria-hidden className="size-[6px] animate-breathe rounded-full bg-ink" />
-              <span className="marked">live</span>
+            <span className="chip ml-auto bg-accent-soft text-accent-strong">
+              <span aria-hidden className="live-dot size-1.5!" />
+              Live
             </span>
           ) : null}
+          {onClose ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className={`btn btn-ghost btn-icon hidden size-8! text-faint hover:text-ink lg:inline-flex ${streaming ? "" : "ml-auto"}`}
+              aria-label="Hide agent messages"
+              title="Hide agent messages"
+            >
+              <PanelRightClose aria-hidden size={16} strokeWidth={1.75} />
+            </button>
+          ) : null}
         </div>
-        <p className="mt-0.5 text-xs text-graphite">
-          {total} {total === 1 ? "message" : "messages"}, {peerCount} peer{" "}
-          {peerCount === 1 ? "request" : "requests"}, {refusedCount} {refusedCount === 1 ? "refusal" : "refusals"}
-        </p>
-        <div role="radiogroup" aria-label="Filter messages" className="mt-3 flex gap-4 border-b border-rule">
+        <dl className="mt-3 grid grid-cols-3 gap-2">
+          {stats.map((stat) => (
+            <div key={stat.label} className="rounded-block bg-subtle px-2.5 py-2">
+              <dt className="text-2xs text-muted">{stat.label}</dt>
+              <dd className={`mt-0.5 text-lg font-semibold tabular-nums ${stat.alert ? "text-danger" : "text-ink"}`}>{stat.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <div role="radiogroup" aria-label="Filter messages" className="mt-3 flex gap-1 rounded-block bg-subtle p-1">
           {filters.map((option) => {
             const checked = filter === option.id;
             return (
@@ -181,29 +196,33 @@ export const A2APanel = memo(function A2APanel({ turns, streaming }: A2APanelPro
                 role="radio"
                 aria-checked={checked}
                 onClick={() => setFilter(option.id)}
-                className={`-mb-px border-b-2 pb-1.5 text-xs ${
-                  checked ? "border-ink font-semibold text-ink" : "border-transparent text-graphite hover:text-ink"
+                className={`flex h-7 flex-1 items-center justify-center gap-1.5 rounded-[7px] text-xs transition-colors ${
+                  checked ? "bg-surface font-medium text-ink shadow-card" : "text-muted hover:text-ink"
                 }`}
               >
-                {option.label} <span className="font-mono text-2xs text-pencil">{option.count}</span>
+                {option.label}
+                <span className="font-mono text-2xs text-faint">{option.count}</span>
               </button>
             );
           })}
         </div>
       </header>
 
-      <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-5 pt-3 pb-6">
+      <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-6">
         {groups.length === 0 ? (
-          <EmptyState title={total === 0 ? "No messages yet" : "Nothing matches this filter"}>
+          <EmptyState
+            title={total === 0 ? "No messages yet" : "Nothing matches this filter"}
+            icon={<MessagesSquare size={20} strokeWidth={1.75} />}
+          >
             {total === 0
-              ? "Tasks from the CEO and requests between departments are logged here as they happen. Indentation shows how many hops a request has travelled."
+              ? "Tasks from the CEO and requests between departments appear here as they happen. Indented messages travelled further hops."
               : "Switch the filter back to All to see every message."}
           </EmptyState>
         ) : (
           <div className="space-y-6">
             {groups.map(({ turn, items }) => (
               <section key={turn.id} aria-label={turn.question}>
-                <h3 className="mb-2 line-clamp-1 text-xs text-graphite italic" title={turn.question}>
+                <h3 className="mb-3 line-clamp-1 px-1 text-xs font-medium text-muted" title={turn.question}>
                   {turn.question}
                 </h3>
                 <ol>

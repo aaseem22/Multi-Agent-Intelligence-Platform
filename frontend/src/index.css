@@ -1,69 +1,162 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the class on <html>, which the theme switcher sets. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
-  "Annotated briefing": cool ledger-grey stock, blue-black ink, hairline rules and one
-  highlighter. Structure comes from type, alignment and rules, never from boxes.
-  See DESIGN.md for the rules these tokens encode.
+  One token set, two themes. Light values live in @theme; `.dark` on <html> overrides the same
+  variables, so every utility and every SVG that reads var(--color-*) flips together.
+  A single teal accent marks whatever is current or live. Agent hues identify agents only.
+  See DESIGN.md for the rules.
 */
 @theme {
-  --font-serif: "Literata Variable", "Iowan Old Style", Georgia, serif;
-  --font-mono: "Fragment Mono", "SF Mono", ui-monospace, monospace;
-  --font-sans: var(--font-serif);
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", monospace;
 
-  /* Paper and ink */
-  --color-paper: #f1f2ed;
-  --color-paper-deep: #e6e8e1;
-  --color-ink: #191d1b;
-  --color-graphite: #4f5652;
-  --color-pencil: #5f6661;
-  --color-rule: #cacec5;
-  --color-rule-strong: #979c94;
+  /* Neutrals: one cool family */
+  --color-canvas: #f3f4f7;
+  --color-surface: #ffffff;
+  --color-elevated: #ffffff;
+  --color-subtle: #eff1f4;
+  --color-ink: #0e1116;
+  --color-ink-hover: #262c35;
+  --color-on-ink: #ffffff;
+  --color-ink-2: #39404a;
+  --color-muted: #616975;
+  --color-faint: #8b929c;
+  --color-line: #e3e6eb;
+  --color-line-strong: #cfd4db;
 
-  /* The one accent: a highlighter pass over whatever is current */
-  --color-mark: #f3e07a;
-  --color-mark-soft: #f7eeb4;
+  /* The one accent */
+  --color-accent: #0f766e;
+  --color-accent-strong: #0b5f58;
+  --color-accent-soft: #e3f3ef;
+  --color-glow: #14b8a6;
 
-  /* Status inks, used as text and small glyphs only */
-  --color-done: #36652a;
-  --color-caution: #83560b;
-  --color-refuse: #ab2a1f;
+  /* Chat bubble for the stakeholder's own question */
+  --color-bubble: #0e1116;
+  --color-on-bubble: #ffffff;
 
-  /* Agent inks: identity is a coloured name, not a chip */
-  --color-agent-ceo: #191d1b;
-  --color-agent-finance: #1c6a50;
-  --color-agent-hr: #893a60;
-  --color-agent-tech: #1f5188;
-  --color-agent-other-1: #6a5717;
-  --color-agent-other-2: #226767;
-  --color-agent-other-3: #7a462a;
+  /* Status */
+  --color-ok: #16794a;
+  --color-ok-soft: #e6f4ec;
+  --color-warn: #a65b07;
+  --color-warn-soft: #fcf1df;
+  --color-danger: #c0362c;
+  --color-danger-soft: #fbe9e7;
 
-  /* Type scale: minor third from a 16px base, reading text one step up */
-  --text-2xs: 0.75rem;
-  --text-2xs--line-height: 1.1rem;
-  --text-xs: 0.8125rem;
-  --text-xs--line-height: 1.2rem;
-  --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.45rem;
-  --text-base: 1rem;
-  --text-base--line-height: 1.55rem;
-  --text-read: 1.125rem;
-  --text-read--line-height: 1.8rem;
-  --text-lg: 1.3125rem;
-  --text-lg--line-height: 1.8rem;
-  --text-xl: 1.625rem;
-  --text-xl--line-height: 2.1rem;
-  --text-2xl: 2.125rem;
-  --text-2xl--line-height: 2.55rem;
+  /* Chart series that are not agents */
+  --color-series-1: #0f766e;
+  --color-series-2: #3a9e92;
+  --color-series-3: #8cc7be;
+  --color-series-muted: #7c8ba1;
+  --color-series-faint: #b4bdc9;
+  --color-series-ghost: #d5dae1;
 
-  --radius-xs: 2px;
+  /* Agents: identity hues (lib/agents.ts reads these through var()) */
+  --color-agent-ceo: #1f2937;
+  --color-agent-ceo-soft: #e9ecf0;
+  --color-agent-finance: #6941c6;
+  --color-agent-finance-soft: #f0eafd;
+  --color-agent-hr: #b8326a;
+  --color-agent-hr-soft: #fbe9f1;
+  --color-agent-tech: #1764b0;
+  --color-agent-tech-soft: #e5eefa;
+  --color-agent-other-1: #946200;
+  --color-agent-other-1-soft: #fbf2dd;
+  --color-agent-other-2: #0e7490;
+  --color-agent-other-2-soft: #e1f3f7;
+  --color-agent-other-3: #9a3d16;
+  --color-agent-other-3-soft: #fbeae1;
 
-  --animate-enter: enter 0.28s ease-out;
-  --animate-breathe: breathe 1.6s ease-in-out infinite;
+  /* Type scale */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-read: 0.9375rem;
+  --text-read--line-height: 1.6rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.8rem;
+  --text-2xl: 1.875rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-3xl: 2.75rem;
+  --text-3xl--line-height: 3rem;
+
+  /* Shape: containers 16px, inner blocks and controls 10px, status chips are full pills */
+  --radius-card: 16px;
+  --radius-block: 10px;
+
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.03);
+  --shadow-raised: 0 18px 44px -18px rgb(16 24 40 / 0.25), 0 2px 6px rgb(16 24 40 / 0.05);
+  --shadow-composer: 0 14px 40px -16px rgb(16 24 40 / 0.22), 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-highlight: inset 0 1px 0 rgb(255 255 255 / 0.7);
+
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-enter: enter 0.55s var(--ease-out-soft) both;
+  --animate-pulse-dot: pulse-dot 1.8s var(--ease-out-soft) infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-slide-in: slide-in 0.38s var(--ease-out-soft) both;
+  --animate-fade: fade 0.25s ease-out both;
+  --animate-blink: blink 1.1s ease-in-out infinite;
+  --animate-drift: drift 22s ease-in-out infinite alternate;
+  --animate-spin-slow: spin 40s linear infinite;
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 
   @keyframes enter {
     from {
       opacity: 0;
-      transform: translateY(3px);
+      transform: translateY(10px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+
+  @keyframes pulse-dot {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 45%, transparent);
+    }
+    70% {
+      box-shadow: 0 0 0 6px transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
     }
     to {
       opacity: 1;
@@ -71,20 +164,85 @@
     }
   }
 
-  @keyframes breathe {
-    0%,
-    100% {
-      opacity: 1;
+  @keyframes fade {
+    from {
+      opacity: 0;
     }
-    50% {
-      opacity: 0.3;
+  }
+
+  @keyframes drift {
+    from {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+      transform: translate3d(4%, 3%, 0) scale(1.08);
     }
   }
 }
 
+/* Dark theme: same names, new values. Off-black, never pure black. */
+.dark {
+  color-scheme: dark;
+
+  --color-canvas: #0a0c0f;
+  --color-surface: #12151a;
+  --color-elevated: #171b21;
+  --color-subtle: #1b1f26;
+  --color-ink: #eceef1;
+  --color-ink-hover: #ffffff;
+  --color-on-ink: #0e1116;
+  --color-ink-2: #bcc2cb;
+  --color-muted: #8b929d;
+  --color-faint: #686f7a;
+  --color-line: #242930;
+  --color-line-strong: #333a43;
+
+  --color-accent: #3cc4b0;
+  --color-accent-strong: #6cd8c7;
+  --color-accent-soft: rgb(60 196 176 / 0.13);
+  --color-glow: #2dd4bf;
+
+  --color-bubble: #1d3b37;
+  --color-on-bubble: #e8f6f3;
+
+  --color-ok: #5cc98a;
+  --color-ok-soft: rgb(92 201 138 / 0.13);
+  --color-warn: #e3a54d;
+  --color-warn-soft: rgb(227 165 77 / 0.13);
+  --color-danger: #f0776c;
+  --color-danger-soft: rgb(240 119 108 / 0.13);
+
+  --color-series-1: #3cc4b0;
+  --color-series-2: #2a8f82;
+  --color-series-3: #1f5f57;
+  --color-series-muted: #7d8da4;
+  --color-series-faint: #4f5967;
+  --color-series-ghost: #2d333c;
+
+  --color-agent-ceo: #d5d9df;
+  --color-agent-ceo-soft: rgb(213 217 223 / 0.1);
+  --color-agent-finance: #a891f6;
+  --color-agent-finance-soft: rgb(168 145 246 / 0.14);
+  --color-agent-hr: #ee7fab;
+  --color-agent-hr-soft: rgb(238 127 171 / 0.14);
+  --color-agent-tech: #6aa9ec;
+  --color-agent-tech-soft: rgb(106 169 236 / 0.14);
+  --color-agent-other-1: #e0b04d;
+  --color-agent-other-1-soft: rgb(224 176 77 / 0.14);
+  --color-agent-other-2: #4fc3dd;
+  --color-agent-other-2-soft: rgb(79 195 221 / 0.14);
+  --color-agent-other-3: #ea8a5f;
+  --color-agent-other-3-soft: rgb(234 138 95 / 0.14);
+
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-raised: 0 24px 60px -20px rgb(0 0 0 / 0.7), 0 1px 0 rgb(255 255 255 / 0.05) inset;
+  --shadow-composer: 0 20px 50px -18px rgb(0 0 0 / 0.75), 0 1px 0 rgb(255 255 255 / 0.05) inset;
+  --shadow-highlight: inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+
 @layer base {
   * {
-    @apply border-rule;
+    @apply border-line;
   }
 
   html,
@@ -94,19 +252,40 @@
   }
 
   body {
-    @apply bg-paper font-serif text-ink antialiased;
-    font-optical-sizing: auto;
+    @apply bg-canvas font-sans text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
     font-variant-numeric: tabular-nums;
   }
 
+  /* Colour changes ease in when the theme is switched, never on first paint. */
+  html.theme-ready body,
+  html.theme-ready .card,
+  html.theme-ready nav {
+    transition:
+      background-color 300ms var(--ease-out-soft),
+      border-color 300ms var(--ease-out-soft),
+      color 300ms var(--ease-out-soft);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   ::selection {
-    background: var(--color-mark);
+    background: color-mix(in oklab, var(--color-accent) 25%, transparent);
     color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+    border-radius: 6px;
   }
 
   summary {
@@ -115,6 +294,11 @@
 
   summary::-webkit-details-marker {
     display: none;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -130,30 +314,301 @@
 }
 
 @layer components {
-  /* A highlighter stroke behind text: slightly irregular, like a real pass of the pen. */
-  .marked {
-    background-image: linear-gradient(
-      100deg,
-      transparent 0.2em,
-      var(--color-mark) 0.35em,
-      var(--color-mark) calc(100% - 0.35em),
-      transparent calc(100% - 0.2em)
+  /* Cards carry a hairline top highlight so they read as raised material in both themes. */
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-highlight), var(--shadow-card);
+  }
+
+  /* Cards that react to the cursor: a soft accent light follows the pointer (set by useSpotlight). */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out-soft);
+    background: radial-gradient(
+      420px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in oklab, var(--color-glow) 12%, transparent),
+      transparent 45%
     );
-    background-size: 100% 72%;
-    background-position: 0 70%;
-    background-repeat: no-repeat;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
+    pointer-events: none;
+  }
+
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.875rem;
+    border-radius: var(--radius-block);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      background-color 160ms var(--ease-out-soft),
+      border-color 160ms var(--ease-out-soft),
+      color 160ms var(--ease-out-soft),
+      box-shadow 160ms var(--ease-out-soft),
+      transform 120ms var(--ease-out-soft);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-on-ink);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 1px 2px rgb(0 0 0 / 0.2);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-ink-hover);
+  }
+
+  .btn-primary:disabled {
+    background: var(--color-line-strong);
+    color: var(--color-surface);
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-highlight), var(--shadow-card);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--color-line-strong);
+    background: var(--color-subtle);
+  }
+
+  .btn-ghost {
+    color: var(--color-ink-2);
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--color-subtle);
+    color: var(--color-ink);
+  }
+
+  .btn-icon {
+    width: 2.25rem;
+    padding: 0;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 1.375rem;
+    padding: 0 0.5rem;
+    border-radius: 9999px;
+    font-size: var(--text-2xs);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .mono-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 1.375rem;
+    padding: 0 0.4375rem;
+    border-radius: 6px;
+    background: var(--color-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-ink-2);
+    white-space: nowrap;
   }
 
   .link {
+    color: var(--color-ink);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
-    text-decoration-color: var(--color-rule-strong);
+    text-decoration-color: var(--color-line-strong);
+    transition: text-decoration-color 160ms;
   }
 
   .link:hover {
     text-decoration-color: var(--color-ink);
   }
+
+  .skeleton {
+    border-radius: 8px;
+    background: linear-gradient(
+      90deg,
+      var(--color-subtle) 0%,
+      color-mix(in oklab, var(--color-subtle), var(--color-ink) 6%) 40%,
+      var(--color-subtle) 80%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+
+  .live-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: var(--color-accent);
+    animation: var(--animate-pulse-dot);
+  }
+
+  /* Staggered entry: set --i on each item. */
+  .stagger {
+    animation: var(--animate-enter);
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  /* Display headline with a quiet ink-to-muted fade, same font, no colour gradient. */
+  .display {
+    background: linear-gradient(180deg, var(--color-ink) 30%, color-mix(in oklab, var(--color-ink), var(--color-canvas) 38%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Accent ring that appears around the composer while it has focus. */
+  .glow-focus {
+    position: relative;
+  }
+
+  .glow-focus::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--color-glow) 70%, transparent),
+      transparent 40%,
+      transparent 60%,
+      color-mix(in oklab, var(--color-glow) 50%, transparent)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out-soft);
+    pointer-events: none;
+  }
+
+  .glow-focus:focus-within::after {
+    opacity: 1;
+  }
+
+  /* Frosted panel for the sidebar and sticky headers, with a solid fallback. */
+  .frost {
+    background: color-mix(in oklab, var(--color-surface) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .frost {
+      background: var(--color-surface);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+}
+
+/* Ambient light behind the whole app: two slow, faint accent fields and a dot grid. Fixed and inert. */
+.ambient {
+  --ambient-strength: 38%;
+  --ambient-strength-2: 24%;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient::before,
+.ambient::after {
+  content: "";
+  position: absolute;
+  width: 75vmax;
+  height: 75vmax;
+  border-radius: 9999px;
+  filter: blur(70px);
+  animation: var(--animate-drift);
+}
+
+/* Main teal field, top right. --ambient-strength is tuned per theme. */
+.ambient::before {
+  top: -30vmax;
+  right: -12vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-glow) var(--ambient-strength), transparent),
+    transparent 62%
+  );
+}
+
+/* Softer mint field, bottom left, so the colour carries across the whole page. */
+.ambient::after {
+  bottom: -36vmax;
+  left: -8vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--color-glow) var(--ambient-strength-2), transparent),
+    transparent 62%
+  );
+  animation-delay: -11s;
+}
+
+.dot-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(color-mix(in oklab, var(--color-ink) 9%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
+}
+
+/* Faint grain over everything so large empty areas do not feel sterile. Fixed and inert. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark .ambient {
+  --ambient-strength: 26%;
+  --ambient-strength-2: 14%;
+}
+
+.dark .grain::after {
+  opacity: 0.04;
 }

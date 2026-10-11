@@ -61,6 +61,7 @@ FALLBACK_CLARIFICATION = (
     "what you want to know?"
 )
 _DONE = object()
+CANCELLED_MESSAGE = "You stopped this request before it finished."
 
 
 # --- helpers ---
@@ -438,6 +439,9 @@ class Orchestrator:
         self._connection: Any = None
         self._graph: CompiledStateGraph | None = None
         self._lock = asyncio.Lock()
+        # Requests still running, by request id. A request keeps running when its client
+        # disconnects, so the answer is still saved; only cancel() stops it.
+        self._running: dict[str, asyncio.Task[None]] = {}
 
     async def start(self) -> None:
         async with self._lock:
@@ -461,6 +465,10 @@ class Orchestrator:
         return saver
 
     async def aclose(self) -> None:
+        for task in list(self._running.values()):
+            task.cancel()
+        if self._running:
+            await asyncio.gather(*self._running.values(), return_exceptions=True)
         async with self._lock:
             if self._connection is not None:
                 await self._connection.close()
@@ -481,8 +489,9 @@ class Orchestrator:
     ) -> AsyncIterator[BaseEvent]:
         """Run one stakeholder request, yielding events until it finishes.
 
-        The graph runs in a producer task; if the consumer stops early (client disconnect),
-        the producer is cancelled.
+        The graph runs in a producer task. If the consumer stops early (the browser navigated
+        away or lost its connection), the producer keeps running so the answer is still saved
+        to the conversation; call cancel() with the request id to stop it.
         """
         await self.start()
         ctx = RequestContext(
@@ -491,7 +500,9 @@ class Orchestrator:
             queue=asyncio.Queue(),
         )
         producer = asyncio.create_task(self._produce(ctx, message))
+        self._running[ctx.request_id] = producer
         producer.add_done_callback(lambda _: ctx.queue.put_nowait(_DONE))  # type: ignore[union-attr,arg-type]
+        producer.add_done_callback(lambda _: self._running.pop(ctx.request_id, None))
         try:
             while True:
                 event = await ctx.queue.get()  # type: ignore[union-attr]
@@ -500,11 +511,17 @@ class Orchestrator:
                 yield event
         finally:
             if not producer.done():
-                producer.cancel()
-                try:
-                    await producer
-                except (asyncio.CancelledError, Exception):
-                    pass
+                logger.info(
+                    "Client disconnected; request %s continues in the background", ctx.request_id
+                )
+
+    def cancel(self, request_id: str) -> bool:
+        """Stop a running request. Returns False if it is unknown or already finished."""
+        task = self._running.get(request_id)
+        if task is None or task.done():
+            return False
+        task.cancel()
+        return True
 
     async def _produce(self, ctx: RequestContext, message: str) -> None:
         with request_scope(ctx):
@@ -528,6 +545,7 @@ class Orchestrator:
                     )
             except asyncio.CancelledError:
                 logger.info("Request cancelled")
+                await self._save_failed_turn(ctx, message, CANCELLED_MESSAGE)
                 raise
             except Exception as exc:
                 logger.exception("Request failed")

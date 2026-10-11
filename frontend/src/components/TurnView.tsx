@@ -1,7 +1,8 @@
 import { memo } from "react";
 import { formatTime } from "../lib/format";
+import { isAwaitingServer } from "../hooks/useConversation";
 import { isTerminal, type RunPhase, type Turn } from "../lib/run";
-import { AgentName } from "./AgentName";
+import { AgentAvatar } from "./AgentName";
 import { FinalAnswerView, TraceLink } from "./FinalAnswerView";
 import { RunProgress } from "./RunProgress";
 import { ErrorState, Spinner } from "./States";
@@ -19,8 +20,8 @@ function AssistantBody({ turn }: { turn: Turn }) {
       return run.final ? <FinalAnswerView outcome={run.final} traceUrl={run.traceUrl} /> : null;
     case "clarification":
       return (
-        <div className="space-y-3">
-          <p className="max-w-[66ch] text-read">{run.clarification}</p>
+        <div className="card space-y-4 p-5 animate-enter">
+          <p className="max-w-[66ch] text-read text-ink">{run.clarification}</p>
           <TraceLink url={run.traceUrl} />
         </div>
       );
@@ -32,22 +33,32 @@ function AssistantBody({ turn }: { turn: Turn }) {
         />
       );
     case "cancelled":
-      return <p className="text-sm text-graphite italic">You stopped this request before it finished.</p>;
+      return <p className="text-sm text-muted">You stopped this request before it finished.</p>;
     default:
-      if (!turn.live) return <p className="text-sm text-graphite italic">No answer was recorded for this request.</p>;
+      if (!turn.live) {
+        if (!isAwaitingServer(turn)) return <p className="text-sm text-muted">No answer was recorded for this request.</p>;
+        return (
+          <p role="status" className="inline-flex items-center gap-2.5 rounded-full bg-accent-soft px-3 py-1.5 text-sm text-accent-strong">
+            <span aria-hidden className="live-dot" />
+            Still working on this answer. It appears here when it is ready.
+            <Spinner />
+          </p>
+        );
+      }
       return (
-        <p role="status" className="flex items-baseline gap-2.5 text-sm text-graphite italic">
+        <p role="status" className="inline-flex items-center gap-2.5 rounded-full bg-accent-soft px-3 py-1.5 text-sm text-accent-strong">
+          <span aria-hidden className="live-dot" />
           {PHASE_LABEL[run.phase]}
-          <Spinner className="text-ink" />
+          <Spinner />
         </p>
       );
   }
 }
 
 const BYLINE: Partial<Record<RunPhase, string>> = {
-  clarification: "asks a question back",
-  done: "answers",
-  error: "reports a failure",
+  clarification: "needs a little more detail",
+  done: "answered",
+  error: "reported a failure",
   cancelled: "did not finish",
 };
 
@@ -55,19 +66,25 @@ export const TurnView = memo(function TurnView({ turn }: { turn: Turn }) {
   const showStatusAboveAnswer = !isTerminal(turn.run.phase);
   const byline = BYLINE[turn.run.phase] ?? "is working on it";
   return (
-    <article className="space-y-5">
-      <header>
-        <time dateTime={turn.createdAt} className="font-mono text-2xs text-pencil">
+    <article className="space-y-5 animate-enter">
+      <header className="flex flex-col items-end gap-1.5">
+        <h2 className="max-w-[85%] rounded-[18px] rounded-br-md bg-bubble px-4 py-2.5 text-read font-normal text-on-bubble shadow-card">
+          {turn.question}
+        </h2>
+        <time dateTime={turn.createdAt} className="pr-1 text-2xs text-faint">
           {formatTime(turn.createdAt)}
         </time>
-        <h2 className="mt-1 max-w-[30ch] text-xl font-medium text-balance text-ink sm:text-2xl">{turn.question}</h2>
       </header>
-      <RunProgress run={turn.run} live={showStatusAboveAnswer} />
-      <div className="space-y-2">
-        <p className="text-xs text-graphite">
-          <AgentName name="ceo" /> {byline}
-        </p>
-        <AssistantBody turn={turn} />
+
+      <div className="flex gap-3">
+        <AgentAvatar name="ceo" />
+        <div className="min-w-0 flex-1 space-y-4">
+          <p className="pt-1.5 text-sm text-muted">
+            <span className="font-medium text-ink">CEO</span> {byline}
+          </p>
+          <RunProgress run={turn.run} live={showStatusAboveAnswer} />
+          <AssistantBody turn={turn} />
+        </div>
       </div>
     </article>
   );

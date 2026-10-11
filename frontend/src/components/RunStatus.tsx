@@ -1,41 +1,38 @@
 import type { AgentRunState } from "../lib/run";
 
 const LABELS: Record<AgentRunState, string> = {
-  queued: "queued",
-  running: "working",
-  ok: "done",
-  partial: "partial",
-  failed: "failed",
-  needs_clarification: "needs clarification",
+  queued: "Queued",
+  running: "Working",
+  ok: "Done",
+  partial: "Partial",
+  failed: "Failed",
+  needs_clarification: "Needs clarification",
 };
 
-// Typographic glyphs rather than icons: they sit on the baseline like the words beside them.
-const GLYPHS: Record<AgentRunState, string> = {
-  queued: "○",
-  running: "◐",
-  ok: "●",
-  partial: "◑",
-  failed: "✕",
-  needs_clarification: "?",
+const TONE: Record<AgentRunState, string> = {
+  queued: "bg-subtle text-muted",
+  running: "bg-accent-soft text-accent-strong",
+  ok: "bg-ok-soft text-ok",
+  partial: "bg-warn-soft text-warn",
+  failed: "bg-danger-soft text-danger",
+  needs_clarification: "bg-warn-soft text-warn",
 };
 
-const INK: Record<AgentRunState, string> = {
-  queued: "text-pencil",
-  running: "text-ink",
-  ok: "text-done",
-  partial: "text-caution",
-  failed: "text-refuse",
-  needs_clarification: "text-caution",
+const DOT: Record<AgentRunState, string> = {
+  queued: "bg-faint",
+  running: "live-dot",
+  ok: "bg-ok",
+  partial: "bg-warn",
+  failed: "bg-danger",
+  needs_clarification: "bg-warn",
 };
 
-/** Status as a word with a small glyph. "Working" gets the highlighter because it is what is happening now. */
+/** Status as a small pill: a dot that pulses while the agent works, and a word. */
 export function RunStateLabel({ state }: { state: AgentRunState }) {
   return (
-    <span className={`inline-flex items-baseline gap-1.5 text-xs whitespace-nowrap ${INK[state]}`}>
-      <span aria-hidden className={`font-mono ${state === "running" ? "animate-breathe" : ""}`}>
-        {GLYPHS[state]}
-      </span>
-      <span className={state === "running" ? "marked" : ""}>{LABELS[state]}</span>
+    <span className={`chip ${TONE[state]}`}>
+      <span aria-hidden className={`size-1.5 rounded-full ${DOT[state]}`} />
+      {LABELS[state]}
     </span>
   );
 }

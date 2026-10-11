@@ -1,75 +1,82 @@
-# Design: the annotated briefing
+# Design: one console, two themes
 
 ## Concept
 
-An executive asks a question and gets back a briefing someone has already marked up. The
-reading column is a memo: the question set as a headline, the CEO's plan as a short numbered
-table, the answer in a comfortable serif with footnoted findings. Beside it runs the log of
-messages between agents: a tree of hops drawn with hairlines, like an engineer's notebook.
-There is one colour moment, a **highlighter**, and it only ever marks what is current: the page
-you are on, the agent that is working, the citation you opened, the live feed.
+A product-grade operations console in the style of Linear or Vercel. Every screen (chat, agents,
+observability and the trace inspector) shares one shell, one token set with a light and a dark
+theme, one type family and one accent. Structure comes from white surfaces on a cool canvas, generous spacing and a small
+set of reusable components. Colour is reserved for meaning: the accent marks what is current or
+live, status colours mark outcomes, and each agent has its own hue.
 
-Structure comes from type, alignment, rules and whitespace. There are no cards, chips, pills,
-shadows or gradients anywhere.
-
-## Palette (tokens in `src/index.css`, `@theme`)
+## Tokens (`src/index.css`, `@theme`)
 
 | Token | Hex | Role |
 |---|---|---|
-| `paper` | `#f1f2ed` | Page ground: cool ledger-grey stock, deliberately not cream |
-| `paper-deep` | `#e6e8e1` | The agent-message log, so it reads as a separate sheet |
-| `ink` | `#191d1b` | Text, primary rules, the Ask button |
-| `graphite` | `#4f5652` | Secondary text (6.7:1 on paper) |
-| `pencil` | `#5f6661` | Timestamps, counts, marginal numbers (5.2:1 on paper, 4.8:1 on the log) |
-| `rule` / `rule-strong` | `#cacec5` / `#979c94` | Hairlines; strong rules open a section |
-| `mark` | `#f3e07a` | The highlighter. Background only, always under ink text |
-| `done` / `caution` / `refuse` | `#36652a` / `#83560b` / `#ab2a1f` | Status inks, used as text and glyphs only |
-| `agent-*` | ceo ink, finance `#1c6a50`, hr `#893a60`, tech `#1f5188`, 3 overflow inks | An agent's name is set in its ink wherever it appears |
+| `canvas` | `#f5f6f8` | Page ground |
+| `surface` | `#ffffff` | Cards, panels, composer |
+| `subtle` | `#f0f2f5` | Inner blocks: tool logs, evidence, stat tiles |
+| `ink` / `ink-2` | `#0e1116` / `#39404a` | Headings and body |
+| `muted` / `faint` | `#646c78` / `#8b929c` | Secondary text, timestamps |
+| `line` / `line-strong` | `#e4e7ec` / `#d0d5dc` | Borders and dividers |
+| `accent` | `#0f766e` (+ `accent-soft`, `accent-strong`) | The single accent: live, active nav, peer traffic, focus ring |
+| `ok` / `warn` / `danger` | green / amber / red, each with a `-soft` tint | Status only |
+| `agent-*` | CEO `#1f2937`, Finance `#6941c6`, HR `#b8326a`, Tech `#1764b0`, 3 overflow hues | Agent identity. Mirrored in `lib/agents.ts` for SVG |
+
+Primary buttons are near-black ink, not the accent.
 
 ## Type
 
-- **Literata** (variable, optical sizes) for everything readable: headlines, answers, UI text.
-  Optical sizing makes the 44px headline and the 13px captions both look right from one family.
-- **Fragment Mono** only for things that are literally machine text: evidence refs, tool calls,
-  hop counts, timestamps, footnote letters, owned table names.
-- Tabular figures are on globally.
-- Scale (minor third from 16px): `2xs` 12, `xs` 13, `sm` 15, `base` 16, `read` 18/28.8,
-  `lg` 21, `xl` 26, `2xl` 34, display 44. Serif reading text gets a 1.6 line height.
-- Line length: answers are capped at 66–70ch, the reading column at 46rem.
+- **Geist** for all UI text, **Geist Mono** for machine text (tool calls, refs, hop counts,
+  keyboard hints). Tabular figures are on globally.
+- Scale: `2xs` 11, `xs` 12, `sm` 13, `base` 14, `read` 15/25.6, `lg` 17, `xl` 22, `2xl` 30, `3xl` 40.
+- Headlines use negative tracking; long text is capped near 68ch and uses `text-wrap: pretty`.
 
-## Spacing rhythm
+## Themes
 
-A 4px base. Rows inside a list: 8–12px. Between blocks within a turn: 20–24px. Between turns:
-a strong rule and 40px. Hanging markers (claim numbers, footnote letters, plan numbers) sit in a
-fixed 1.25–1.75rem gutter so the text column stays flush.
+- Light values live in `@theme`; `.dark` on `<html>` overrides the same `--color-*` variables, so
+  utilities and SVG charts (which read `var(--color-*)`) flip together.
+- The viewer picks Light, Dark or System in the sidebar (`hooks/usePreferences.ts`). The choice is
+  kept in localStorage, and a small script in `index.html` applies it before first paint.
+- Semantic tokens added for theming: `elevated`, `on-ink`, `ink-hover`, `bubble`/`on-bubble`,
+  `glow`, and `series-*` for non-agent chart series.
 
-## Rules followed
+## Shell
 
-1. No boxes. Grouping is a hairline, a strong rule above a section, or a 2px coloured left rule
-   for exceptions (red for failures, ochre for "Not answered").
-2. Status is a word plus a typographic glyph (`○ ◐ ● ◑ ✕ ?`) in a status ink. Never a pill.
-3. Agents are named in their own ink, as words in the sentence. No chips, no dots-in-pills.
-4. Numbers only where the content is a sequence or is referenced: plan subtasks and findings are
-   numbered; evidence uses footnote letters so the two never collide.
-5. The highlighter marks the current thing and nothing else.
-6. Layout varies by content: the plan is a table, agent progress is a log under each row, the
-   answer is a reading column with inline footnotes, the A2A panel is a hop tree with connecting
-   elbows (squares are requests, circles are responses, `⊘` in red is a refusal), the Agents
-   page is a staff directory table followed by spec sheets with the identity in the margin.
-7. No all-caps labels, no eyebrow text, no icons in circles, no emoji. Icons are not used at all;
-   disclosure uses a mono `›` that rotates.
-8. Radius is 2px and only on the two buttons. Nothing has a shadow.
-9. Motion: new log lines fade up 3px, running status breathes. Nothing else moves on its own.
-   `prefers-reduced-motion` turns all of it off.
-10. Focus is a 2px ink outline everywhere; the composer's rule darkens from grey to ink when the
-    textarea has focus.
-11. Mobile (below `lg`): the log becomes a second tab ("Agent messages"); navigation is a drawer
-    opened from a text "Menu" link. Plan rows restack so status sits beside the agent name.
+- The desktop sidebar collapses to a 68px icon rail (button in the sidebar header, or Cmd/Ctrl + B);
+  the state is remembered. On mobile it is a drawer.
+- Behind everything sits a fixed ambient layer: two slow, faint accent light fields, a dot grid that
+  fades out downward, and a 2.5% grain. All are inert and stop moving under reduced motion.
 
-## Fonts
+## Shape and depth
 
-Self-hosted through `@fontsource-variable/literata` and `@fontsource/fragment-mono` (pinned) so
-the app needs no runtime CDN and renders the same offline and in headless screenshots.
+- Containers (cards, panels, composer): `rounded-card` (16px). Inner blocks and controls:
+  `rounded-block` (10px). Status chips and the live dot: full pills.
+- Shadows are soft and tinted toward the ink hue: `shadow-card` at rest, `shadow-raised` on
+  hover and for the trace drawer.
+- A 2.5% fixed grain overlay sits over the canvas; it never takes pointer events.
 
-Single light theme by choice: the paper metaphor carries the design, and a half-considered dark
-mode would dilute it.
+## Components (`@layer components`)
+
+`.card`, `.btn` + `.btn-primary` / `.btn-secondary` / `.btn-ghost` / `.btn-icon`, `.chip`,
+`.mono-tag`, `.link`, `.skeleton`, `.live-dot`, `.stagger` (set `--i` for cascade delay), `.spotlight`
+(cursor-following glow, driven by `useSpotlight`), `.glow-focus` (accent ring on the composer),
+`.frost` (blurred panel with a solid fallback), `.display` (headline ink fade).
+
+Shared React pieces: `PageHeader`, `AgentOrbit` (the live system diagram on the welcome screen),
+`AgentAvatar` (icon in a tinted rounded square), `AgentName`, `AgentTag`,
+`RunStateLabel` (status pill), `RichText` (bold and inline code from agent markdown),
+`LoadingState` (skeletons), `ErrorState`, `EmptyState`.
+
+## Motion
+
+One easing curve, `cubic-bezier(0.16, 1, 0.3, 1)`. Content fades up 8px on entry, lists cascade
+60ms apart, cards lift 2px on hover, buttons press to 97%. Only `transform` and `opacity`
+animate. Everything collapses to instant under `prefers-reduced-motion`.
+
+## Rules
+
+- One token set everywhere. No screen gets its own palette or fonts; never hardcode a colour in a
+  component, add a token instead.
+- Lucide icons at stroke 1.75 throughout.
+- No em dashes in UI copy. Empty values show `-`.
+- Agent colours never style chrome; the accent never identifies an agent.

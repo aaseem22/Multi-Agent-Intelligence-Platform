@@ -8,14 +8,10 @@ interface PanelProps {
   labelId?: string;
 }
 
-/** An instrument panel: hairline frame, bracketed corners, a short lit tick before the title. */
+/** A dashboard card with a title row and optional meta on the right. */
 export function Panel({ title, meta, className = "", children, labelId }: PanelProps) {
   return (
-    <section className={`obs-panel ${className}`} aria-labelledby={labelId}>
-      <span aria-hidden className="obs-corner obs-corner--tl" />
-      <span aria-hidden className="obs-corner obs-corner--tr" />
-      <span aria-hidden className="obs-corner obs-corner--bl" />
-      <span aria-hidden className="obs-corner obs-corner--br" />
+    <section className={`obs-panel animate-enter ${className}`} aria-labelledby={labelId}>
       <header className="obs-panel-head">
         <h2 id={labelId} className="obs-panel-title">
           {title}

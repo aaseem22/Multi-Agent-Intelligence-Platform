@@ -17,3 +17,7 @@ frontend/dist/
 # Local-only files
 .env.example
 MTech-Project_Review2_PPT_Template_V1.pptx
+presentation/
+ui-screenshots/
+ui-screenshots.zip
+.DS_Store

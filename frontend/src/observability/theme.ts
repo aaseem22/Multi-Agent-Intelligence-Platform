@@ -1,25 +1,18 @@
-// Scoped tokens and formatters for the observability dashboard. Agent hues were validated with
-// the dataviz palette checker against the panel surface (#0a111c, dark, all pairs): lightness
-// band, chroma, CVD separation (worst ΔE 8.1) and normal-vision floor (16.2) all pass.
+// Formatters for the observability dashboard. Agent hues come from lib/agents so the charts,
+// the chat and the agents page always draw an agent in the same colour.
 
-const AGENT_HUE: Record<string, string> = {
-  tech: "#1f9fd2",
-  finance: "#8a70f0",
-  hr: "#d9589a",
-};
-const SUPERVISOR_HUE = "#e6f5ff";
-/** Departments registered later share a neutral hue; their names are always labelled. */
-const OVERFLOW_HUE = "#8fa6b6";
+import { agentLabel, agentStyle } from "../lib/agents";
 
 export function agentHue(name: string, supervisor: string | null = "ceo"): string {
-  if (name === supervisor) return SUPERVISOR_HUE;
-  return AGENT_HUE[name] ?? OVERFLOW_HUE;
+  return agentStyle(name === supervisor ? "ceo" : name).color;
 }
 
-const LABELS: Record<string, string> = { ceo: "CEO", hr: "HR" };
+export function agentSoftHue(name: string, supervisor: string | null = "ceo"): string {
+  return agentStyle(name === supervisor ? "ceo" : name).softColor;
+}
 
 export function agentName(name: string): string {
-  return LABELS[name] ?? name.charAt(0).toUpperCase() + name.slice(1);
+  return agentLabel(name);
 }
 
 const integer = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
@@ -34,18 +27,18 @@ export function formatCompact(value: number): string {
 }
 
 export function formatSeconds(ms: number | null | undefined, digits = 1): string {
-  if (ms == null) return "–";
+  if (ms == null) return "-";
   if (ms < 1000) return `${Math.round(ms)} ms`;
   return `${(ms / 1000).toFixed(digits)} s`;
 }
 
 export function formatPercent(ratio: number | null | undefined, digits = 0): string {
-  if (ratio == null) return "–";
+  if (ratio == null) return "-";
   return `${(ratio * 100).toFixed(digits)}%`;
 }
 
 export function formatCost(value: number | null | undefined): string {
-  if (value == null) return "–";
+  if (value == null) return "-";
   if (value === 0) return "$0";
   if (value < 0.01) return `$${value.toFixed(4)}`;
   return `$${value.toFixed(2)}`;

@@ -2,13 +2,19 @@ const timeFormat = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute:
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short" });
 const relativeFormat = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
 
+/** Server timestamps are UTC; one without an offset is read as UTC, never as local time. */
+export function parseServerTime(iso: string): Date {
+  const hasOffset = /([zZ]|[+-]\d{2}:?\d{2})$/.test(iso);
+  return new Date(hasOffset || !iso.includes("T") ? iso : `${iso}Z`);
+}
+
 export function formatTime(iso: string): string {
-  const date = new Date(iso);
+  const date = parseServerTime(iso);
   return Number.isNaN(date.getTime()) ? "" : timeFormat.format(date);
 }
 
 export function formatRelative(iso: string, now = Date.now()): string {
-  const date = new Date(iso);
+  const date = parseServerTime(iso);
   if (Number.isNaN(date.getTime())) return "";
   const minutes = Math.round((date.getTime() - now) / 60_000);
   if (Math.abs(minutes) < 1) return "just now";

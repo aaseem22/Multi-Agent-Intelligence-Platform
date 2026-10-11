@@ -735,6 +735,8 @@ seedStore();
 export const mockBackend: Backend = {
   mode: "mock",
   streamChat,
+  // Scripted runs stop when their stream is aborted, so there is nothing to cancel server-side.
+  cancelChat: async () => {},
   getAgents: (signal) => respond(AGENT_CARDS, signal),
   getConversations: (signal) => {
     const list: ConversationSummary[] = [...store.values()]

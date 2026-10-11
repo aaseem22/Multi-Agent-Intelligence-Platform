@@ -5,6 +5,8 @@
 export interface ObservabilityStatus {
   enabled: boolean;
   reason: string | null;
+  /** True when Langfuse is configured but temporarily unreachable (network, rate limit, 5xx). */
+  transient?: boolean;
   host: string | null;
 }
 

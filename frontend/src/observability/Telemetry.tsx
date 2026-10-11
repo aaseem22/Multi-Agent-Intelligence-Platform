@@ -97,9 +97,9 @@ function SparkChart({
   return (
     <figure className="min-w-0">
       <figcaption className="flex items-baseline justify-between gap-2">
-        <span className="obs-cond text-sm text-(--obs-text-2)">{spec.title}</span>
-        <span className="obs-mono text-base text-(--obs-text)">
-          {hover != null ? (hoverValue == null ? "–" : spec.format(hoverValue)) : spec.headline}
+        <span className="text-sm text-muted">{spec.title}</span>
+        <span className="text-base font-semibold text-ink tabular-nums">
+          {hover != null ? (hoverValue == null ? "-" : spec.format(hoverValue)) : spec.headline}
         </span>
       </figcaption>
       <div ref={ref} className="relative mt-1">
@@ -126,7 +126,7 @@ function SparkChart({
               </g>
             ) : null}
             {areaPaths.map((d, i) => (
-              <path key={`a${i}`} d={d} fill="var(--obs-ice)" fillOpacity={0.1} />
+              <path key={`a${i}`} d={d} fill="var(--obs-ice)" fillOpacity={0.08} />
             ))}
             {linePaths.map((d, i) => (
               <path key={`l${i}`} d={d} fill="none" stroke="var(--obs-ice)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
@@ -199,7 +199,6 @@ function Readout({ label, value, format, tone }: { label: string; value: number;
     <div className="obs-readout">
       <p className={`obs-readout-value ${tone === "alert" ? "obs-alert" : tone === "amber" ? "obs-amber" : ""}`}>
         {format(shown)}
-        {tone ? <span aria-hidden className="ml-1 text-sm">{tone === "alert" ? "✕" : "⊘"}</span> : null}
       </p>
       <p className="obs-readout-label">{label}</p>
     </div>
@@ -244,7 +243,7 @@ function TelemetryImpl({ summary }: { summary: ObservabilitySummary }) {
       labelId="obs-telemetry"
       className="obs-area-telemetry"
       meta={
-        <button type="button" className="obs-button !py-1 !text-xs" aria-pressed={showTable} onClick={() => setShowTable((v) => !v)}>
+        <button type="button" className="obs-button h-7! text-xs!" aria-pressed={showTable} onClick={() => setShowTable((v) => !v)}>
           {showTable ? "Show charts" : "Show table"}
         </button>
       }
@@ -263,7 +262,7 @@ function TelemetryImpl({ summary }: { summary: ObservabilitySummary }) {
             </thead>
             <tbody>
               {buckets.map((b) => (
-                <tr key={b.bucket} className="border-t border-(--obs-line)">
+                <tr key={b.bucket} className="border-t border-line">
                   <td className="py-1 pr-3 obs-t2">{formatBucket(b.bucket, bucketKind)}</td>
                   <td className="py-1 pr-3 text-right">{formatInt(b.traces)}</td>
                   <td className="py-1 pr-3 text-right">{formatSeconds(b.avg_latency_ms)}</td>

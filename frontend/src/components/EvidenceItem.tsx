@@ -1,10 +1,11 @@
+import { ChevronRight, Database, GitBranch, MessagesSquare, type LucideIcon } from "lucide-react";
 import type { Evidence, EvidenceSourceType } from "../types/contracts";
 import { AgentName } from "./AgentName";
 
-const SOURCE_LABEL: Record<EvidenceSourceType, string> = {
-  db: "Database record",
-  github: "GitHub API response",
-  peer: "Answer from a peer agent",
+const SOURCE: Record<EvidenceSourceType, { label: string; icon: LucideIcon }> = {
+  db: { label: "Database record", icon: Database },
+  github: { label: "GitHub API response", icon: GitBranch },
+  peer: { label: "Answer from a peer agent", icon: MessagesSquare },
 };
 
 interface EvidenceItemProps {
@@ -13,27 +14,38 @@ interface EvidenceItemProps {
   marker: string;
 }
 
-/** One footnote: its letter hangs in the margin, the reference is set in mono so it can be copied. */
+/** One source: its footnote letter, what it shows, where it came from, and the copyable reference. */
 export function EvidenceItem({ evidence, agent, marker }: EvidenceItemProps) {
   const hasData = evidence.data !== null && Object.keys(evidence.data).length > 0;
+  const source = SOURCE[evidence.source_type];
+  const Icon = source.icon;
   return (
-    <li className="grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-1 animate-enter">
-      <span className="pt-0.5 font-mono text-2xs text-pencil">{marker}</span>
-      <div className="min-w-0">
-        <p className="text-sm text-ink">{evidence.summary}</p>
-        <p className="text-2xs text-graphite">
-          {SOURCE_LABEL[evidence.source_type]}, cited by <AgentName name={agent} />
+    <li className="flex gap-3 animate-enter">
+      <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-surface font-mono text-2xs font-medium text-ink-2 ring-1 ring-line">
+        {marker}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm leading-relaxed text-ink">{evidence.summary}</p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted">
+          <span className="inline-flex items-center gap-1">
+            <Icon aria-hidden size={12} strokeWidth={1.75} />
+            {source.label}
+          </span>
+          <span aria-hidden className="text-line-strong">/</span>
+          <span>
+            cited by <AgentName name={agent} />
+          </span>
         </p>
-        <code className="block font-mono text-2xs break-all text-graphite">{evidence.source_ref}</code>
+        <code className="mt-1.5 inline-block max-w-full rounded-md bg-surface px-1.5 py-0.5 font-mono text-2xs break-all text-ink-2 ring-1 ring-line">
+          {evidence.source_ref}
+        </code>
         {hasData ? (
-          <details className="group/raw mt-0.5">
-            <summary className="cursor-pointer text-2xs text-pencil hover:text-ink">
-              <span aria-hidden className="mr-1 inline-block font-mono transition-transform group-open/raw:rotate-90">
-                ›
-              </span>
+          <details className="group/raw mt-1.5">
+            <summary className="inline-flex cursor-pointer items-center gap-1 text-2xs text-muted transition-colors hover:text-ink">
+              <ChevronRight aria-hidden size={12} strokeWidth={2} className="transition-transform duration-200 group-open/raw:rotate-90" />
               Raw excerpt
             </summary>
-            <pre className="mt-1 max-h-48 overflow-auto border-l border-rule py-1 pl-3 font-mono text-2xs text-ink">
+            <pre className="mt-1.5 max-h-48 overflow-auto rounded-md bg-surface p-2.5 font-mono text-2xs leading-relaxed text-ink-2 ring-1 ring-line">
               {JSON.stringify(evidence.data, null, 2)}
             </pre>
           </details>

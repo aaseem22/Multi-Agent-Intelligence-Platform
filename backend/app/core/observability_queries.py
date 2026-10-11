@@ -5,10 +5,15 @@ server-side. It uses the current read APIs only: `GET /api/public/v2/observation
 pagination, `fields` groups) and `GET /api/public/v3/scores`. The legacy trace, v1 observation,
 v2 score and daily-metrics endpoints are gone for new organisations (HTTP 410) and are removed
 for everyone on 2026-11-16. A "trace" here is its root observation (`isRootObservation=true`);
-its tokens, cost, agents and status are aggregated from the trace's observations. Responses are cached briefly to spare the free tier. Local
+its tokens, cost, agents and status are aggregated from the trace's observations. Responses are
+cached briefly to spare the free tier: concurrent callers share one in-flight load, calls are capped
+in parallel and retried on transient failures, and the last good result is served when Langfuse
+blips. Local
 `a2a_messages` rows are merged in for peer-call and refusal counts, so A2A numbers work even
 when Langfuse lags ingestion. Every public function returns a plain dict and never raises:
-without keys, or when Langfuse fails, it returns `{"enabled": False, "reason": ...}`.
+without keys, or when Langfuse fails, it returns `{"enabled": False, "reason": ..., "transient": ...}`,
+where `transient` says the failure is temporary (network, rate limit, server error) rather than
+configuration.
 
 Nothing here names a specific department: agents are read from span names
 (`agent:{name}`, `a2a:{sender}->{recipient}`) and from the registry's supervisor.
@@ -33,8 +38,12 @@ from app.core.registry import registry
 
 logger = logging.getLogger(__name__)
 
-CACHE_TTL_SECONDS = 20.0
+CACHE_TTL_SECONDS = 30.0
 HTTP_TIMEOUT_SECONDS = 15.0
+MAX_PARALLEL_REQUESTS = 3
+MAX_ATTEMPTS = 3
+RETRY_BASE_SECONDS = 0.8
+RETRY_MAX_SECONDS = 8.0
 OBSERVATIONS_PATH = "/api/public/v2/observations"
 SCORES_PATH = "/api/public/v3/scores"
 ROOT_PAGE_LIMIT = 100
@@ -57,18 +66,42 @@ A2A_PREFIX = "a2a:"
 SPAN_METADATA_KEYS = ("agent", "mode", "subtask_id", "hop_count", "chain", "a2a_message_id")
 
 _cache: dict[tuple[Any, ...], tuple[float, Any]] = {}
+_inflight: dict[tuple[Any, ...], asyncio.Future[Any]] = {}
+_request_slots: asyncio.Semaphore | None = None
+
+
+def _slots() -> asyncio.Semaphore:
+    """Created lazily so it binds to the running event loop."""
+    global _request_slots
+    if _request_slots is None:
+        _request_slots = asyncio.Semaphore(MAX_PARALLEL_REQUESTS)
+    return _request_slots
 
 
 class LangfuseUnavailable(Exception):
     """Langfuse is not configured or its API failed; the message is shown to the user."""
 
+    def __init__(self, message: str, *, transient: bool = False) -> None:
+        super().__init__(message)
+        self.transient = transient
+
 
 def reset_cache() -> None:
     _cache.clear()
+    _inflight.clear()
 
 
-def _disabled(reason: str) -> dict[str, Any]:
-    return {"enabled": False, "reason": reason, "host": get_settings().langfuse_host}
+def _disabled(reason: str, *, transient: bool = False) -> dict[str, Any]:
+    return {
+        "enabled": False,
+        "reason": reason,
+        "transient": transient,
+        "host": get_settings().langfuse_host,
+    }
+
+
+def _unavailable(exc: LangfuseUnavailable) -> dict[str, Any]:
+    return _disabled(str(exc), transient=exc.transient)
 
 
 def _missing_keys_reason() -> str:
@@ -81,11 +114,48 @@ def _missing_keys_reason() -> str:
 # --- HTTP -------------------------------------------------------------------------------------
 
 
+def _retry_delay(attempt: int, response: httpx.Response | None) -> float:
+    """Exponential backoff, or Langfuse's own Retry-After when it sends one."""
+    if response is not None:
+        header = response.headers.get("retry-after")
+        if header:
+            try:
+                return min(max(float(header), 0.0), RETRY_MAX_SECONDS)
+            except ValueError:
+                pass
+    return min(RETRY_BASE_SECONDS * 2**attempt, RETRY_MAX_SECONDS)
+
+
+async def _send(client: httpx.AsyncClient, path: str, params: dict[str, Any]) -> httpx.Response:
+    """GET with a shared concurrency cap and retries on network errors, 429 and 5xx."""
+    query = {k: v for k, v in params.items() if v is not None}
+    for attempt in range(MAX_ATTEMPTS):
+        last_attempt = attempt == MAX_ATTEMPTS - 1
+        try:
+            async with _slots():
+                response = await client.get(path, params=query)
+        except httpx.TransportError as exc:
+            if last_attempt:
+                raise LangfuseUnavailable(
+                    f"Could not reach Langfuse: {type(exc).__name__}", transient=True
+                ) from exc
+            logger.info("Langfuse %s failed (%s), retrying", path, type(exc).__name__)
+            await asyncio.sleep(_retry_delay(attempt, None))
+            continue
+        if response.status_code == 429 or response.status_code >= 500:
+            if last_attempt:
+                raise LangfuseUnavailable(
+                    f"Langfuse is busy (HTTP {response.status_code})", transient=True
+                )
+            logger.info("Langfuse %s returned %s, retrying", path, response.status_code)
+            await asyncio.sleep(_retry_delay(attempt, response))
+            continue
+        return response
+    raise LangfuseUnavailable("Could not reach Langfuse", transient=True)
+
+
 async def _get(client: httpx.AsyncClient, path: str, params: dict[str, Any]) -> Any:
-    try:
-        response = await client.get(path, params={k: v for k, v in params.items() if v is not None})
-    except httpx.HTTPError as exc:
-        raise LangfuseUnavailable(f"Could not reach Langfuse: {type(exc).__name__}") from exc
+    response = await _send(client, path, params)
     if response.status_code in (401, 403):
         raise LangfuseUnavailable("Langfuse rejected the API keys (check LANGFUSE_* in .env)")
     if response.status_code == 404:
@@ -134,12 +204,24 @@ def _client() -> httpx.AsyncClient:
 
 
 async def _cached(key: tuple[Any, ...], loader: Any) -> Any:
+    """Fresh value from cache, else one shared load. If that load fails for a transient reason,
+    the last good value is served instead, so a network blip never blanks the dashboard."""
     hit = _cache.get(key)
-    now = time.monotonic()
-    if hit is not None and hit[0] > now:
+    if hit is not None and hit[0] > time.monotonic():
         return hit[1]
-    value = await loader()
-    _cache[key] = (now + CACHE_TTL_SECONDS, value)
+    pending = _inflight.get(key)
+    if pending is None:
+        pending = asyncio.ensure_future(loader())
+        _inflight[key] = pending
+        pending.add_done_callback(lambda _: _inflight.pop(key, None))
+    try:
+        value = await asyncio.shield(pending)
+    except LangfuseUnavailable as exc:
+        if exc.transient and hit is not None:
+            logger.warning("Langfuse unavailable (%s); serving the last good result", exc)
+            return hit[1]
+        raise
+    _cache[key] = (time.monotonic() + CACHE_TTL_SECONDS, value)
     return value
 
 
@@ -907,8 +989,10 @@ async def observability_summary(days: int = 7) -> dict[str, Any]:
         return _disabled(reason)
     try:
         return build_summary(await _window(days))
-    except (LangfuseUnavailable, LookupError) as exc:
-        return _disabled(str(exc) if isinstance(exc, LangfuseUnavailable) else "Not found")
+    except LangfuseUnavailable as exc:
+        return _unavailable(exc)
+    except LookupError:
+        return _disabled("Not found")
     except Exception as exc:
         logger.exception("Observability summary failed")
         return _disabled(f"Could not build the summary: {type(exc).__name__}")
@@ -920,7 +1004,7 @@ async def observability_traces(limit: int = 50, days: int = 7) -> dict[str, Any]
     try:
         return build_trace_list(await _window(days), limit)
     except LangfuseUnavailable as exc:
-        return {**_disabled(str(exc)), "traces": []}
+        return {**_unavailable(exc), "traces": []}
     except Exception as exc:
         logger.exception("Observability trace list failed")
         return {**_disabled(f"Could not list traces: {type(exc).__name__}"), "traces": []}
@@ -980,7 +1064,7 @@ async def observability_trace(trace_id: str) -> dict[str, Any] | None:
     except LookupError:
         return None
     except LangfuseUnavailable as exc:
-        return _disabled(str(exc))
+        return _unavailable(exc)
     except Exception as exc:
         logger.exception("Observability trace detail failed")
         return _disabled(f"Could not load the trace: {type(exc).__name__}")

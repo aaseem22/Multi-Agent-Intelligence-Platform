@@ -121,15 +121,29 @@ export function useDashboard(days: number): [DashboardState, () => void] {
       return { api, summary, traces };
     })().then(
       ({ api, summary, traces }) =>
-        setState((previous) => ({
-          status: "ready",
-          data: { summary, traces },
-          error: null,
-          refreshing: false,
-          updatedAt: Date.now(),
-          cycle: previous.cycle + 1,
-          mode: api.mode,
-        })),
+        setState((previous) => {
+          // A temporary Langfuse outage must not blank a dashboard that already has data:
+          // keep the last good result on screen and report the refresh as failed.
+          const blip = [summary, traces].find((part) => !part.enabled && part.transient);
+          if (blip && previous.data?.summary.enabled) {
+            return {
+              ...previous,
+              status: "ready",
+              error: blip.reason ?? "Langfuse is temporarily unreachable",
+              refreshing: false,
+              cycle: previous.cycle + 1,
+            };
+          }
+          return {
+            status: "ready",
+            data: { summary, traces },
+            error: null,
+            refreshing: false,
+            updatedAt: Date.now(),
+            cycle: previous.cycle + 1,
+            mode: api.mode,
+          };
+        }),
       (error: unknown) => {
         if (isAbortError(error)) return;
         setState((previous) => ({

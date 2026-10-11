@@ -12,6 +12,8 @@ import type { StreamEvent } from "../types/events";
 export interface Backend {
   mode: "live" | "mock";
   streamChat(request: ChatRequest, signal?: AbortSignal): AsyncGenerator<StreamEvent>;
+  /** Stops a running request on the server. Closing the stream alone lets it finish and save. */
+  cancelChat(requestId: string): Promise<void>;
   getAgents(signal?: AbortSignal): Promise<AgentsResponse>;
   getConversations(signal?: AbortSignal): Promise<ConversationSummary[]>;
   getConversation(id: string, signal?: AbortSignal): Promise<ConversationDetail>;

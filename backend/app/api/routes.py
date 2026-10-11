@@ -38,6 +38,15 @@ async def chat(body: ChatRequest, orchestrator: OrchestratorDep) -> EventSourceR
     return EventSourceResponse(events())
 
 
+@router.post("/chat/{request_id}/cancel", status_code=204)
+async def cancel_chat(
+    request_id: Annotated[str, Path(min_length=1)], orchestrator: OrchestratorDep
+) -> None:
+    """Stop a running request. Closing the stream alone does not stop it, so answers are not lost."""
+    if not orchestrator.cancel(request_id):
+        raise HTTPException(status_code=404, detail="No running request with this id")
+
+
 @router.get("/agents", response_model=list[AgentCard])
 async def agents(orchestrator: OrchestratorDep) -> list[AgentCard]:
     return orchestrator.agent_cards()

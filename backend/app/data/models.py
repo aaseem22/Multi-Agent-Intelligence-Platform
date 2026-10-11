@@ -1,8 +1,28 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from typing import Any
 
 from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy.engine import Dialect
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.types import TypeDecorator
+
+
+class UTCDateTime(TypeDecorator[datetime]):
+    """Timezone-aware UTC timestamps on every backend. SQLite drops the offset on write, so values
+    read back without one are UTC by construction; PostgreSQL keeps it and passes through as is."""
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is not None and value.tzinfo is not None:
+            return value.astimezone(UTC)
+        return value
+
+    def process_result_value(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is not None and value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value
 
 
 class Base(DeclarativeBase):
@@ -145,7 +165,7 @@ class A2AMessageRecord(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     hop_count: Mapped[int] = mapped_column(Integer, default=0)
     chain: Mapped[list[Any]] = mapped_column(JSON, default=list)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime())
 
 
 class Conversation(Base):
@@ -153,8 +173,8 @@ class Conversation(Base):
 
     id: Mapped[str] = mapped_column(String(40), primary_key=True)
     title: Mapped[str] = mapped_column(String(200))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime())
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime())
 
 
 class ChatTurn(Base):
@@ -169,7 +189,7 @@ class ChatTurn(Base):
     answer: Mapped[str | None] = mapped_column(Text)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     trace_url: Mapped[str | None] = mapped_column(String(300))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime())
 
 
 class GitHubCacheEntry(Base):
@@ -178,4 +198,4 @@ class GitHubCacheEntry(Base):
     key: Mapped[str] = mapped_column(String(500), primary_key=True)
     status_code: Mapped[int] = mapped_column(Integer)
     body: Mapped[Any] = mapped_column(JSON)
-    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    fetched_at: Mapped[datetime] = mapped_column(UTCDateTime())

@@ -57,9 +57,16 @@ async function* streamChat(
   }
 }
 
+async function cancelChat(requestId: string): Promise<void> {
+  const response = await fetch(`/api/chat/${encodeURIComponent(requestId)}/cancel`, { method: "POST" });
+  // 404 means the request already finished, which is fine for a stop button.
+  if (!response.ok && response.status !== 404) throw new ApiError(response.status, await describeFailure(response));
+}
+
 export const httpBackend: Backend = {
   mode: "live",
   streamChat,
+  cancelChat,
   getAgents: (signal) => getJson<AgentsResponse>("/api/agents", signal),
   getConversations: (signal) => getJson<ConversationSummary[]>("/api/conversations", signal),
   getConversation: (id, signal) =>

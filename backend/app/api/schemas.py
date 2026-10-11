@@ -84,6 +84,8 @@ class ObsBucket(BaseModel):
 class ObservabilityStatus(BaseModel):
     enabled: bool
     reason: str | None = None
+    # True when Langfuse is configured but temporarily unreachable (network, rate limit, 5xx).
+    transient: bool = False
     host: str | None = None
 
 

@@ -1,6 +1,7 @@
 import { ExternalLink, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ObsA2AMessage, ObsObservation, ObsTraceScore, ObservabilityTraceDetail } from "../types/observability";
+import { AgentTag } from "../components/AgentName";
 import { useTraceDetail } from "./hooks";
 import { StatusMark } from "./TraceFeed";
 import { agentHue, agentName, formatCompact, formatCost, formatSeconds, formatStamp, scoreLabel } from "./theme";
@@ -14,9 +15,9 @@ const KIND_STYLE = {
   event: { glyph: "•", label: "Event" },
 } as const;
 
-const LLM_COLOR = "#6d8fb3";
-const TOOL_COLOR = "#a9bccb";
-const SPAN_COLOR = "#2f4b66";
+const LLM_COLOR = "var(--color-series-muted)";
+const TOOL_COLOR = "var(--color-series-faint)";
+const SPAN_COLOR = "var(--color-series-ghost)";
 
 function agentOf(obs: ObsObservation): string | null {
   const meta = obs.metadata.agent;
@@ -54,7 +55,7 @@ function A2ALabel({ obs }: { obs: ObsObservation }) {
         {agentName(sender ?? "")} <span className="obs-ice">→</span> {agentName(recipient ?? "")}
       </span>
       {typeof hop === "number" ? (
-        <span className="obs-mono border border-(--obs-ice-dim) px-1 text-2xs leading-4 obs-ice">hop {hop}</span>
+        <span className="mono-tag bg-surface! text-accent-strong!">hop {hop}</span>
       ) : null}
       {chain.length ? <span className="obs-mono obs-t3 text-2xs">via {chain.map(agentName).join(" › ")}</span> : null}
     </span>
@@ -90,14 +91,14 @@ function Waterfall({ detail, supervisor }: { detail: ObservabilityTraceDetail; s
               {KIND_STYLE[kind].label}
             </span>
           ))}
-          <button type="button" className="obs-button !py-1 !text-xs" aria-pressed={!showSteps} onClick={() => setShowSteps((v) => !v)}>
+          <button type="button" className="obs-button h-7! text-xs!" aria-pressed={!showSteps} onClick={() => setShowSteps((v) => !v)}>
             {showSteps ? "Hide graph steps" : "Show graph steps"}
           </button>
         </div>
       </div>
 
       <div role="table" aria-label="Observations in this trace" className="text-sm">
-        <div role="row" className="obs-waterfall-row !min-h-6 !border-t-0">
+        <div role="row" className="obs-waterfall-row min-h-6! border-t-0!">
           <span role="columnheader" className="obs-cond obs-t3 text-xs">Observation</span>
           <span role="columnheader" className="relative h-5">
             <span className="sr-only">Timeline</span>
@@ -156,10 +157,10 @@ function Waterfall({ detail, supervisor }: { detail: ObservabilityTraceDetail; s
               </div>
               <div role="cell" className="relative h-full min-h-6">
                 {ticks.map((t) => (
-                  <span key={t} aria-hidden className="absolute inset-y-0 w-px bg-(--obs-line)/50" style={{ left: `${(t / total) * 100}%` }} />
+                  <span key={t} aria-hidden className="absolute inset-y-0 w-px bg-line/60" style={{ left: `${(t / total) * 100}%` }} />
                 ))}
                 <span
-                  className="absolute top-1/2 -translate-y-1/2 rounded-r-[3px]"
+                  className="absolute top-1/2 -translate-y-1/2 rounded-full"
                   title={`${obs.name}: ${formatSeconds(duration)}${obs.tokens ? `, ${obs.tokens} tokens` : ""}`}
                   style={{
                     left: `${left}%`,
@@ -167,7 +168,6 @@ function Waterfall({ detail, supervisor }: { detail: ObservabilityTraceDetail; s
                     minWidth: 2,
                     height: heavy ? 10 : obs.kind === "span" ? 4 : 7,
                     background: color,
-                    boxShadow: obs.kind === "a2a" ? "0 0 10px rgba(127,220,255,0.7)" : heavy ? `0 0 6px ${color}66` : undefined,
                   }}
                 />
               </div>
@@ -202,17 +202,16 @@ function ScoreGrid({ scores }: { scores: ObsTraceScore[] }) {
       </thead>
       <tbody>
         {agents.map((agent) => (
-          <tr key={agent} className="border-t border-(--obs-line)">
+          <tr key={agent} className="border-t border-line">
             <th scope="row" className="obs-cond py-1.5 pr-4 font-semibold">
               {agentName(agent)}
             </th>
             {names.map((n) => {
               const s = lookup.get(`${agent}|${n}`);
-              if (!s) return <td key={n} className="obs-t3 py-1.5 pr-4">–</td>;
+              if (!s) return <td key={n} className="obs-t3 py-1.5 pr-4">-</td>;
               return (
                 <td key={n} className="py-1.5 pr-4" title={s.comment ?? undefined}>
-                  <span className={`obs-cond inline-flex items-center gap-1 ${s.passed ? "obs-ok" : "obs-amber"}`}>
-                    <span aria-hidden>{s.passed ? "✓" : "✕"}</span>
+                  <span className={`chip ${s.passed ? "bg-ok-soft text-ok" : "bg-warn-soft text-warn"}`}>
                     {s.passed ? "Passed" : "Failed"}
                   </span>
                   {!s.passed && s.comment ? <span className="obs-t3 block text-xs">{s.comment}</span> : null}
@@ -231,7 +230,10 @@ function PeerMessages({ messages }: { messages: ObsA2AMessage[] }) {
   return (
     <ol className="space-y-2.5">
       {messages.map((m) => (
-        <li key={m.id} className={`border-l-2 pl-3 ${m.refused ? "border-(--obs-alert)" : m.type === "peer_response" ? "border-(--obs-line-strong)" : "border-(--obs-ice)"}`}>
+        <li
+          key={m.id}
+          className={`rounded-block border p-3 ${m.refused ? "border-danger/25 bg-danger-soft" : m.type === "peer_response" ? "border-line bg-subtle" : "border-accent/20 bg-accent-soft"}`}
+        >
           <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
             <span className="obs-cond font-semibold">
               {agentName(m.sender)} <span className={m.refused ? "obs-alert" : "obs-ice"}>→</span> {agentName(m.recipient)}
@@ -239,7 +241,7 @@ function PeerMessages({ messages }: { messages: ObsA2AMessage[] }) {
             <span className="obs-mono obs-t3 text-2xs">
               {m.type === "peer_response" ? "response" : "request"}, hop {m.hop_count}
             </span>
-            {m.refused ? <span className="obs-cond obs-alert text-xs">⊘ Refused</span> : null}
+            {m.refused ? <span className="chip bg-surface text-danger">Refused</span> : null}
           </p>
           <p className="obs-t2 mt-0.5 text-sm">{m.content}</p>
           {m.reason ? <p className="obs-mono obs-alert mt-0.5 text-xs">{m.reason}</p> : null}
@@ -282,10 +284,10 @@ export function TraceInspector({
     <>
       <div className="obs-drawer-backdrop" onClick={onClose} aria-hidden />
       <div className="obs-drawer" role="dialog" aria-modal="true" aria-labelledby="obs-inspector-title">
-        <header className="flex items-start gap-4 border-b border-(--obs-line) px-5 py-4 md:px-7">
+        <header className="flex items-start gap-4 border-b border-line px-5 py-5 md:px-7">
           <div className="min-w-0 flex-1">
             <p className="obs-mono obs-t3 text-2xs">trace {traceId.slice(0, 12)}…</p>
-            <h2 id="obs-inspector-title" className="obs-cond mt-1 text-xl leading-snug font-medium text-(--obs-text) md:text-2xl">
+            <h2 id="obs-inspector-title" className="mt-1 text-xl leading-snug font-semibold tracking-tight text-ink md:text-2xl">
               {trace?.question ?? (state.status === "error" ? "Trace unavailable" : "Loading trace")}
             </h2>
             {trace ? (
@@ -309,7 +311,7 @@ export function TraceInspector({
                 <ExternalLink size={14} aria-hidden />
               </a>
             ) : null}
-            <button ref={closeRef} type="button" onClick={onClose} className="obs-button !px-2" aria-label="Close trace inspector">
+            <button ref={closeRef} type="button" onClick={onClose} className="obs-button w-[34px] justify-center px-0!" aria-label="Close trace inspector">
               <X size={16} aria-hidden />
             </button>
           </div>
@@ -318,14 +320,14 @@ export function TraceInspector({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 md:px-7">
           {state.status === "loading" ? (
             <div role="status" className="flex items-center gap-3 py-10">
-              <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden className="obs-sweep-fast">
-                <circle cx="14" cy="14" r="11" fill="none" stroke="var(--obs-line-strong)" strokeWidth="2" />
-                <path d="M14 3 A11 11 0 0 1 25 14" fill="none" stroke="var(--obs-ice)" strokeWidth="2" strokeLinecap="round" />
+              <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden className="obs-sweep-fast">
+                <circle cx="11" cy="11" r="9" fill="none" stroke="var(--obs-line)" strokeWidth="2" />
+                <path d="M11 2 A9 9 0 0 1 20 11" fill="none" stroke="var(--obs-ice)" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <span className="obs-cond obs-t2">Reading observations from Langfuse</span>
+              <span className="text-sm text-muted">Reading observations from Langfuse</span>
             </div>
           ) : state.status === "error" ? (
-            <div role="alert" className="border-l-2 border-(--obs-alert) py-1 pl-4">
+            <div role="alert" className="rounded-block border border-danger/20 bg-danger-soft px-4 py-3">
               <p className="obs-cond obs-alert font-semibold">Could not load this trace</p>
               <p className="obs-t2 mt-1 text-sm">{state.error}</p>
               <button type="button" onClick={retry} className="obs-button mt-3">Try again</button>
@@ -334,13 +336,10 @@ export function TraceInspector({
             <p className="obs-t2 text-sm">{detail?.reason ?? "Langfuse did not return this trace."}</p>
           ) : (
             <div className="space-y-8">
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                <span className="obs-t3">Agents</span>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                <span className="text-muted">Agents</span>
                 {trace.agents.map((a) => (
-                  <span key={a} className="obs-cond inline-flex items-center gap-1.5">
-                    <span aria-hidden className="size-2 rounded-full" style={{ background: agentHue(a, supervisor) }} />
-                    {agentName(a)}
-                  </span>
+                  <AgentTag key={a} name={a === supervisor ? "ceo" : a} />
                 ))}
               </div>
               <Waterfall detail={detail} supervisor={supervisor} />

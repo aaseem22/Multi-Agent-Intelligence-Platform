@@ -1,19 +1,20 @@
 import { memo } from "react";
 import type { ObsScoreMark, ObsTraceItem, ObsTraceStatus } from "../types/observability";
+import { AgentAvatar } from "../components/AgentName";
 import { Panel } from "./Panel";
-import { agentHue, agentName, formatAgo, formatCompact, formatSeconds, scoreLabel } from "./theme";
+import { agentName, formatAgo, formatCompact, formatSeconds, scoreLabel } from "./theme";
 
-const STATUS: Record<ObsTraceStatus, { glyph: string; label: string; className: string }> = {
-  ok: { glyph: "●", label: "Answered", className: "obs-ok" },
-  partial: { glyph: "◐", label: "Partial", className: "obs-amber" },
-  error: { glyph: "✕", label: "Error", className: "obs-alert" },
+const STATUS: Record<ObsTraceStatus, { label: string; className: string; dot: string }> = {
+  ok: { label: "Answered", className: "bg-ok-soft text-ok", dot: "bg-ok" },
+  partial: { label: "Partial", className: "bg-warn-soft text-warn", dot: "bg-warn" },
+  error: { label: "Error", className: "bg-danger-soft text-danger", dot: "bg-danger" },
 };
 
 export function StatusMark({ status }: { status: ObsTraceStatus }) {
   const s = STATUS[status];
   return (
-    <span className={`obs-cond inline-flex items-center gap-1 text-xs ${s.className}`}>
-      <span aria-hidden>{s.glyph}</span>
+    <span className={`chip ${s.className}`}>
+      <span aria-hidden className={`size-1.5 rounded-full ${s.dot}`} />
       {s.label}
     </span>
   );
@@ -30,10 +31,10 @@ function EvalMarks({ scores }: { scores: ObsScoreMark[] }) {
           <span
             key={s.name}
             aria-hidden
-            className="size-[7px]"
+            className="size-2 rounded-[3px]"
             style={{
-              background: pass ? "var(--obs-ice-dim)" : "transparent",
-              border: `1px solid ${pass ? "var(--obs-ice-dim)" : "var(--obs-amber)"}`,
+              background: pass ? "var(--color-accent)" : "transparent",
+              border: `1.5px solid ${pass ? "var(--color-accent)" : "var(--color-warn)"}`,
             }}
           />
         );
@@ -54,9 +55,9 @@ function TraceFeedImpl({
   supervisor: string | null;
 }) {
   return (
-    <Panel title="Trace feed" labelId="obs-feed" meta={`${traces.length} most recent`} className="obs-area-feed">
+    <Panel title="Recent requests" labelId="obs-feed" meta={`${traces.length} most recent`} className="obs-area-feed">
       {traces.length === 0 ? (
-        <p className="obs-t3 text-sm">No traces in this window.</p>
+        <p className="text-sm text-muted">No traces in this window.</p>
       ) : (
         <ol className="obs-feed-list">
           {traces.map((trace) => (
@@ -69,30 +70,31 @@ function TraceFeedImpl({
               >
                 <span className="flex items-center justify-between gap-3">
                   <StatusMark status={trace.status} />
-                  <time className="obs-mono obs-t3 text-2xs" dateTime={trace.timestamp ?? undefined}>
+                  <time className="text-2xs text-faint" dateTime={trace.timestamp ?? undefined}>
                     {formatAgo(trace.timestamp)}
                   </time>
                 </span>
                 <span className="obs-question mt-1">{trace.question || "(no question recorded)"}</span>
-                <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                  <span className="obs-mono obs-t1">{formatSeconds(trace.latency_ms)}</span>
-                  <span className="obs-mono obs-t2">{formatCompact(trace.tokens)} tok</span>
-                  <span className="inline-flex items-center gap-2">
-                    {trace.agents.map((agent) => (
-                      <span key={agent} className="obs-cond inline-flex items-center gap-1 obs-t2">
-                        <span aria-hidden className="size-1.5 rounded-full" style={{ background: agentHue(agent, supervisor) }} />
-                        {agentName(agent)}
-                      </span>
-                    ))}
-                  </span>
+                <span className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs">
+                  <span className="font-medium text-ink tabular-nums">{formatSeconds(trace.latency_ms)}</span>
+                  <span className="text-muted tabular-nums">{formatCompact(trace.tokens)} tokens</span>
+                  {trace.agents.length > 0 ? (
+                    <span className="flex -space-x-1">
+                      {trace.agents.map((agent) => (
+                        <span key={agent} className="rounded-[7px] ring-2 ring-surface" title={agentName(agent)}>
+                          <AgentAvatar name={agent === supervisor ? "ceo" : agent} size="sm" />
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                   {trace.peer_calls > 0 ? (
-                    <span className="obs-mono obs-ice" title={`${trace.peer_calls} peer calls`}>
-                      ⇄ {trace.peer_calls}
+                    <span className="chip bg-accent-soft text-accent-strong" title={`${trace.peer_calls} peer calls`}>
+                      {trace.peer_calls} peer
                     </span>
                   ) : null}
                   {trace.refusals > 0 ? (
-                    <span className="obs-mono obs-alert" title={`${trace.refusals} peer calls refused`}>
-                      ⊘ {trace.refusals}
+                    <span className="chip bg-danger-soft text-danger" title={`${trace.refusals} peer calls refused`}>
+                      {trace.refusals} refused
                     </span>
                   ) : null}
                   <span className="ml-auto">

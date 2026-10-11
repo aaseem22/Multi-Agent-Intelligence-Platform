@@ -1,0 +1,1228 @@
+{
+  "name": "golden",
+  "version": "1.0.0",
+  "description": "Golden tasks for the multi-agent system against the deterministic fixture seed (offline GitHub fixtures, SEED=42). Facts are templated over the run's scenarios.json ({scenario.*}) and deterministic database queries ({db.*}) so they stay correct as quarters move. Regression tasks should stay near 100%; capability tasks are the hill to climb.",
+  "tasks": [
+    {
+      "id": "reg-q1-behind-schedule",
+      "suite": "regression",
+      "category": "cross-domain",
+      "question": "Which technology projects are behind schedule, and is the cause people or budget?",
+      "expected": {
+        "agents_required": [
+          "tech",
+          "hr",
+          "finance"
+        ],
+        "peer_messages": "required",
+        "required_facts": [
+          {
+            "description": "names the understaffed, delayed project",
+            "any_of": [
+              "{scenario.understaffed.project_name}",
+              "{db.understaffed_repo}"
+            ]
+          },
+          {
+            "description": "names the delayed project that is also over budget",
+            "any_of": [
+              "{scenario.both_problems.project_name}",
+              "{db.both_problems_repo}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.both_problems.project_name} is {db.both_problems_days_late} days behind for both reasons: its lead {db.both_problems_lead_name} is allocated {db.both_problems_lead_pct}, the team has overlapping leave, and spend is {db.both_problems_spend_pct} of budget in {db.current_period}. {scenario.understaffed.project_name} is {db.understaffed_days_late} days behind because of people: its lead {db.understaffed_lead_name} is allocated {db.understaffed_lead_pct} with overlapping leave, while spend is within budget at {db.understaffed_spend_pct}. {scenario.stale_repo.project_name} is past its planned end and its repository has stalled."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "spec-q1",
+        "a2a",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "Spec question 1. Guards the full collaborative path: Tech discovers the late projects and consults HR via ask_agent, Finance reports budget vs actual in parallel, and the CEO attributes each delay to people, budget or both."
+    },
+    {
+      "id": "reg-q2-spend-vs-budget",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "What is our spend versus budget on {scenario.over_budget.project_name} this quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "agents_forbidden": [
+          "hr",
+          "tech"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "states the quarter's budget",
+            "any_of": [
+              "{db.over_budget_budget}"
+            ]
+          },
+          {
+            "description": "states the actual spend",
+            "any_of": [
+              "{db.over_budget_actual}"
+            ]
+          }
+        ],
+        "reference_answer": "In {db.current_period} {scenario.over_budget.project_name} has spent {db.over_budget_actual} against a budget of {db.over_budget_budget}, an overrun of {db.over_budget_variance_pct} ({db.over_budget_spend_pct} of budget)."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "spec-q2",
+        "finance"
+      ],
+      "notes": "Spec question 2. Single-domain finance question: exactly one agent, no HR or Tech, and the planted overspend figures must be stated."
+    },
+    {
+      "id": "reg-q3-open-issues-owner",
+      "suite": "regression",
+      "category": "a2a",
+      "question": "Who is working on the repo with the most open issues, and are they over-allocated?",
+      "expected": {
+        "agents_required": [
+          "tech",
+          "hr"
+        ],
+        "required_facts": [
+          {
+            "description": "identifies the repository with the most open issues",
+            "any_of": [
+              "{scenario.most_open_issues.project_name}",
+              "{db.most_open_issues_repo}"
+            ]
+          },
+          {
+            "description": "names the over-allocated lead",
+            "any_of": [
+              "{db.most_open_issues_lead_name}"
+            ]
+          },
+          {
+            "description": "states the lead's total allocation",
+            "any_of": [
+              "{db.most_open_issues_lead_pct}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.most_open_issues.project_name} ({scenario.most_open_issues.repo_full_name}) has the most open issues ({db.most_open_issues_count}). Its lead {db.most_open_issues_lead_name} is over-allocated at {db.most_open_issues_lead_pct}; the rest of the team ({db.most_open_issues_team_size} people in total) is within capacity."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "spec-q3",
+        "a2a",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "Spec question 3. Tech finds the repository, HR (as a peer or a planned subtask) reports who is allocated and flags the over-allocated lead."
+    },
+    {
+      "id": "reg-q4-people-cost-growth",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which department's people cost grew most last quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "agents_forbidden": [
+          "tech"
+        ],
+        "required_facts": [
+          {
+            "description": "names the Data department",
+            "any_of": [
+              "{scenario.people_cost_growth.department_name}"
+            ]
+          },
+          {
+            "description": "quantifies the growth",
+            "any_of": [
+              "{db.growth_dept_growth_pct}",
+              "{db.growth_dept_increase}",
+              "{db.growth_dept_cost_prev}"
+            ]
+          }
+        ],
+        "reference_answer": "The {scenario.people_cost_growth.department_name} department's people cost grew most in {db.previous_period}: {db.growth_dept_cost_prev} versus {db.growth_dept_cost_before} in {db.period_before_previous}, up {db.growth_dept_increase} ({db.growth_dept_growth_pct})."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "spec-q4",
+        "finance"
+      ],
+      "notes": "Spec question 4. Payroll is owned by Finance, not HR; the planted Data department growth (three hires plus raises) must be found with its size."
+    },
+    {
+      "id": "reg-q5-clarify-vague",
+      "suite": "regression",
+      "category": "clarification",
+      "question": "How are we doing?",
+      "expected": {
+        "clarification": true,
+        "max_agents": 0,
+        "reference_answer": "Could you tell me which area you mean, such as budgets, staffing or project delivery, and for which period?"
+      },
+      "graders": [
+        "clarification",
+        "routing",
+        "no_errors",
+        "efficiency"
+      ],
+      "tags": [
+        "spec-q5",
+        "budget:llm=3"
+      ],
+      "notes": "Spec question 5. Too vague to plan: the CEO must ask back and dispatch nothing."
+    },
+    {
+      "id": "reg-fin-top-overrun",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which project has the largest budget overrun this quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "names the largest overrun",
+            "any_of": [
+              "{db.top_overrun_name}"
+            ]
+          },
+          {
+            "description": "states its size",
+            "any_of": [
+              "{db.over_budget_variance_pct}",
+              "{db.over_budget_spend_pct}"
+            ]
+          }
+        ],
+        "reference_answer": "{db.top_overrun_name} has the largest overrun in {db.current_period}: {db.over_budget_actual} spent against {db.over_budget_budget}, {db.over_budget_variance_pct} over budget."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "finance"
+      ],
+      "notes": "Finance ranks overruns itself; no other agent is needed."
+    },
+    {
+      "id": "reg-fin-expense-categories",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Break down this quarter's spend on {scenario.over_budget.project_name} by expense category. Which category is largest?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "names the largest category",
+            "any_of": [
+              "{db.over_budget_top_category}",
+              "{db.over_budget_top_category_label}"
+            ]
+          },
+          {
+            "description": "states its total",
+            "any_of": [
+              "{db.over_budget_top_category_total}"
+            ]
+          }
+        ],
+        "reference_answer": "The largest expense category for {scenario.over_budget.project_name} in {db.current_period} is {db.over_budget_top_category_label} at {db.over_budget_top_category_total}."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "finance"
+      ],
+      "notes": "Expense breakdown is Finance-only data; guards category aggregation."
+    },
+    {
+      "id": "reg-hr-headcount",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "How many people currently work in the Engineering department?",
+      "expected": {
+        "agents_required": [
+          "hr"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "states the Engineering headcount",
+            "any_of": [
+              "{db.headcount_eng}"
+            ]
+          }
+        ],
+        "reference_answer": "Engineering currently has {db.headcount_eng} employees."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "hr"
+      ],
+      "notes": "Headcount is HR data; routing it to Finance (payroll) or Tech is a planner error."
+    },
+    {
+      "id": "reg-hr-over-allocated",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which employees are allocated above 100% right now?",
+      "expected": {
+        "agents_required": [
+          "hr"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "lists the most over-allocated employee",
+            "any_of": [
+              "{db.over_allocated_1_name}"
+            ]
+          },
+          {
+            "description": "lists the second over-allocated employee",
+            "any_of": [
+              "{db.over_allocated_2_name}"
+            ]
+          },
+          {
+            "description": "lists the third over-allocated employee",
+            "any_of": [
+              "{db.over_allocated_3_name}"
+            ]
+          }
+        ],
+        "reference_answer": "{db.over_allocated_count} employees are above 100%: {db.over_allocated_1_name} ({db.over_allocated_1_pct}), {db.over_allocated_2_name} ({db.over_allocated_2_pct}) and {db.over_allocated_3_name} ({db.over_allocated_3_pct})."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "hr"
+      ],
+      "notes": "Guards the over-allocation query and that every planted over-allocated lead is listed."
+    },
+    {
+      "id": "reg-hr-open-positions",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "How many open positions do we have, and how many of them are in Engineering?",
+      "expected": {
+        "agents_required": [
+          "hr"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "states the total open positions",
+            "any_of": [
+              "{db.open_positions_total}"
+            ]
+          },
+          {
+            "description": "states the Engineering open positions",
+            "any_of": [
+              "{db.open_positions_eng}"
+            ]
+          }
+        ],
+        "reference_answer": "There are {db.open_positions_total} open positions, {db.open_positions_eng} of them in Engineering."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "hr"
+      ],
+      "notes": "Open positions are HR data; checks counting and the department filter."
+    },
+    {
+      "id": "reg-tech-stale-repo",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which repositories have had no push in the last 60 days?",
+      "expected": {
+        "agents_required": [
+          "tech"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "names the stale repository",
+            "any_of": [
+              "{scenario.stale_repo.project_name}",
+              "{db.stale_repo_repo}",
+              "{scenario.stale_repo.repo_full_name}"
+            ]
+          }
+        ],
+        "reference_answer": "Only {scenario.stale_repo.project_name} ({scenario.stale_repo.repo_full_name}) has had no push in the last 60 days; its last push was {scenario.stale_repo.repo_days_since_push} days ago."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "tech"
+      ],
+      "notes": "Repository activity is Tech's (GitHub). Guards the planted stale repository."
+    },
+    {
+      "id": "reg-tech-behind-schedule",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which projects are behind schedule or past their planned end date?",
+      "expected": {
+        "agents_required": [
+          "tech"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "lists the understaffed delayed project",
+            "any_of": [
+              "{scenario.understaffed.project_name}",
+              "{db.understaffed_repo}"
+            ]
+          },
+          {
+            "description": "lists the over-budget delayed project",
+            "any_of": [
+              "{scenario.both_problems.project_name}",
+              "{db.both_problems_repo}"
+            ]
+          },
+          {
+            "description": "lists the overdue stale project",
+            "any_of": [
+              "{scenario.stale_repo.project_name}",
+              "{db.stale_repo_repo}"
+            ]
+          }
+        ],
+        "reference_answer": "{db.behind_schedule_count} projects are late: {scenario.understaffed.project_name} ({db.understaffed_days_late} days behind), {scenario.both_problems.project_name} ({db.both_problems_days_late} days behind) and {scenario.stale_repo.project_name} ({db.stale_repo_days_late} days past its planned end)."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "tech"
+      ],
+      "notes": "Delivery status is Tech-only data; the question asks no cause, so no other agent is needed (max_agents=1 also rules out peer calls)."
+    },
+    {
+      "id": "reg-tech-most-open-issues",
+      "suite": "regression",
+      "category": "single-domain",
+      "question": "Which repository has the most open issues, and how many?",
+      "expected": {
+        "agents_required": [
+          "tech"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "names the repository",
+            "any_of": [
+              "{scenario.most_open_issues.project_name}",
+              "{db.most_open_issues_repo}"
+            ]
+          },
+          {
+            "description": "states the open issue count",
+            "any_of": [
+              "{db.most_open_issues_count}",
+              "{scenario.most_open_issues.repo_open_issues_count}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.most_open_issues.project_name} ({scenario.most_open_issues.repo_full_name}) has the most open issues: {db.most_open_issues_count}."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "tech"
+      ],
+      "notes": "Tech-only GitHub question; the count may be stated with or without pull requests."
+    },
+    {
+      "id": "cap-a2a-stalled-repo",
+      "suite": "capability",
+      "category": "a2a",
+      "question": "Which project repository has gone the longest without a push, who is staffed on that project, and how is its budget tracking this quarter?",
+      "expected": {
+        "agents_required": [
+          "tech",
+          "hr",
+          "finance"
+        ],
+        "peer_messages": "required",
+        "required_facts": [
+          {
+            "description": "names the stalled project",
+            "any_of": [
+              "{scenario.stale_repo.project_name}",
+              "{db.stale_repo_repo}"
+            ]
+          },
+          {
+            "description": "names its lead",
+            "any_of": [
+              "{db.stale_repo_lead_name}"
+            ]
+          },
+          {
+            "description": "states its budget position",
+            "any_of": [
+              "{db.stale_repo_spend_pct}",
+              "{db.stale_repo_variance_pct}",
+              "{db.stale_repo_actual}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.stale_repo.project_name} has gone longest without a push ({scenario.stale_repo.repo_days_since_push} days). It is led by {db.stale_repo_lead_name} with a team of {db.stale_repo_team_size}. In {db.current_period} it has spent {db.stale_repo_actual} of {db.stale_repo_budget} ({db.stale_repo_spend_pct}), well within budget."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "a2a",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "The CLAUDE.md planned-dependency example: Tech finds the stalled repo and asks HR who is allocated; Finance reports budget vs actual for the same project."
+    },
+    {
+      "id": "cap-a2a-team-people-cost",
+      "suite": "capability",
+      "category": "a2a",
+      "question": "What did the people staffed on {scenario.understaffed.project_name} cost us in payroll last quarter?",
+      "expected": {
+        "agents_required": [
+          "finance",
+          "hr"
+        ],
+        "peer_messages": "required",
+        "required_facts": [
+          {
+            "description": "states the team's payroll cost",
+            "any_of": [
+              "{db.understaffed_team_cost_prev}"
+            ]
+          },
+          {
+            "description": "names the lead",
+            "any_of": [
+              "{db.understaffed_lead_name}"
+            ]
+          }
+        ],
+        "reference_answer": "The {scenario.understaffed.project_name} team ({db.understaffed_lead_name} and {db.understaffed_member_name}) cost {db.understaffed_team_cost_prev} in payroll in {db.previous_period}."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "a2a",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "Finance owns payroll but not allocations: it must ask HR who is on the team instead of guessing employee ids."
+    },
+    {
+      "id": "cap-dep-most-allocated-delivery",
+      "suite": "capability",
+      "category": "dependency",
+      "question": "Find the employee with the highest total allocation. Which project do they lead, and is that project's delivery slipping?",
+      "expected": {
+        "agents_required": [
+          "hr",
+          "tech"
+        ],
+        "required_facts": [
+          {
+            "description": "names the most allocated employee",
+            "any_of": [
+              "{db.over_allocated_1_name}"
+            ]
+          },
+          {
+            "description": "names the project they lead",
+            "any_of": [
+              "{scenario.understaffed.project_name}",
+              "{db.understaffed_repo}"
+            ]
+          },
+          {
+            "description": "states how late it is",
+            "any_of": [
+              "{db.understaffed_days_late}"
+            ]
+          }
+        ],
+        "reference_answer": "{db.over_allocated_1_name} has the highest allocation ({db.over_allocated_1_pct}) and leads {scenario.understaffed.project_name}, which is slipping: it is expected {db.understaffed_days_late} days after its planned end."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "dependency",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "Discovery is owned by HR and the follow-up by Tech: guards dependency handling (depends_on or a peer call) without inventing the project."
+    },
+    {
+      "id": "cap-multihop-open-issues-lead-cost",
+      "suite": "capability",
+      "category": "multi-hop",
+      "question": "What did the person leading the repository with the most open issues cost us in payroll last quarter?",
+      "expected": {
+        "agents_required": [
+          "tech",
+          "hr",
+          "finance"
+        ],
+        "required_facts": [
+          {
+            "description": "names the lead",
+            "any_of": [
+              "{db.most_open_issues_lead_name}"
+            ]
+          },
+          {
+            "description": "states their payroll cost",
+            "any_of": [
+              "{db.most_open_issues_lead_cost_prev}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.most_open_issues.project_name} has the most open issues; its lead {db.most_open_issues_lead_name} cost {db.most_open_issues_lead_cost_prev} in payroll in {db.previous_period}."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "multi-hop",
+        "budget:llm=40",
+        "budget:seconds=600"
+      ],
+      "notes": "Three owners in sequence (Tech repo -> HR lead -> Finance payroll) within the hop limit; guards chaining without exceeding MAX_PEER_HOPS."
+    },
+    {
+      "id": "cap-refuse-revenue",
+      "suite": "capability",
+      "category": "refusal",
+      "question": "What was our total sales revenue last quarter?",
+      "expected": {
+        "must_report_unanswered": true,
+        "forbidden_facts": [
+          {
+            "description": "states a revenue figure",
+            "any_of": [
+              "revenue was ₹",
+              "revenue of ₹",
+              "revenue: ₹",
+              "revenue totalled"
+            ]
+          }
+        ],
+        "reference_answer": "None of the agents holds sales or revenue data (Finance covers budgets, expenses and payroll only), so total sales revenue for last quarter could not be answered."
+      },
+      "graders": [
+        "unanswered_reported",
+        "forbidden_facts",
+        "efficiency",
+        "answer_groundedness"
+      ],
+      "tags": [
+        "refusal",
+        "allow-agent-failure"
+      ],
+      "notes": "No agent owns revenue (Finance holds budgets, expenses and payroll). The system must say so, by asking back or reporting it unanswered, and never invent a figure."
+    },
+    {
+      "id": "cap-refuse-nps",
+      "suite": "capability",
+      "category": "refusal",
+      "question": "What is the customer satisfaction (NPS) score of {scenario.over_budget.project_name}?",
+      "expected": {
+        "must_report_unanswered": true,
+        "forbidden_facts": [
+          {
+            "description": "states an NPS value",
+            "any_of": [
+              "NPS is",
+              "NPS of",
+              "NPS score is"
+            ]
+          }
+        ],
+        "reference_answer": "No agent tracks customer satisfaction or NPS, so the NPS for {scenario.over_budget.project_name} is not available."
+      },
+      "graders": [
+        "unanswered_reported",
+        "forbidden_facts",
+        "efficiency",
+        "answer_groundedness"
+      ],
+      "tags": [
+        "refusal",
+        "allow-agent-failure"
+      ],
+      "notes": "Customer satisfaction is outside every agent's owned data; guards against a plausible-sounding invented score."
+    },
+    {
+      "id": "cap-refuse-unknown-employee",
+      "suite": "capability",
+      "category": "refusal",
+      "question": "How much annual leave has Zebediah Quigley taken this year?",
+      "expected": {
+        "must_report_unanswered": true,
+        "reference_answer": "There is no employee named Zebediah Quigley in the HR records, so their leave could not be found."
+      },
+      "graders": [
+        "unanswered_reported",
+        "efficiency",
+        "answer_groundedness"
+      ],
+      "tags": [
+        "refusal",
+        "near-miss",
+        "allow-agent-failure"
+      ],
+      "notes": "The person does not exist. HR must report not found rather than return another employee's leave."
+    },
+    {
+      "id": "cap-nearmiss-payment-gateway",
+      "suite": "capability",
+      "category": "near-miss",
+      "question": "How is the Payment Gateway project tracking against its budget this quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "states the actual spend",
+            "any_of": [
+              "{db.both_problems_actual}"
+            ]
+          },
+          {
+            "description": "states the overrun",
+            "any_of": [
+              "{db.both_problems_variance_pct}",
+              "{db.both_problems_spend_pct}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.both_problems.project_name} has spent {db.both_problems_actual} against a budget of {db.both_problems_budget} in {db.current_period}, {db.both_problems_variance_pct} over budget."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "near-miss",
+        "finance"
+      ],
+      "notes": "'Payment Gateway' is a near miss for {scenario.both_problems.project_name}; Finance must resolve it rather than fail or ask back."
+    },
+    {
+      "id": "cap-nearmiss-ml-team",
+      "suite": "capability",
+      "category": "near-miss",
+      "question": "Who is on the ML forecasting team?",
+      "expected": {
+        "agents_required": [
+          "hr"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "names the lead",
+            "any_of": [
+              "{db.understaffed_lead_name}"
+            ]
+          },
+          {
+            "description": "names the other member",
+            "any_of": [
+              "{db.understaffed_member_name}"
+            ]
+          }
+        ],
+        "reference_answer": "The {scenario.understaffed.project_name} team is {db.understaffed_lead_name} (project lead) and {db.understaffed_member_name}."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "near-miss",
+        "hr"
+      ],
+      "notes": "Lower-case, abbreviated reference to {scenario.understaffed.project_name}; HR must resolve it to the project."
+    },
+    {
+      "id": "cap-noclarify-eng-budget",
+      "suite": "capability",
+      "category": "no-clarification",
+      "question": "How is Engineering doing on budget this quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "required_facts": [
+          {
+            "description": "names the Engineering project that is over budget",
+            "any_of": [
+              "{scenario.both_problems.project_name}",
+              "{db.both_problems_repo}"
+            ]
+          },
+          {
+            "description": "states its overrun",
+            "any_of": [
+              "{db.both_problems_variance_pct}",
+              "{db.both_problems_spend_pct}"
+            ]
+          }
+        ],
+        "reference_answer": "In {db.current_period} Engineering's only overrun is {scenario.both_problems.project_name}, at {db.both_problems_spend_pct} of budget ({db.both_problems_variance_pct} over); the other Engineering projects are within budget."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "negative-clarification",
+        "finance"
+      ],
+      "notes": "Broad but plannable (department + metric + period). Asking back here is the over-cautious failure mode mirrored by reg-q5."
+    },
+    {
+      "id": "cap-noclarify-at-risk",
+      "suite": "capability",
+      "category": "no-clarification",
+      "question": "Are any of our projects at risk?",
+      "expected": {
+        "agents_required": [
+          "tech"
+        ],
+        "required_facts": [
+          {
+            "description": "names the understaffed at-risk project",
+            "any_of": [
+              "{scenario.understaffed.project_name}",
+              "{db.understaffed_repo}"
+            ]
+          },
+          {
+            "description": "names the other at-risk project",
+            "any_of": [
+              "{scenario.both_problems.project_name}",
+              "{db.both_problems_repo}"
+            ]
+          }
+        ],
+        "reference_answer": "Yes. {db.at_risk_count} projects are marked at risk: {scenario.understaffed.project_name} and {scenario.both_problems.project_name}, both expected to finish after their planned end dates."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "negative-clarification",
+        "tech"
+      ],
+      "notes": "Short but answerable from project status; should not trigger clarification."
+    },
+    {
+      "id": "cap-nopeer-top-overruns",
+      "suite": "capability",
+      "category": "no-peer",
+      "question": "List the top three budget overruns this quarter.",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "max_agents": 1,
+        "peer_messages": "forbidden",
+        "required_facts": [
+          {
+            "description": "lists the largest overrun",
+            "any_of": [
+              "{db.top_overrun_name}"
+            ]
+          },
+          {
+            "description": "lists the second overrun",
+            "any_of": [
+              "{db.second_overrun_name}"
+            ]
+          }
+        ],
+        "reference_answer": "Only {db.overrun_count} projects are over budget in {db.current_period}: {db.top_overrun_name} ({db.over_budget_variance_pct} over) and {db.second_overrun_name} ({db.both_problems_variance_pct} over)."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "negative-peer",
+        "finance"
+      ],
+      "notes": "Purely Finance data; a peer call here wastes the free-tier budget. Fewer than three projects overrun, so the answer should not pad the list."
+    },
+    {
+      "id": "cap-nopeer-upcoming-leave",
+      "suite": "capability",
+      "category": "no-peer",
+      "question": "Who is going on leave in the next 30 days?",
+      "expected": {
+        "agents_required": [
+          "hr"
+        ],
+        "max_agents": 1,
+        "peer_messages": "forbidden",
+        "required_facts": [
+          {
+            "description": "includes the understaffed project's lead",
+            "any_of": [
+              "{db.understaffed_lead_name}"
+            ]
+          },
+          {
+            "description": "includes the over-budget delayed project's lead",
+            "any_of": [
+              "{db.both_problems_lead_name}"
+            ]
+          }
+        ],
+        "reference_answer": "Upcoming approved leave in the next 30 days includes {db.understaffed_lead_name}, {db.understaffed_member_name}, {db.both_problems_lead_name} and {db.both_problems_member_name}, all starting within the planted leave window ({scenario.understaffed.overlapping_leave_window})."
+      },
+      "graders": [
+        "routing",
+        "peer_expectation",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "negative-peer",
+        "hr"
+      ],
+      "notes": "Leave is HR-only; no peer call is needed."
+    },
+    {
+      "id": "cap-period-overbudget-trend",
+      "suite": "capability",
+      "category": "cross-period",
+      "question": "How did {scenario.over_budget.project_name}'s spend compare with its budget last quarter versus this quarter?",
+      "expected": {
+        "agents_required": [
+          "finance"
+        ],
+        "max_agents": 1,
+        "required_facts": [
+          {
+            "description": "states last quarter's position",
+            "any_of": [
+              "{db.over_budget_variance_pct_prev}",
+              "{db.over_budget_spend_pct_prev}",
+              "{db.over_budget_actual_prev}"
+            ]
+          },
+          {
+            "description": "states this quarter's position",
+            "any_of": [
+              "{db.over_budget_variance_pct}",
+              "{db.over_budget_spend_pct}",
+              "{db.over_budget_actual}"
+            ]
+          }
+        ],
+        "reference_answer": "{scenario.over_budget.project_name} was {db.over_budget_variance_pct_prev} over budget in {db.previous_period} ({db.over_budget_actual_prev} vs {db.over_budget_budget_prev}) and is {db.over_budget_variance_pct} over in {db.current_period} ({db.over_budget_actual} vs {db.over_budget_budget}): the overrun is growing."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "cross-period",
+        "finance"
+      ],
+      "notes": "Requires two periods resolved relative to today; guards period arithmetic."
+    },
+    {
+      "id": "cap-period-data-headcount",
+      "suite": "capability",
+      "category": "cross-period",
+      "question": "How did the Data department's paid headcount change from {db.period_before_previous} to {db.previous_period}?",
+      "expected": {
+        "max_agents": 2,
+        "agents_forbidden": [
+          "tech"
+        ],
+        "required_facts": [
+          {
+            "description": "states the earlier headcount",
+            "any_of": [
+              "{db.growth_dept_paid_headcount_before}"
+            ]
+          },
+          {
+            "description": "states the later headcount",
+            "any_of": [
+              "{db.growth_dept_paid_headcount_prev}"
+            ]
+          }
+        ],
+        "reference_answer": "The Data department grew from {db.growth_dept_paid_headcount_before} people in {db.period_before_previous} to {db.growth_dept_paid_headcount_prev} in {db.previous_period}."
+      },
+      "graders": [
+        "routing",
+        "required_facts",
+        "clarification",
+        "evidence_valid",
+        "no_errors",
+        "efficiency",
+        "answer_groundedness",
+        "answer_completeness",
+        "reference_match"
+      ],
+      "tags": [
+        "cross-period"
+      ],
+      "notes": "Answerable from payroll (Finance) or hires (HR); either route is fine, but both period values must be right."
+    },
+    {
+      "id": "cap-clarify-no-referent",
+      "suite": "capability",
+      "category": "clarification",
+      "question": "Can you look into it and tell me what's wrong?",
+      "expected": {
+        "clarification": true,
+        "max_agents": 0,
+        "reference_answer": "What would you like me to look into: a project, a team, a budget or something else?"
+      },
+      "graders": [
+        "clarification",
+        "routing",
+        "no_errors",
+        "efficiency"
+      ],
+      "tags": [
+        "budget:llm=3"
+      ],
+      "notes": "No subject at all in a fresh conversation: the CEO must ask what 'it' is."
+    }
+  ]
+}

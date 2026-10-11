@@ -1,4 +1,5 @@
-"""HTTP and SSE endpoints. No business logic: every route delegates to the Orchestrator."""
+"""HTTP and SSE endpoints. No business logic: routes delegate to the Orchestrator, the
+observability queries or the evals service."""
 
 from collections.abc import AsyncIterator
 from typing import Annotated, Any
@@ -11,6 +12,7 @@ from app.api.schemas import (
     ConversationDetail,
     ConversationSummary,
     HealthResponse,
+    HumanLabelRequest,
     ObservabilitySummary,
     ObservabilityTraceDetail,
     ObservabilityTraces,
@@ -18,6 +20,17 @@ from app.api.schemas import (
 from app.core import observability_queries
 from app.core.contracts import A2AMessage, AgentCard
 from app.core.orchestrator import Orchestrator
+from app.evals import service as evals_service
+from app.evals.contracts import (
+    CalibrationStats,
+    Dataset,
+    HumanLabel,
+    RunConfig,
+    RunProgress,
+    RunSummary,
+    SelfEvalStats,
+    TrialResult,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -99,3 +112,98 @@ async def observability_trace(
     if detail is None:
         raise HTTPException(status_code=404, detail="Trace not found in Langfuse")
     return detail
+
+
+# --- Evals: thin wrappers over app.evals.service (contract in app/evals/API.md) ---
+
+
+def _not_found(what: str) -> HTTPException:
+    return HTTPException(status_code=404, detail=f"{what} not found")
+
+
+@router.get("/evals/datasets", response_model=list[Dataset])
+def evals_datasets() -> list[Dataset]:
+    return evals_service.datasets()
+
+
+@router.get("/evals/runs", response_model=list[RunSummary])
+def evals_runs() -> list[RunSummary]:
+    return evals_service.list_runs()
+
+
+@router.post("/evals/runs", response_model=RunSummary)
+def evals_start_run(config: RunConfig) -> RunSummary:
+    try:
+        return evals_service.start_run(config)
+    except evals_service.RunConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except evals_service.InvalidConfigError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get("/evals/runs/{run_id}", response_model=RunSummary)
+def evals_run(run_id: str) -> RunSummary:
+    try:
+        return evals_service.get_run(run_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run") from exc
+
+
+@router.get("/evals/runs/{run_id}/progress", response_model=RunProgress)
+def evals_progress(run_id: str) -> RunProgress:
+    try:
+        return evals_service.get_progress(run_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run") from exc
+
+
+@router.post("/evals/runs/{run_id}/cancel", status_code=204)
+def evals_cancel(run_id: str) -> None:
+    try:
+        evals_service.cancel_run(run_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run") from exc
+
+
+@router.get("/evals/runs/{run_id}/trials", response_model=list[TrialResult])
+def evals_trials(run_id: str) -> list[TrialResult]:
+    try:
+        return evals_service.list_trials(run_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run") from exc
+
+
+@router.get("/evals/runs/{run_id}/trials/{trial_id}", response_model=TrialResult)
+def evals_trial(run_id: str, trial_id: str) -> TrialResult:
+    try:
+        return evals_service.get_trial(run_id, trial_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run or trial") from exc
+
+
+@router.get("/evals/runs/{run_id}/labels", response_model=list[HumanLabel])
+def evals_labels(run_id: str) -> list[HumanLabel]:
+    try:
+        return evals_service.list_labels(run_id)
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run") from exc
+
+
+@router.post("/evals/runs/{run_id}/labels", response_model=HumanLabel)
+def evals_upsert_label(run_id: str, body: HumanLabelRequest) -> HumanLabel:
+    try:
+        return evals_service.upsert_label(
+            run_id, body.trial_id, body.grader, body.human_passed, body.note
+        )
+    except evals_service.NotFoundError as exc:
+        raise _not_found("Run or trial") from exc
+
+
+@router.get("/evals/calibration", response_model=CalibrationStats)
+def evals_calibration() -> CalibrationStats:
+    return evals_service.calibration()
+
+
+@router.get("/evals/self-eval", response_model=SelfEvalStats)
+async def evals_self_eval(days: Annotated[int, Query(ge=1, le=90)] = 7) -> SelfEvalStats:
+    return await evals_service.self_eval_stats(days)

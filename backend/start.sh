@@ -3,5 +3,6 @@
 set -e
 mkdir -p /data
 python -m app.data.seed.seed
+python -m app.evals.publish --sync  # committed local eval results -> volume
 exec uvicorn app.main:app --host 0.0.0.0 --port "${PORT:-8000}" \
   --proxy-headers --forwarded-allow-ips="*"

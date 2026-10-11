@@ -1,0 +1,15 @@
+{
+  "dataset": "golden",
+  "suites": [
+    "capability",
+    "regression"
+  ],
+  "task_ids": [
+    "reg-q1-behind-schedule",
+    "reg-q2-spend-vs-budget",
+    "cap-refuse-revenue"
+  ],
+  "trials": 1,
+  "judge_enabled": true,
+  "self_eval_recovery": "retry"
+}

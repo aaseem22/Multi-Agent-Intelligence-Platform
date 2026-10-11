@@ -1,0 +1,119 @@
+{
+  "trial_id": "cap-refuse-revenue__0",
+  "run_id": "20261011-095528-183c24",
+  "task_id": "cap-refuse-revenue",
+  "index": 0,
+  "status": "passed",
+  "score": 1.0,
+  "passed": true,
+  "graders": [
+    {
+      "grader": "unanswered_reported",
+      "kind": "code",
+      "passed": true,
+      "score": 1.0,
+      "weight": 1.0,
+      "reasons": [
+        "ok: asked back instead of answering"
+      ],
+      "judge": null,
+      "details": {
+        "informational": false
+      }
+    },
+    {
+      "grader": "forbidden_facts",
+      "kind": "code",
+      "passed": true,
+      "score": 1.0,
+      "weight": 1.0,
+      "reasons": [
+        "ok: avoided \u2014 states a revenue figure"
+      ],
+      "judge": null,
+      "details": {
+        "informational": false,
+        "hits": {
+          "states a revenue figure": null
+        }
+      }
+    },
+    {
+      "grader": "efficiency",
+      "kind": "code",
+      "passed": true,
+      "score": 1.0,
+      "weight": 0.25,
+      "reasons": [
+        "1 LLM calls (budget 25)",
+        "1.6s (budget 300s)"
+      ],
+      "judge": null,
+      "details": {
+        "informational": true,
+        "llm_calls": 1,
+        "seconds": 1.6
+      }
+    },
+    {
+      "grader": "answer_groundedness",
+      "kind": "model",
+      "passed": true,
+      "score": 0.0,
+      "weight": 0.0,
+      "reasons": [
+        "model grader skipped: no final answer to judge"
+      ],
+      "judge": null,
+      "details": {
+        "informational": false,
+        "skipped": true
+      }
+    }
+  ],
+  "question": "What was our total sales revenue last quarter?",
+  "final_answer": null,
+  "clarification": "Could you please specify which department or project's sales revenue you are asking about, as sales revenue data falls outside our standard financial, human resources, and technical delivery scopes?",
+  "agents_planned": [],
+  "peer_requests": 0,
+  "refusals": 0,
+  "recoveries": 0,
+  "duration_ms": 1639,
+  "llm_calls": 1,
+  "error": null,
+  "trace_url": null,
+  "transcript": [
+    {
+      "request_id": "b525fd90f5284d0a993905bb05eb742d",
+      "conversation_id": "41676d8aad4f46688a47151b1a1612e9",
+      "timestamp": "2026-10-11T09:57:27.177617Z",
+      "type": "peer_message",
+      "message": {
+        "id": "msg_4c25324965534c24",
+        "request_id": "b525fd90f5284d0a993905bb05eb742d",
+        "trace_id": "5cc1e15020881a1210febf97a7afc8f2",
+        "sender": "ceo",
+        "recipient": "user",
+        "type": "clarification",
+        "content": "Could you please specify which department or project's sales revenue you are asking about, as sales revenue data falls outside our standard financial, human resources, and technical delivery scopes?",
+        "payload": {},
+        "hop_count": 0,
+        "chain": [
+          "ceo"
+        ],
+        "created_at": "2026-10-11T09:57:27.172625Z"
+      },
+      "refused": false,
+      "refusal_reason": null
+    },
+    {
+      "request_id": "b525fd90f5284d0a993905bb05eb742d",
+      "conversation_id": "41676d8aad4f46688a47151b1a1612e9",
+      "timestamp": "2026-10-11T09:57:27.179107Z",
+      "type": "clarification",
+      "question": "Could you please specify which department or project's sales revenue you are asking about, as sales revenue data falls outside our standard financial, human resources, and technical delivery scopes?"
+    }
+  ],
+  "started_at": "2026-10-11T09:57:25.727926Z",
+  "finished_at": "2026-10-11T09:57:27.369260Z"
+}

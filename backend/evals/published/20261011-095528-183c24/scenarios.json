@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-10-11T09:55:28.509745+00:00",
+  "as_of": "2026-10-11",
+  "repo_source": "fixtures",
+  "currency": "INR",
+  "scenarios": [
+    {
+      "id": "stale_repo",
+      "project_id": 5,
+      "project_name": "Legacy Billing",
+      "repo_full_name": "fixture-org/legacy-billing",
+      "department_id": 1,
+      "lead_employee_id": 6,
+      "lead_total_allocation_pct": 90,
+      "expected": "Repository has had no push for a long time; project is past its planned_end.",
+      "repo_days_since_push": 95,
+      "repo_open_issues_count": 7,
+      "verified": true
+    },
+    {
+      "id": "most_open_issues",
+      "project_id": 3,
+      "project_name": "Data Pipeline",
+      "repo_full_name": "fixture-org/data-pipeline",
+      "department_id": 1,
+      "lead_employee_id": 5,
+      "lead_total_allocation_pct": 170,
+      "expected": "Repository with the most open issues; its lead is over-allocated and mapped to the account owner's GitHub username.",
+      "repo_days_since_push": 6,
+      "repo_open_issues_count": 15
+    },
+    {
+      "id": "healthy",
+      "project_id": 12,
+      "project_name": "Analytics Dashboard",
+      "repo_full_name": "fixture-org/analytics-dashboard",
+      "department_id": 3,
+      "lead_employee_id": 29,
+      "lead_total_allocation_pct": 50,
+      "period": "2026-Q4",
+      "budget": 5470000.0,
+      "spend_ratio": 0.85,
+      "expected": "Within budget (~85%), adequately staffed, on schedule, recently active repo.",
+      "repo_days_since_push": 1,
+      "repo_open_issues_count": 10
+    },
+    {
+      "id": "over_budget",
+      "project_id": 1,
+      "project_name": "Customer Portal",
+      "repo_full_name": "fixture-org/customer-portal",
+      "department_id": 2,
+      "lead_employee_id": 15,
+      "lead_total_allocation_pct": 90,
+      "period": "2026-Q4",
+      "budget": 3240000.0,
+      "spend_ratio": 1.35,
+      "expected": "Spend exceeds budget this quarter (~135%) while staffing is adequate.",
+      "repo_days_since_push": 2,
+      "repo_open_issues_count": 8
+    },
+    {
+      "id": "understaffed",
+      "project_id": 6,
+      "project_name": "Ml Forecasting",
+      "repo_full_name": "fixture-org/ml-forecasting",
+      "department_id": 1,
+      "lead_employee_id": 4,
+      "lead_total_allocation_pct": 180,
+      "overlapping_leave_window": [
+        "2026-10-16",
+        "2026-11-02"
+      ],
+      "period": "2026-Q4",
+      "budget": 5710000.0,
+      "spend_ratio": 0.7,
+      "expected": "Within budget (~70%) but one-person team, lead over-allocated, overlapping leave, expected_end later than planned_end.",
+      "repo_days_since_push": 3,
+      "repo_open_issues_count": 6
+    },
+    {
+      "id": "both_problems",
+      "project_id": 2,
+      "project_name": "Payments Gateway",
+      "repo_full_name": "fixture-org/payments-gateway",
+      "department_id": 1,
+      "lead_employee_id": 8,
+      "lead_total_allocation_pct": 170,
+      "overlapping_leave_window": [
+        "2026-10-16",
+        "2026-11-02"
+      ],
+      "period": "2026-Q4",
+      "budget": 5980000.0,
+      "spend_ratio": 1.25,
+      "expected": "Over budget (~125%) and understaffed with an over-allocated lead and overlapping leave; delayed.",
+      "repo_days_since_push": 4,
+      "repo_open_issues_count": 12
+    },
+    {
+      "id": "people_cost_growth",
+      "department_id": 3,
+      "department_name": "Data",
+      "period": "2026-Q3",
+      "compared_to": "2026-Q2",
+      "cause": "three hires at the start of the quarter plus 12% raises",
+      "expected": "Department whose people cost grew most in the previous quarter."
+    }
+  ]
+}

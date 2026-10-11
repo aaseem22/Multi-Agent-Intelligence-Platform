@@ -96,6 +96,15 @@ volume mounted at `/data`. The first boot seeds the org (from your GitHub repos 
 4. Service → Settings: health check path `/api/health`; Networking → Generate Domain.
 5. Deploy, wait for `Uvicorn running` in the logs, open the domain and sign in.
 
+To show local eval results on the deployed site, publish them into the repo and push; the
+container copies any published run it does not have onto the volume at boot (labels added on
+the site are kept):
+
+```bash
+cd backend && uv run python -m app.evals.publish --all   # writes backend/evals/published/
+git add backend/evals/published && git commit -m "Publish eval results" && git push
+```
+
 Keep one replica: volumes cannot be shared across replicas, and the eval runner allows one
 run at a time. Redeploys with a volume have a few seconds of downtime.
 

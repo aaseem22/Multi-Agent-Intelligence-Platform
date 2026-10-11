@@ -11,6 +11,7 @@ import { ChatPage } from "./pages/ChatPage";
 
 // The observability dashboard carries its own charts; load it only when opened.
 const ObservabilityPage = lazy(() => import("./observability/ObservabilityPage"));
+const EvalsPage = lazy(() => import("./evals/EvalsPage"));
 
 const fetchConversations = (signal: AbortSignal) => backend.getConversations(signal);
 const fetchHealth = (signal: AbortSignal) => backend.getHealth(signal);
@@ -48,6 +49,18 @@ export default function App() {
         }
       >
         <ObservabilityPage traceId={route.traceId} navigate={navigate} />
+      </Suspense>
+    );
+  else if (route.page === "evals")
+    page = (
+      <Suspense
+        fallback={
+          <div className="p-10">
+            <LoadingState label="Loading evals" lines={4} />
+          </div>
+        }
+      >
+        <EvalsPage view={route.view} />
       </Suspense>
     );
   else

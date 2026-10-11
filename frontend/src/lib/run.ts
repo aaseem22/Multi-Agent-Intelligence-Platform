@@ -2,7 +2,8 @@
 
 import type { A2AMessage, AgentResult, AgentStatus, EvalResult, FinalAnswer, Subtask } from "../types/contracts";
 import type { ConversationTurn } from "../types/api";
-import type { AgentMode, StreamEvent } from "../types/events";
+import type { JudgeVerdict } from "../types/evals";
+import type { AgentMode, RecoveryEvent, StreamEvent } from "../types/events";
 
 export type RunPhase = "planning" | "running" | "synthesising" | "done" | "clarification" | "error" | "cancelled";
 
@@ -14,6 +15,21 @@ export interface ToolCallRecord {
   timestamp: string;
 }
 
+/** One review of an agent's result: the stage verdict, which attempt it judged, and the judge's detail. */
+export interface EvalCheck {
+  result: EvalResult;
+  attempt: number;
+  judge: JudgeVerdict | null;
+}
+
+/** What the recovery router did after a failed review. */
+export interface RecoveryRecord {
+  action: RecoveryEvent["action"];
+  attempt: number;
+  reasons: string[];
+  feedback: string;
+}
+
 export interface AgentRun {
   key: string;
   agent: string;
@@ -22,7 +38,8 @@ export interface AgentRun {
   instruction: string;
   state: AgentRunState;
   tools: ToolCallRecord[];
-  evals: EvalResult[];
+  evals: EvalCheck[];
+  recoveries: RecoveryRecord[];
   result: AgentResult | null;
 }
 
@@ -95,6 +112,7 @@ function blankRun(agent: string, subtaskId: string, mode: AgentMode, instruction
     state: "queued",
     tools: [],
     evals: [],
+    recoveries: [],
     result: null,
   };
 }
@@ -135,7 +153,9 @@ export function reduceRun(state: RunState, event: StreamEvent): RunState {
         instruction: event.instruction || run?.instruction || "",
         state: "running",
       }));
-      return { ...base, phase: base.phase === "planning" ? "running" : base.phase, runs };
+      // A self-evaluation retry can restart an agent after every task had settled.
+      const phase = base.phase === "planning" || base.phase === "synthesising" ? "running" : base.phase;
+      return { ...base, phase, runs };
     }
     case "tool_call": {
       const key = findActiveKey(base.runs, event.agent, event.subtask_id);
@@ -165,14 +185,22 @@ export function reduceRun(state: RunState, event: StreamEvent): RunState {
       const phase = base.phase === "running" && allTasksSettled(runs) ? "synthesising" : base.phase;
       return { ...base, runs, phase };
     }
-    case "recovery":
-      // Shown by the evals page; the run view picks up the retry from agent_started.
-      return base;
+    case "recovery": {
+      // The retry itself arrives as a fresh agent_started for the same subtask.
+      const key = runKey(event.agent, event.subtask_id, "task");
+      const record: RecoveryRecord = { action: event.action, attempt: event.attempt, reasons: event.reasons, feedback: event.feedback };
+      const runs = upsertRun(base.runs, key, (run) => {
+        const current = run ?? blankRun(event.agent, event.subtask_id, "task", "");
+        return { ...current, recoveries: [...current.recoveries, record] };
+      });
+      return { ...base, runs };
+    }
     case "eval_result": {
       const key = runKey(event.agent, event.subtask_id, "task");
       const runs = upsertRun(base.runs, key, (run) => {
         const current = run ?? blankRun(event.agent, event.subtask_id, "task", "");
-        return { ...current, evals: [...current.evals, event.result] };
+        const check: EvalCheck = { result: event.result, attempt: event.attempt ?? 1, judge: event.judge ?? null };
+        return { ...current, evals: [...current.evals, check] };
       });
       return { ...base, runs };
     }

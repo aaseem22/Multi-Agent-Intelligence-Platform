@@ -5,7 +5,6 @@ dispatches them in parallel to Finance, HR and Tech agents. Department agents an
 own data and ask each other directly (agent-to-agent, A2A) when they need data another
 department owns. The CEO combines the results into one answer, and every claim cites evidence.
 
-The build specification is [CLAUDE.md](CLAUDE.md). This README covers running the project.
 
 ## Prerequisites
 

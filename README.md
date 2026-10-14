@@ -139,7 +139,4 @@ its own repository, a prompt, and an `agent.py` that calls `registry.register(..
 import line to `backend/app/agents/__init__.py`. Nothing in `app/core/` changes, and
 `tests/test_data_ownership.py` checks the imports.
 
-## Out of scope for this phase
 
-Self-evaluation, the independent judge, retry and replan recovery, memory, Supabase and
-deployment. The hook points exist in `backend/app/core/eval_hooks.py`.
